@@ -19,6 +19,11 @@ This license is not transferrable. It is tied to the individual or organisation 
 ------
 The modifier's license is deliberately made inexpensive so that people who want to donate around $100 will choose to purchase the license instead. And as a result, they will be encouraged to contribute to the codebase which benefits the community at large.
 
+----- 
+30/06/16
+This licenses are scrapped. I've already rethought it and I intend to make Crude open source. 
+I need to just find the right open source license.
+
 
 TINYPOSE FEATURES 
 - Mesh Seams

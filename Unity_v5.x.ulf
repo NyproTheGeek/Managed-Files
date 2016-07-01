@@ -1,0 +1,52 @@
+<root>
+  <License id="Terms">
+    <AlwaysOnline Value="false"/>
+    <ClientProvidedVersion Value="5.3.5f1"/>
+    <DeveloperData Value="AQAAAEYzLVE3UTgtR1hORi1BQkEzLUpXRUotQlJOUA=="/>
+    <Features>
+      <Feature Value="1"/>
+      <Feature Value="2"/>
+      <Feature Value="3"/>
+      <Feature Value="12"/>
+      <Feature Value="17"/>
+      <Feature Value="19"/>
+      <Feature Value="24"/>
+      <Feature Value="33"/>
+      <Feature Value="36"/>
+      <Feature Value="62"/>
+    </Features>
+    <InitialActivationDate Value="2015-10-06T17:56:45"/>
+    <LicenseVersion Value="5.x"/>
+    <MachineBindings>
+      <Binding Key="1" Value="00261-10000-00000-AA715"/>
+      <Binding Key="4" Value="NUNENDA4NFo1Mw=="/>
+      <Binding Key="2" Value="1 54S6Q9S4"/>
+    </MachineBindings>
+    <MachineID Value="E9M5aNyJY6FJXjdAWBMDPzELqsE="/>
+    <SerialHash Value="e9fc0c94580a96b8ad35d7cfc6acefbb67a1db80"/>
+    <SerialMasked Value="F3-Q7Q8-GXNF-ABA3-JWEJ-XXXX"/>
+    <StartDate Value=""/>
+    <StopDate Value=""/>
+    <UpdateDate Value="2016-07-02T21:20:14"/>
+  </License>
+
+<Signature xmlns="http://www.w3.org/2000/09/xmldsig#">
+<SignedInfo>
+<CanonicalizationMethod Algorithm="http://www.w3.org/TR/2001/REC-xml-c14n-20010315#WithComments"/>
+<SignatureMethod Algorithm="http://www.w3.org/2000/09/xmldsig#rsa-sha1"/>
+<Reference URI="#Terms">
+<Transforms>
+<Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/>
+</Transforms>
+<DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha1"/>
+<DigestValue>H8VkOUAod+ha6QmdZ1MecpMWouY=</DigestValue>
+</Reference>
+</SignedInfo>
+<SignatureValue>1k/0mPXg9KcfQdmB1QrmQR5TqePrfqGQTIE/XBAii4jF4dsu4HR8S7Q5VEi+9kwh
+6mLbKcLOGseq5sSQutigR90tpVMUgFEKO3lCFiPte0S7T+X1VypmbdCF8I7HfFoi
+9V2qIVaNywqDDGszhINTk4Qlq6JUPPF+MOfYJEdxq8UH+WrQb9CXPwjEK0r6yfLV
++RRVzAtU4b6nQ2qTadqtKw3JauZJmC7esFTNCsxAoGqVY+tUHADfE+ljqxwnIXLa
+GVwSWA9mH+R3uoFV7PODij1ITuxx+eEosC5ZObWldLt2DDr4BHqrnp+uplLUw/St
+vuSaLvUiOJo8DjuKfjjBUA==</SignatureValue>
+</Signature>
+</root>
