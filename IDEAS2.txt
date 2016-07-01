@@ -1,0 +1,322 @@
+// 24/05/16
+TINYPOSE LICENSES
+Essential License
+This license applies to all users. Additional licenses only grants the the holder extra privileges that are stated within those licenses.
+This license grants the user the ability to use and redistribute the central version of the software as is. 
+This license does not grant the right to sell any version of the software.
+With the exception of Modifier's license holders, the user must not modify, debug or recompile any version of the software.
+
+Modifier's License
+This license costs $100 and it grants the license holder the right to make a fork of the software's central version, to modify the forked version and to distribute such branch.
+With the exception of Keeper's license holder, any modification made to a holder's branch of the software must be shared with the author. Likewise any modification to the central version of the software will be shared with a modifier's license holder on request.
+This license is not transferrable. It is tied to the individual or organisation that purchases it. In the case of an organisation, only legal employees or employers of such organisation can modify the branch the license permits them to modify.
+
+Keeper's License
+This license costs $4,900 and must be purchased along with Modifier's license. 
+This license grants the holder the right not to share modifications made to a branch, that a modifier's license grants permission over, with the author.
+This license is not transferrable. It is tied to the individual or organisation that purchases it. In the case of an organisation, only legal employees or employers of such organisation can modify the branch the license permits them to modify.
+
+------
+The modifier's license is deliberately made inexpensive so that people who want to donate around $100 will choose to purchase the license instead. And as a result, they will be encouraged to contribute to the codebase which benefits the community at large.
+
+
+TINYPOSE FEATURES 
+- Mesh Seams
+- Keys Widening
+- Pin to Bone (Physics)
+- Bridge Bones
+- MeshBox for multiple RegionMesh control
+- IK Locking
+- Triggers
+- Pseudo3D - DepthWeight painting
+- Mocap
+- Motors - Rotate, Flap, Walk, Hinge
+- Copy, Paste, Duplicate Object
+- Bring Forward/Backward, Bring to Front/Back
+- Transform-Scale-combo gizmo
+- Bake IK to FK
+- Half Scale X, Y (this should be achievable with the BBAbstraction)
+- Command Line Client
+- AutoMesh
+- AutoWeigh
+- PolygonPacker
+- Extended Curve Graph Helper (it allows complex curves to be created between two keys, each bezier is keyed)
+- Animation LOD
+
+
+STUDIO
+Selectors
+- Object Selector (can select any object and can control them by their specific attrib)
+- Manual IK Selector
+- Path IK Selector
+- Pose Selector (blends to a saved pose)
+- KeyRange Selector (applies saved transform values)
+//- Effectors (a mini-dopesheet of transform and pose selectors tied to another pose or transform selector)
+
+Objects
+- Bone (represents SpriteSlot)
+- Sprite
+- Vertices
+- Selectors
+
+Major Widgets
+- SceneView
+- DopeSheet - Video, Image, Cam Anim, Char Anim, Events
+- ModelView
+- CurveGraph 
+- StageSheet - DopeSheet Mixing
+- RigGraph
+
+DopeSheet Features 
+- Animation Blending
+- Animation Interpolation
+- Regressive/Progressive Loop
+- Key Range
+- Loop Range
+- Flip Key Range
+- Widen Key Range
+
+Key Generators (Character)
+- FK [Bones and Vertices] (Manual or Auto {Physics, Motors})
+- IK [Bones and Vertices] (Manual or Auto {Path})
+- Selector Values [Bones and Vertices]
+- SpriteSlot Draw Order Change
+- SpriteSlot Sprite Swap (Manual or Auto {Swapper, LipSync})
+- SpriteSlot Visibility Toggle
+- SpriteSlot Color Change
+
+Keyable Attribs of a Char
+- SpriteSlot Bounding Box Abstraction Transform [Bone]
+- Sprite RegionMesh Vertices Transform [Vertex]
+- SpriteSlot Draw Order
+- SpriteSlot Swapping
+- SpriteSlot Color
+- SpriteSlot Visibility Toggle
+
+Key Generators (Cam)
+- FK
+- Procedures - Physics, Motors
+
+UX
+DopeSheet
+- Scroll to vertically scroll the DopeSheet
+- RMB + Scroll to horizontally scroll the DopeSheet
+- Scroll on Timeline bar to adjust the Timeline scale.]
+- Bone gizmo is given very high priority during selection. However, shortcuts are provided for all GUI objects to make selection easy for them.
+Help
+- All UI objects have a help option in their menu. There is also a F4 shortcut.
+Motto
+- make it flexible
+- make it intuitive
+- make it apparent
+Selectors
+- selectors can have single pointer line to associated bone. Then the selector as the bone moves.
+Undo
+- while undoing a toast shows up showing the history and what you are undo.
+- Crazy Undo undoes every goddamn thing.
+
+Navigation
+- Grouping
+- Advanced Search
+- Filters/Tags
+- Isolating
+- Visibility
+- Interactibility
+
+Advanced Stuffs
+IK
+- 
+Polygon Packing
+- step rotate each sprite (from 0 to 180) and get its slimmest and shortest BB.
+- fill the bin starting from the highest to the shortest. Arranging them from left to right
+- a way of identifying available spaces. It must also identify spaces within geometries.
+- and evaluating whether the next sprite will fit in any of it. The leftmost fittable space is always chosen.
+- note that the BB of a sprite can still move left or up into another sprite BB without their polygons intersecting, then it is allowed.
+- store all the vertices of each regionMesh in its own layer by giving every vertex a layerIndex number.
+? it will be nice if the packer can also pack triangles. 
+BVH for Polygon Intersection
+Physics
+Motors
+AutoWeighing
+
+Notes 
+- IK selector affects children within its path
+- Loop ranges on animation and KeyRanges
+
+Optimisations / Solutions
+- Objects in jsons include both name and index. Index is used to initialization. User can use either in binSearch.
+- References are created on awake.
+- The jsons also contain all UTF-8 characters used in a project, this is used to make binSearch faster.
+- [NON-ESSENTIAL] If major features of a Dynamic Model isn't used, a Simple Model is loaded instead thru compilation guards generated by Crude.
+- Use core profile for openGL debug build, but compatibility profile for release builds, some graphics card incur performance penalty tryin to check for core profile contexts.
+- Some keys may become unreachable due to looping KeyRanges. Notify the user during export.
+- Empty timePoints are skipped
+- A lot of the QLists can be replaced by unscpecified arrays in the C# runtime.
+- 
+
+30/05/16
+C++
+THE "RIGHT WAY" TO INCLUDE
+If, for example, class A uses class B, then class B is one of class A's dependencies. Whether it can be forward declared or needs to be included depends on how B is used within A:
+- do nothing if: A makes no references at all to B
+- do nothing if: The only reference to B is in a friend declaration
+- forward declare B if: A contains a B pointer or reference: B* myb;
+- forward declare B if: one or more functions has a B object/pointer/reference
+as a parementer, or as a return type: B MyFunction(B myb);
+- #include "b.h" if: B is a parent class of A
+- #include "b.h" if: A contains a B object: B myb;
+- Note that #include always presides if a mix between #include and forward declaration occurs
+- Even with this bunch of crazy rules that nobody likes, in special cases you will still need to forward declare and #include a class at the same time. It usually comes in form of. List<Skeleton> skels; Skeleton *currentSkel; in a class header Model.h where Seleton.h also holds a reference to a Model. Model *model; 
+Yeah C++ is one crazy language.
+TEMPLATE AND #INCUDE
+- Use forward decl if a class is used in a template parameter is a pointer type otherwise #include.
+For example, MyClass<A*> obj; or MyClass<A*> *obj; should be forward declare A.h. However, MyClass<A> obj; or MyClass<A> *obj; should #include A.h.
+- You can't forward declare a template typedef, instead put the template's forward decl followed by the typedef in a separate header file and incude the header file where needed.
+For example, put template <typename T> myClass; typedef myClass<int> A; in a A.h file and #include it where needed.
+INLINE AND FORWARD DECL
+- If you are inlining a function that returns a class or has as a parameter, forward decl of the class might not be enough. You also need to #include the class header just before the function definition. 
+SOURCE AND HEADER FILES
+- Source files are compiled, header files are #included. Don't #include source files!
+NAMESPACE AND FORWARD DECLARE
+- If you are forward declaring a class with a namespace, then you have to like "redeclare" the namespace. As always, C++ is so full of shit.
+namespace UI {class Dialog;}
+- !!! Remember. If you forward declare, you must #include the class in the source file. This cost me a lot of headache.
+INITIALIZE YOUR BOOLS
+- boolean variables might turn out to be true.
+
+
+NOW AND LATER
+- Now: I'm using raw pointers.
+Later: I will need to change to smart pointers.
+- Now: I'm using pointers a little too much.
+Later: I will need to use objects where they can be used and use move semantics too.
+
+
+QT
+11/06/16
+- You can change the draw order of a widget using widget.raise() or widget.lower
+If you raise or lower a window, it becomes invisible.
+- You can move a widget using widget.move(int w, int h). The translation is relative to the parent coords or the absolute coord if it is a window.
+You can't move a widget within a layout.
+- A QWidget without a parent will become a window. A QDialog is always a window.
+- Layouts don't do much, they are just there for strictly laying out of widgets in a specific way.
+If you try to do otherwise, there will be visible glitches.
+- A Dialog without the help button. 
+new QDialog (parent,  Qt::WindowSystemMenuHint | Qt::WindowTitleHint | Qt::WindowCloseButtonHint)
+- Frames have colored background. Widgets(i.e using QWidget directly) don't
+- You have to set up a UI (ui->setupUi(this)) before acessing its components (ui->widget).
+- Initiazing a layout with the parentWidget is the same as setting the layout from the parentWidget.
+- To get mouse position. setMouseTracking(true) on the widget and implement the mouseMoveEvent method
+void MainWindow::mouseMoveEvent(QMouseEvent *e) {
+    widget1->setLabelText(QString("Mouse Position || x: %1 y: %2").arg(e->x()).arg(e->y()));
+}
+Children widgets will obscure the mouseMoveEvent. In order to get mouse movement tracking over children (children children ...) widgets, you have to keep setting their setMouseTracking methods to true.
+You can't set it true for a plainTextEdit though.
+- If there is no way to add a childWidget to a parentWidget, then setParent of that childWidget as the parentWidget.
+- QSplitter is not a layout, it is a widget that probably implements a layout.
+- Programmatically, I can add a splitter to a layout but I can't in Qt Designer. Adding splitter to a layout gives desired result.
+- When adding attaching a form (.ui file) to a class. 
+Give the form the same name as the target class. Make sure the file is added to FORMS section in the .pro file.
+In Qt Designer, change the Object's name to the target class name.
+Add the class declaration of Ui::TargetClassName to the target class header. 
+And add a pointer member of that class. Ui::TargetClassName *ui;
+Include "ui_TragetClassName.h" in the implementation file.
+Initialize the ui variable in the target class constructors. ui = new Ui::TragetClassName;
+Set up the UI. ui->setupUi(this);
+!!!! Remember to delete ui in the constructor !!!!
+- When you resize a layout in Qt Designer, a widget automatically encapsulates the layout. This might not be apparent, but it is there and can be assessed through the ui variable.
+- QSplitter::setSizes for some reason use large numbers (400 to 100) to set propotion between child widgets, unlike QSplitter::setStretchFactor which ucan use small numbers (4 to 1). 
+- 24/06/16 So I had problem referencing a file from the Resource. I tried renaming path, etc. But what finally worked was doing these steps:
+1. Build -> Clean all
+2. Build -> Run qmake
+3. Build -> Rebuild All
+Someone also suggested including "INCLUDEPATH += ." in the pro file. But I didn't do that. The steps above worked.
+You can also delete the project build file too before the steps.
+- Using new QtCreator theme and color scheme
+ copy the theme's .xml file to C:\Users\<UserName>\AppData\Roaming\QtProject\qtcreator\styles for syntax highlighting.
+ then change the color scheme in Tools > Options > Text Editor > Fonts & Color > Color Scheme
+ After that, type "[path to]/qtcreator.exe -stylesheet [path to]/newtheme.css" in the command line.
+- .exe Path C:\Qt\Qt5.6.0\Tools\QtCreator\bin\qtcreator.exe
+
+ADVANCED TOPICS
+TRIANGULATION
+- hull lines are constructed and cannot be intersected.
+- inner lines are constructed and can be intersected.
+- a vertex contains references to its lines, a line has a length and contains references to its vertices and its intersectors.
+- inner lines are chosen from shortest to the longest. If a line is chosen, it is marked chosen and its intersectors are deleted.
+- line intersection tests can be reduced by using AABB and BRH (bounding range hierarchy).
+- construct the triangle in hull construction order.
+
+SPRITESHEET POLYGON PACKING
+- trim pixels outside polygons.
+- rotate the meshes to get the smallest BB.
+- place the tallest mesh in the Sheet. And set the Sheet to that height.
+- ...
+- take the next tallest mesh.
+- use triangle collision detection and try to place it in the leftmost point.
+- use BB to reduce the number of triangle intersection test.
+
+SKINNING
+
+AUTO WEIGHING
+
+AUTO MESHING
+
+
+
+// 25/05/16
+SCRIPT
+- Theme editing
+- Color coding control
+- Preferences control
+- Font pack changing
+- Widget and button creation and customisation
+- Toast and pop-up window creation and customisation
+- Querying info about almost all components of the app
+- Commands that act on objects
+
+
+
+
+
+
+
+
+
+////
+"UX"
+INPUTS
+CANVAS
+- Left Drag to select and SRT at the same time
+- Left Drag Outside Model for box selection 
+- Right Drag to pan
+- Middle Drag for box zoom
+- Middle Scroll for lerp'd zooming
+- Left Click for selection
+- Left Click Outside Model to deselect all
+- Right Click for switching between R and T
+- Double Left Click to deselect all
+- Shift + Left Drag for box selection
+- Long Left Click Without Movement to show options
+- Shift + Left Click for multiple selection
+- Ctrl + Left Click for multiple selection
+- 'S' for scale
+- 'R' for rotate
+- 'T' for translate
+
+"FEATURES"
+- WinTab Support
+- Integration with Git, CVS, Mercurial, Subversion || Bazaar, Perforce, Gerrit
+- Particle System
+
+"ADD-ON"
+- store every script with a slot in categorized slot array.
+- iterate through all the script with the slot and pass the signal's parameters to corresponding slots.
+- script can be updated on the fly and the script's awake slot will be called. but its app_awake slot won't be called
+
+
+"REASONS WHY YOU MIGHT WANT SPINE (OR OTHER 2D SKELETAl ANIMATION APP)"
+- Support for GPUs below OpenGL 3.3. // Depends on whether I use fuctionailities other than vertex and frag shader.
+- Supports a satisfying number of game engines.
+- Dedicated customer service.
+- 

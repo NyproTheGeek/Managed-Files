@@ -1,0 +1,231 @@
+#19/06/16
+type Group:
+	name String
+	models List<Model**> # ** means weak ref
+..
+
+type Model:
+	name String
+	skels List<Skeleton*>
+	currentSkel** Skeleton
+	group** Group
+..
+
+type Skeleton:
+	name String
+	bones List<Bone*>  # sorted by name ?
+	skins List<Skin*>
+	currentSkin** Skin
+	meshFrame** MeshFrame
+	anims List<Animation**>
+	model** Model
+..
+
+type Bone:
+	name String
+	orderIndex Int
+	children List<Bone**>
+	baseParent** Bone
+	tipParent** Bone
+	skel** Skeleton
+	spriteSlot SpriteSlot
+	pos [2] Float
+	angle Float
+	length Float
+	ikWeight Float
+	propsFlag Bitset<16>
+..
+
+type SpriteSlot:
+	skin** Skin
+	sprites List<Sprite**>
+	visibleSprites Hash<Int, Int> # sprite index and alpha
+	# if a visible sprite has an alpha of 0, it is not rendered at all
+	pos [2] Float
+	angle Float
+	scale [2] Float
+	shear [2] Float
+	tint [4] Float
+	alpha Float
+..
+
+type Sprite:
+	name String
+	mesh** Mesh
+	pos [2] Float
+	angle Float
+	scale [2] Float
+	shear [2] Float
+	rgba [4] Float
+	image ImageData
+..
+
+type ImageData:
+	name String
+	texAtlas** TextureAtlas
+	texPos [2] Float
+	texDimen [2] Float
+	texAngle [2] Float
+..
+
+type TextureAtlas:
+	name String
+	bitmap [,] Vec4f 
+..
+
+type Mesh:
+	name String
+	vertexData List<Float[4]>
+	meshSeamVertexData List<Float[4]>
+	absMesh AbstractMesh
+..
+
+type AbstractMesh:
+	name String
+	vertexData [8] Float
+	angle Float
+..
+
+type MeshFrame:
+	name String
+	mesh List<Mesh*>
+..
+
+type Skin:
+	name String
+	sprites List<Sprite*>
+..
+
+########################################################################################
+
+type Animation: # can be used for transform constraint
+	name String
+
+	keys List<Key*>
+	keyFields List<KeyField*>
+	curves List<CurveGraph*>
+	blendSheets List<BlendSheet*> # blendsheets that precede the animation
+	subAnimations List<SubAnimation*>
+	frames Hash<Int, List<KeyField**>> # frame number and list of keyFields
+	# KeyField repetition is also added up
+..
+
+type SubAnimation: # SubAnimation is a subset of an animation, it is needed for reuse
+	name String
+	parentAnim** Animation
+	range [2] Int # begin and end frame
+..
+
+type BlendSheet:
+	name String
+	curves Hash<Key**, CurveGraph*> # begin key and preceding curve
+..
+
+type CurveGraph:
+	name String
+	isStepped Bool
+	p1 [2] Float 
+	p2 [2] Float
+	# if respectively, p1 and p2 are 0,0|1,1 or 0,0|0,0 or 1,1|1,1 or 1,1|0,0 then they are linear
+	# if isStepped is true, then p1.x is used as the step value; it must be in the range 0 and 1
+..
+
+# KEYFIELDS
+
+type KeyField:
+	name String
+	boneIndex Int
+	progressiveLoop Bool
+	loopTimes Float
+	loopCount Float
+..
+
+type RotateKeyField [KeyField]:
+	spriteIndex Int # negative if on slot, i.e. not specific to sprite
+	keyFields Hash<RotateKeyField**, Int> # rotateKeyField and frame number
+	keys Hash<RotateKey**, Int> # rotateKey and frame number
+..
+
+type TranslateKeyField [KeyField]:
+	spriteIndex Int # negative if on slot, i.e. not specific to sprite
+	keyFields Hash<TranslateKeyField**, Int>
+	keys Hash<TranslateKey**, Int>
+..
+
+type ScaleKeyField [KeyField] :
+	spriteIndex Int # negative if on slot, i.e. not specific to sprite
+	keyFields Hash<ScaleKeyField**, Int>
+	keys Hash<ScaleKey**, Int>
+..
+
+type TranslateVertexKeyField [KeyField]:
+	spriteIndex Int # negative if on slot, i.e. not specific to sprite
+	vertexIndex Int
+	keyFields Hash<TranslateMeshKeyField**, Int>
+	keys Hash<TranslateVertexKey**, Int>
+..
+
+type DrawOrderKeyField [KeyField]:
+	# bone Index is useless for this one
+	keyFields Hash<DrawOrderKeyField**, Int>
+	keys Hash<DrawOrderKey**, Int>
+..
+
+type TintKeyField [KeyField]:
+	spriteIndex Int # negative if on slot, i.e. not specific to sprite
+	keyFields Hash<TintKeyField**, Int>
+	keys Hash<TintKey**, Int>
+..
+
+type SwapKeyField [KeyField]:
+	keyFields Hash<SwapKeyField**, Int>
+	keys Hash<SwapKey**, Int>
+..
+
+# KEYS
+
+type Key:
+..
+
+type RotateKey [Key]:
+	rotationValue Float
+	curve CurveGraph
+..
+
+type TranslateKey [Key]:
+	translateValue [2] Float
+	curveX CurveGraph
+	curveY CurveGraph
+..
+
+type ScaleKey [Key]:
+	scaleValue [2] Float
+	curveX CurveGraph
+	curveY CurveGraph
+..
+
+type TranslateVertexKey [Key]:
+	translateValue [2] Float
+	curveX CurveGraph
+	curveY CurveGraph
+..
+
+type DrawOrderKey [Key]:
+	bonePosChanges List<Int [2]> # old pos and new pos
+..
+
+type TintKey [Key]:
+	tint [4] Float # rgba
+	curve CurveGraph
+..
+
+type SwapKey [Key]:
+	visibleSprites Hash<Int, Int> # index and alpha
+..
+
+
+type Main:
+	name, age String
+	main():
+	..
+..
