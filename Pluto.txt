@@ -17,11 +17,11 @@ PLUTO WORLD
 - LLVM IR
 - Static vs dynamic
 
-PLUTO DYNAMIC VS STATIC
+PLUTO DYNAMIC VS STATIC !! Needs Revision
 - Pluto Dynamic Built-in types - Dyn, DynDouble, DynLong, DynBool, DynChar
 - Pluto Static Built-in types - Int, Int16, Int32, Int64, UInt, UInt32, UInt64, Float, Double, Bool, String, Char, Byte, SByte, Complex, Complex1287
 
-TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 AUTOMATIC REFERENCE COUNTING
 - look at sharedptr in C++
 - so existence of both strong/weak referencing and equal referencing.
@@ -29,62 +29,70 @@ AUTOMATIC REFERENCE COUNTING
 - cyclical ref in equal referencing is explicitly solved using mechanism.
 MULTIPLE VARIABLE DECLARATION
 - I need to find a way around the function multiple declaration problem.
-add (a, b, c UInt) Int
-add (a : 1, b : 2, c UInt : 3) UInt
-add (a : 1, b : 2, c : 3 UInt) UInt
+    add (a, b, c UInt) Int
+    add (a : 1, b : 2, c UInt : 3) UInt
+    add (a : 1, b : 2, c : 3 UInt) UInt
 ARGUMENT NAMING
 - A developer can optionally name the arguments he is passing to a function. The name of the argument must be the same as the name of the corresponding parameter.
+    addPerson(name : 'Aditya', age : 28)
 UNION TYPING
-myNumber Byte&Int
+    myNumber Byte&Int
 VARIABLE TYPING
-myNumber Byte|Int
-MEMBER METHODS
-- myName.toUpper() could also be toUpper(myName), but it might cause confusion. So I wont use it
+    myNumber Byte|Int
 DECLARATIVE PLUTO ".deplu" #27/06/16
-skeleton:
-    name : "Nypro"
-    age : 23
-    fat : true
-    tall : false
-    hobby : null
-    single : _ # underscore as a value signifies empty
-    children : [2, 3, 4, 6]
-    games : name, releaseDate, hard [ 
-        ("Crysis", 2007, _),
-        ("Unreal Tournament", 1999, true),
-        ("Portal 2", 2011, true),
-    ]    
-    games2 : [
-        (name : "Crysis", easy : false),
-        (name : "Unreal Tournament", announcedDate : 1998),
-        (name : "Portal 2"),
-    ]    
-..
+    person:
+        name : "Nypro"
+        fat : false
+        tall : true
+        hobby : 'programming'
+        single : _ # underscore as a value signifies empty
+        children : [2, 3, 4, 6]
+        gamesLiked : name, releaseDate, hard [ 
+            ("Crysis", 2007, _),
+            ("Unreal Tournament", 1999, true),
+            ("Portal 2", 2011, true),
+        ]  
+    ..
 A comma can be replaced by a newline
 TABLES
-candidate Int String :  [1, 'Aditya' | 2, 'Nypro']
-candidate Int String :  index, name [1, 'Aditya' | 2, 'Nypro']
+    candidate Int String : [1, 'Aditya' | 2, 'Nypro']
+    candidate Int String : index, name [1, 'Aditya' | 2, 'Nypro']
 ASSERTION
-assert x == null
-assert x == null : "Hello"
+    assert x == null
+    assert x == null : print("Hello")
 SKIPPING BLOCKS
-if x == 5 : <3> print ('Hello') # block is skipped after the it has been executed 3 times.
+    if x == 5 : <3> print('Hello') # block is skipped after the it has been executed 3 times.
 RAISED TO POWER
-x ^ 2
-TODO
+    x ^ 2
+BLOCKS RULES
+- empy blocks should not be preceded by colon or block end
+- can't have more than one block on a line, with the exception of chained blocks (if-else)
+DUCK TYPING EXAMPLES
+    getArea(length, breadth):
+       rt length * breadth
+    ..
+    length : 10
+    breadth : 25
+    rectangleArea : getArea(length, breadth)
+VARIABLES AND SHADOWING
+- In python names are allowed to change refeerence. This is called shadowing.
+- Pluto doesn't support shadowing, a name is bound to its inferred type.
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
 
+--! THE EXAMPLES BELOW ARE STATICALLY TYPED !--
 
 CYCLIC REFERENCE
-type Skeleton:
-    bones List <Bone*>
-..
-type Bone:
-    skel** Skeleton
-..
+    type Skeleton:
+        bones List<Bone*>
+    ..
+    type Bone:
+        skel** Skeleton
+    ..
 
 NO MORE STACK KEYWORD, STACK EXPRESSION INSTEAD!
-a : add (x, y) >> subtract(_, z)
+    a : add (x, y) >>> subtract(_, z) # _ represent the value passed from preceding method
+    a : subtract(_, z) <<< add (x, y) # same as above
 
 VARIABLE DECLARATION & INITIALIZATION   
      a Car : ('Camaro')
@@ -97,20 +105,20 @@ VARIABLE DECLARATION & INITIALIZATION
      p List<Car> (3) # generics
 
 TYPE ALIAS
-alias Int Meter
+    alias Int Meter
 
 EVENTS
-event mathOps (Float, Float) Float
-mathOps += add, subtract, divide
-mathOps -= divide
+    event mathOps (Float, Float) Float
+    mathOps += add, subtract, divide
+    mathOps -= divide
 
 CLASSES OF OBJECTS
-Obj
-Func
-Var
-Ind
-Arr
-Tab
+    Obj
+    Func
+    Var
+    Ind
+    Arr
+    Tab
 
 ARRAYS
      g [3] Car ; g [...] = [('Camaro'), ('Mustang'), ('Maserrati')]
@@ -136,131 +144,131 @@ NUMERIC FORMATTING
     y : 1_999.99
 
 UNOVERLOADABLE METHODS
-add(args [ ] Obj) Obj:..
-::T:: add(args [ ] T) T:..
+    add(args [ ] Obj) Obj:..
+    ::T:: add(args [ ] T) T:..
 
 HOLD
-for x in 1...50:
-    hold x : 0
-    print(x * y)
-    x++
-..
+    for x in 1...50:
+        hold x : 0
+        print(x * y)
+        x++
+    ..
 
 MODIFIERS IN LIST DECLARATION
-priv let i, j Int
+    priv let i, j Int
 
 COMPREHENSION LIST
-s [] : x * 3 -> x in 1...30 -> x ^ 2 < 3 
+    arr [] : x * 3 -> x in 1...30 -> x ^ 2 < 3 
 
 FOR/IN
-for x in 1...20:
-    print(x)
-..
-for x -> x in 1...20:
-    print (x)
-..
+    for x in 1...20:
+        print(x)
+    ..
+    for x -> x in 1...20:
+        print (x)
+    ..
 
 IN/STEP
-for x in 1...6 step 2:
-    print(x)
-..
-if x in 1..10 step 2 -> x == y:
-    print(x)
-..
+    for x in 1...6 step 2:
+        print(x)
+    ..
+    if x in 1..10 step 2 -> x == y:
+        print(x)
+    ..
 
 NOT IN
-a [] : x -> x in 0...20 -> x not in 1...30
+    a [] : x -> x in 0...20 -> x not in 1...30
 
 NIL CONDITION
-if let x : getValue() : # x is available only in the if branch
-    print(x)
-else:
-    print('can't get value')
-.. 
-if let name : getChars( ) where name.characters.count in 4...5:
-    print ('hello')
+    if let x : getValue() : # x is available only in the if branch
+        print(x)
+    else:
+        print('can't get value')
+    .. 
+    if let name : getChars( ) where name.characters.count in 4...5:
+        print ('hello')
 
 TRY & ASSOCIATES
-main():
-    ensure:
-        file.close()
+    main():
+        ensure:
+            file.close()
+        ..
+        # can be seperated from try/catch statement
+        # in that case it acts like defer
+        print("Hello")
+        print ("Nigeria")
+        try file.open()
+        catch(fnfe FileNotFoundErr):
+            printErr('Can't find file!')
+        ..
     ..
-     # can be seperated from try/catch statement
-     # in that case it acts like defer
-    print("Hello")
-    print ("Nigeria")
-    try file.open()
+    try:
+        file.open()
+        file.write('Hello')
     catch(fnfe FileNotFoundErr):
         printErr('Can't find file!')
     ..
-..
-try:
-    file.open()
-    file.write('Hello')
-catch(fnfe FileNotFoundErr):
-    printErr('Can't find file!')
-..
-try:
-    file.open()
-    file.write('Hello')
-catch(fnfe FileNotFoundErr):
-    printErr('Can't find file!')
-ensure:
-    file.close()
-..
-try let x : getObject()
-except x == nil :
-    print('x is nil')
-..
-try:
-    let x : getObject()
-except x == nil:
-catch(ne NilErr):
-    printErr('x can't be nil!')
-..
-try:
-    let x : getObject()
-except x == nil: 
-    throw NilErr
-catch(ne NilErr):
-    printErr('x can't be nil!')
-..
-try:
-    file.open()
-    let x : file.readLine()
-except x == nil: 
-    throw NilErr
-catch(ne NilErr):
-    printErr('x can't be nil!')
-catch(fnfe FileNotFoundErr):
-    printErr('Can't find file!')
-ensure:
-    file.close() 
-..
+    try:
+        file.open()
+        file.write('Hello')
+    catch(fnfe FileNotFoundErr):
+        printErr('Can't find file!')
+    ensure:
+        file.close()
+    ..
+    try let x : getObject()
+    except x == nil :
+        print('x is nil')
+    ..
+    try:
+        let x : getObject()
+    except x == nil:
+    catch(ne NilErr):
+        printErr('x can't be nil!')
+    ..
+    try:
+        let x : getObject()
+    except x == nil: 
+        throw NilErr
+    catch(ne NilErr):
+        printErr('x can't be nil!')
+    ..
+    try:
+        file.open()
+        let x : file.readLine()
+    except x == nil: 
+        throw NilErr
+    catch(ne NilErr):
+        printErr('x can't be nil!')
+    catch(fnfe FileNotFoundErr):
+        printErr('Can't find file!')
+    ensure:
+        file.close() 
+    ..
 
 COROUTINES
-y : addThree(3, 5)
-addThree.send(y)
-y = addThree.next()
+    y : addThree(3, 5)
+    addThree.send(y)
+    y = addThree.next()
 
-addThree(a, b Int) Int:
-    q : yield a + b ; take r Int
-    yield q + r
-..
+    addThree(a, b Int) Int:
+        q : yield a + b ; take r Int
+        yield q + r
+    ..
 
 ITERABLES
-Coroutines
-Range
-Array objects
-Iterable Classes
+- Coroutines
+- Range
+- Array objects
+- Iterable SubClasses
 
 THE 'IN' KEYWORD
-if x in 2...4 : print('Hello')
+    if x in 2...4 : print('Hello')
 
 WHERE
-for x in 1...20 -> x < 2:
-    print(x)
-..
+    for x in 1...20 -> x < 2:
+        print(x)
+    ..
 
 COMPLEX, QUATERNION DECLARATION 
     x : 5 + 2i # complex
@@ -271,42 +279,49 @@ NUMERIC CLASS META
     y : Int32.(min)
 
 REGEX AND PATTERN OPERATOR
-x : /\w/
-if('Hello' == x)
-number Regex : /\d+/
+    x : /\w/
+    if('Hello' == x)
+    number Regex : /\d+/
 
 METHOD CHAINING
-add(a, b Float) Float:
-    a + b ; return self
-..
-subtract(a, b Float) Float:
-    a - b ;  return self
-..
+- Method chaining is automatic, no need to return self
+    type Math:
+        value Float
+
+        add(a, b Float) Float:
+            value = a + b ;
+        ..
+        subtract(a, b Float) Float:
+            value = a - b ;
+        ..
+    ..
+    m Math
+    m.add(1, 2).subtract(3, 4)
 
 DOWNCASTING #review!!!
-# assuming Movie and Song extends MediaItem
-for item in library:
-    if item == Song:
-        print('Song: [song.name]')
-    elsif item == Movie:
-        print ('Movie: [movie.name]')
-..
+    # assuming Movie and Song extends MediaItem
+    for item in library:
+        if item == Song:
+            print('Song: [song.name]')
+        elsif item == Movie:
+            print ('Movie: [movie.name]')
+    ..
    
 STICKY CONSTRUCTOR
-sticky class :
-    x, y Int
-    (): # they can't have parameters. They only initialise class fields at first use
-        .x = 2
-        .y = 3
+    sticky class :
+        x, y Int
+        (): # they can't have parameters. They only initialise class fields at first use
+            .x = 2
+            .y = 3
+        ..
+        add (x, y Int) Int :
+            rt a + b
+        ..
     ..
-    add (x, y Int) Int :
-        rt a + b
-    ..
-..
 
 CONSTANT 
-let x : 25
-let y Car : ('Camaro')
+    let x : 25
+    let y Car : ('Camaro')
 
 META
     a! : b! # pass type
@@ -314,7 +329,7 @@ META
     c** :  b** # to explicitly pass by ref (weak)
     e$ : f$ # to explicitly pass by value
     d : c
-.# ?? the meta functions return strings ?? .#
+- Does meta functions return strings? !! Needs review
     b.(type)
     c.(strongRef)
     c.(weakRef)
@@ -324,8 +339,8 @@ META
 FLOATING POINT BITWISE OPERATORS (?)
 
 CONCATENATION
-'[name] is the best language [period]'
-name + ' is the best language ' + period
+    '[name] is the best language [period]'
+    name + ' is the best language ' + period
 
 ENUMS
     enum RealNum: decimal (/\d|\d+\.\d+/), scientific(/\d\.\d+e[\-\+*]\d/)
@@ -344,568 +359,580 @@ TERNARY OPERATOR
    x == y : print (y) -- print (x)
 
 VARIADIC PARAMETERS
-add(first, arr [ ] Int) Int:
-    tmp Int : first + arr
-    for x in arr:
-        tmp += x
+    add(first, arr [] Int) Int:
+        tmp : first + arr
+        for x in arr:
+            tmp += x
+        ..
+        rt tmp
     ..
-    rt tmp
-..
-a : add(1, 2, 3, 4, 5, 6)
+    a : add(1, 2, 3, 4, 5, 6)
 
 CONDITIONAL BINDING
-if x : getString ( ) : print(x) | else : print('x is nil')
+    if x : getString ( ) : print(x) | else : print('x is nil')
 
 LOGICAL vs BITWISE OPERATORS 
-! & | 
-~ .& .|
+    ! & | 
+    ~ .& .|
 
 EVAL
-case test (String, Account)
-eval user :
-    test (.name, .account) : print ('[name] : [account]')
-    User : print (val.toStr( )) // val is an alias to the evaluated
-    _ : print ('Unkown') // default
-..
+    case test (String, Account)
+    eval user :
+        test (.name, .account) : print ('[name] : [account]')
+        User : print (val.toStr( )) // val is an alias to the evaluated
+        _ : print ('Unkown') // default
+    ..
 
 FUNCTION OBJECTS
-add2(Int, Int) Int : add
-add3 : add2
+    add2(Int, Int) Int : add
+    add3 : add2
 
 CLOSURE
-outer( ) :
-    a Int : 6
-    rt (b Int) : a + b
-..
-add (Int, Int) Int : outer
-sum : outer
+    outer( ) :
+        a Int : 6
+        rt (b Int) : a + b
+    ..
+    add (Int, Int) Int : outer
+    sum : outer
 
 USE BLOCK
-add (x, y Int):
-    use x, y :
-        rt x + y 
+    add (x, y Int):
+        use x, y :
+            rt x + y 
+        ..
     ..
-..
 
 NAMED BLOCK
-block y :
-    m =  a + b
-    n = m + a + b
-.. 
-if m < 2:
-    goto y
-..
+    block y :
+        m =  a + b
+        n = m + a + b
+    .. 
+    if m < 2:
+        goto y
+    ..
 
 UNNAMED BLOCK
-block:
-    m =  a + b
-    n = m + a + b
-..
+    block:
+        m =  a + b
+        n = m + a + b
+    ..
 
 MODIFIERS
-# no public modifer, they are all public by default
-priv a : 10
-pack b : 'HELLO'
-pass a : true # synon with protected
-prod let x : 5f # synon with internal
-# proj(ect), prod(uction), prog(ram) clashes with prot(ected)
+- No public modifer, they are all public by default
+    priv a : 10
+    pack b : 'HELLO'
+    pass a : true # synon with protected
+    prod let x : 5f # synon with internal
+- proj(ect), prod(uction), prog(ram) clashes with prot(ected)
 
 READ-ONLY WRITE-ONLY ACCESS
-rpriv, rpack, rproj
-wpriv, wpack, wproj
+    rpriv, rpack, rproj
+    wpriv, wpack, wproj
 
 MODIFIER BLOCK
-mod priv let :
-    x : 45
-    y : 2.5f
-    z : false
-..
+    mod priv let :
+        x : 45
+        y : 2.5f
+        z : false
+    ..
 
 #PACKAGE ACCESS LEVEL
-#pack< Date date
-#pack>> Long isbn
+    pack< date Date 
+    pack>> isbn Long 
 
 RETURNING AN ARRAY
-addThree (a, b, c Int) [3] Int :
-    rt [...3] = a + b, a + c, b + c
-..
-p, q, r : 1, 2, 3
-x, y, z : addThree(p, q, r)
-w : addThree(p, q, r)[0] + z
+    addThree (a, b, c Int) [3] Int :
+        rt [...3] = a + b, a + c, b + c
+    ..
+    p, q, r : 1, 2, 3
+    x, y, z : addThree(p, q, r)
+    w : addThree(p, q, r)[0] + z
 
-addSubTwo(a, b Int) [2] Int :
-   rt [0] = a + b
-   rt [1] = a - b
-..
+    addSubTwo(a, b Int) [2] Int :
+       rt [0] = a + b
+       rt [1] = a - b
+    ..
 
 CONDITION LIST
-if x == y == z :
-    play()
-..
+    if x == y == z :
+        play()
+    ..
 
 RETURNING A TABLE
-getUser(u User) String Int :
-    ret u.name, u.age
-..
-x [1, 1] : getUser( )
+    getUser(u User) String Int :
+        ret u.name, u.age
+    ..
+    x [1, 1] : getUser( )
 
 BLOCK ON A LINE
-if x == y:..
-if x == y : print(x) 
-if x == y : print(x) ; print(y)
-x == y : x -- y
+    if x == y
+    if x == y : print(x) 
+    if x == y : print(x) ; print(y)
+    x == y : x -- y
 
 PATTERN MATCHING
-class Account:..; class PayPal [Account] :..; class Bitcoin [Account] :..
-case test (String, Account) ; case ppl (PayPal) ; case btc (Bitcoin)
-eval user :
-    test (.name, ppl (.account)) : print ('[name] : [account]') ..
-    test (.name, btc (.account)) : print ('[name] : [account]') ..
-..
+    class Account; class PayPal [Account]; class Bitcoin [Account]
+
+    case test (String, Account) ; case ppl (PayPal) ; case btc (Bitcoin)
+    eval user :
+        test (.name, ppl (.account)) : print ('[name] : [account]') # covariance in case matching
+        test (.name, btc (.account)) : print ('[name] : [account]') # covariance in case matching
+    ..
 
 VOID METHODS
-printString (String str) : print(str) ..
+    printSomething (String str) : print(str)
 
 PARAMETER CONSTRUCTOR
-type Employee:
-    name String
-    age Int
-    job String
-    (.name, .age, .job)
-..
+    type Employee:
+        name String
+        age Int
+        job String
+        (.name, .age, .job)
+    ..
 
 METHOD DEFINITION
-addTwo(a Int, b Int) Int:
-    rt a + b
-..
+    addTwo(a Int, b Int) Int:
+        rt a + b
+    ..
 
 MULTIDIMENSIONAL ARRAY
-arr [2, 2] Int : [1, 2 | 3, 4]
-arr [2, 2, 2] Int : [1, 2 | 2, 3 || 4, 5 | 6, 7]  
-arr [2, 2] Int : [1, 2 | 3, 4]
-arr [2, ] Int ; arr [, +2] : [1, 2 | 3, 4]
+    arr [2, 2] Int : [1, 2 | 3, 4]
+    arr [2, 2, 2] Int : [1, 2 | 2, 3 || 4, 5 | 6, 7]  
+    arr [2, 2] Int : [1, 2 | 3, 4]
+    arr [2, ] Int 
+    arr [, +2] : [1, 2 | 3, 4]
 
-RAGGED ARRAY # is untidy
-arr [2, ] Int
-arr [0, +2]
-arr [1, +3]
-arr [0, 0, +3] ; arr [0, 1, +3] 
-arr [1, 0, +4] ; arr [1, 1, +5] ; arr [1, 2, +6]  
+RAGGED ARRAY # is untidy !! Needs review
+    arr [2, ] Int
+    arr [0, +2]
+    arr [1, +3]
+    arr [0, 0, +3] ; arr [0, 1, +3] 
+    arr [1, 0, +4] ; arr [1, 1, +5] ; arr [1, 2, +6]  
 
 TABLES # specifying dimen in tables are kinda pointless, they can shrink and grow
-candidate Int{index} String{name} : 1, 'Aditya' ; 2, 'Nypro'
-list(candidate.index)
-list(candidate(2, name))
-cars Int String: 1, 'Camaro' ; 2, 'Mustang'
-list(cars(1))
-cars.add(3, 'Bentley')
-cars.remove(2)
-cars [1, 2]
+    candidate Int String : index, name [1, 'Aditya' | 2, 'Nypro']
+    list(candidate.index)
+    list(candidate(2, name))
+    cars Int String: [1, 'Camaro' | 2, 'Mustang']
+    list(cars(1))
+    cars.add(3, 'Bentley')
+    cars.remove(2)
+    cars [1, 2]
 
 ARRAY SLICING
-arr [6] Int : 1, 2, 3, 4, 5, 6
-print(arr[0...3]) # first index to the third
-print(arr[...5]) # first index to the 5th index
-print(arr[2...]) # 3rd index to the last
-print(arr[-2...]) # from the 3rd index  but backwards
+    arr [6] Int : 1, 2, 3, 4, 5, 6
+    print(arr[0...3]) # first index to the third
+    print(arr[...5]) # first index to the 5th index
+    print(arr[2...]) # 3rd index to the last
+    print(arr[-2...]) # from the 3rd index  but backwards
 
 ESCAPE SEQUENCE
-.[ .t .n ." .' .#
-\[  \t \n \" \' \# \. \\
+    .[ .t .n ." .' .#
+    \[  \t \n \" \' \# \. \\
 
 MULTILINE STRINGS 
-." Hello
-    Folks
-."
+    ." Hello
+        Folks
+    ."
 
 VERBATIM STRING
-'''Use \t for tab and \n for newline'''
-"""Use \t for tab and \n for newline"""
+    '''Use \t for tab and \n for newline'''
+    """Use \t for tab and \n for newline"""
 
 MULTIPLE ASSIGNMENT
-a, b, c : arr [2...5] 
-x, y : y, x
-a, b, c, d : 1...5 
+    a, b, c : arr [2...5] 
+    x, y : y, x
+    a, b, c, d : 1...5 
 
 GENERICS
-@deprecated
-::T [String | Int], U::
-class DataManager:
-    T dataID
-    U dataX 
-    U dataY 
-..
-object DataManager<String, Car>
+    @deprecated
+    ::T [String | Int], U::
+    class DataManager:
+        T dataID
+        U dataX 
+        U dataY 
+    ..
+    object DataManager<String, Car>
 
 ONE-LINE BLOCK
-addTwo(a, b Int)  Int:
-    print (a + b)
-    rt a + b
-..
-addThree(a, b, c Int) Int: print (a + b + c) ; rt a + b + c
+    addTwo(a, b Int)  Int:
+        print (a + b)
+        rt a + b
+    ..
+    addThree(a, b, c Int) Int: print (a + b + c) ; rt a + b + c
 
 SINGLE-LINE COMMENTS
-# Hello
+    # Hello
 
 MULTILINE COMMENTS
-.# 
-I'm Pluto
-I'm cool
-.#
+    .# 
+    I'm Pluto
+    I'm cool
+    .#
 
 DOCUMENTATION
-# <code> Car </code>  class is deprecated
+    # <code> Car </code>  class is deprecated # xml
+    # [ code: 'Car' ] class is deprecated # deplu
 
 COMPOUND FUNCTIONS
-getValue Int:
-    x, y Int
-    ( ) :
-        rt x + y
+    getValue Int:
+        x : 1, y : 2 Int
+        () :
+            rt x + y
+        ..
+        (a Int) :
+            rt x + y + a
+        ..
+        (a, b Int) :
+            rt x + y + a + b
+        ..
     ..
-    (a Int) :
-        rt x + y + a
-    ..
-    (a, b Int) :
-        rt x + y + a + b
-    ..
-..
 
 CLASS DEFINITION
-class Car :
-    name, model << String
-    (name String) :  # Constructor
-        self.name = name
+    class Car :
+        name, model String
+        (name String) :  # Constructor
+            self.name = name
+        ..
+        (self.name, self.model)
     ..
-    (self.name, self.model)
-..
 
 DESTRUCTORS
-class Car :
-    name, model << String
-    (name String) :  # constructor
-        self.name = name
+    class Car :
+        name, model String
+        (name String) :  # constructor
+            self.name = name
+        ..
+        (.name, .model)
+        (~) : # destructor
+            print 'Object Deleted!'
     ..
-    (.name, .model)
-    (~) : # destructor
-        print 'Object Deleted!'
-..
 
 EXPLICIT TYPE CASTING
-x Int : 5
-y Byte : 6
-let z : y + Int(x)
+    x Int : 5
+    y Byte : 6
+    let z : y + Int(x)
 
 
 DOT REFERENCE
-class Car :
-    name, model String
-    (name String) :
-        .name = name
+    class Car :
+        name, model String
+        (name String) :
+            .name = name
+        ..
+        (.name, .model)
     ..
-    (.name, .model)
-..
 
 HANDLES
-myCar1 Car
-myCar2 Car :  ("Camaro")
-myCar1* = myCar2*
+    myCar1 Car
+    myCar2 Car :  ("Camaro")
+    myCar1* = myCar2*
 
 ANONYMOUS OBJECTS
-keyListener(Event e) : e.printText( ) ..
-keyListener( 
-    Event ( ) :
-        printText( ) :
-            print ('Hello, World')
-        ..
-    ..)
- 
+    keyListener(Event e) : e.printText( ) ..
+    keyListener( 
+        Event () :
+            printText( ) :
+                print ('Hello, World')
+            ..
+        ..)
+     
  
 LAMBDAS
-keyListener(Event e) : e.printText( ) ..
-keyListener( Event ( ) : printText( ) : print ('Hello, ')) # bad practice
-keyListener( ( ) : print ("World")) # lambda
+    keyListener(Event e) : e.printText() ..
+    keyListener(
+        Event () : 
+            printText() : 
+                print ('Hello, ')
+            ..
+        ..)
+    keyListener(() : print ("World")) # lambda
 
 PASSING FUNCTION AS ARGUMENT
-addThree(a, b, c, myFunc(Int, Int) Int) Int : 
-    rt myFunc(a, b) + c
-..
+    addThree(a, b, c, myFunc(Int, Int) Int) Int : 
+        rt myFunc(a, b) + c
+    ..
 
 PROPERTIES / GETTERS SETTERS
-myVar1 : set(a, b, c Int) Int: rt x : a * b * c ; get( ) Int: rt x
-myVar1 = (1, 2, 3)
-myVar2 : 
-    set(a, b Int) Int: rt x : a * b * c
-    get( ) Int: rt x
-myVar3 : get()Int: rt myVar1
+    myVar1 : set(a, b, c Int) Int: rt x : a * b * c ; get( ) Int: rt x
+    myVar1 = (1, 2, 3)
+    myVar2 : 
+        set(a, b Int) Int: rt x : a * b * c
+        get( ) Int: rt x
+    myVar3 : get()Int: rt myVar1
 
 STRING TYPE
-myStr1 String : ("Hello")
-myStr2 String : ('Hi')
-myStr3 : 'Halo'
-myStr4 : 'Hello, '
+    myStr1 String : ("Hello")
+    myStr2 String : ('Hi')
+    myStr3 : 'Halo'
+    myStr4 : 'Hello, '
 
 
 FOR LOOP
-for i : 0 ; i <= 10 ; i++ :
-    a += i
-    if  i % 2 == 0 :
-        print i
-    else :
-        next 
-..
+    for i : 0 ; i <= 10 ; i++ :
+        a += i
+        if  i % 2 == 0 :
+            print i
+        else :
+            next 
+    ..
 
 LOOP
-loop :
-    if x != 0 :
-        print ('Hi')
-    else :
-        break
+    loop :
+        if x != 0 :
+            print ('Hi')
+        else :
+            break
+        ..
     ..
-..
 
 WHILE LOOP
-while myBool == true :
-    print ('Hello ')
-..
+    while myBool == true :
+        print ('Hello ')
+    ..
     
 DO WHILE LOOP
-do :
-    print ("Hello ")
-while myBool == true
+    do :
+        print ("Hello ")
+    while myBool == true
 
 UNTIL LOOP
-until myBool != true :
-    print ("Hello ")
-..
+    until myBool != true :
+        print ("Hello ")
+    ..
 
 DO UNTIL LOOP
-do :
-    print ("Hello ")
-until !myBool
+    do :
+        print ("Hello ")
+    until !myBool
 
 CONDITIONS
 -IF-
-if myMoney == 20 | == 50 :
-    print "Hello, World"
-..
-if x == 2 | == 3 : print ('Hello') ..
-if x == 1 :
-    print x
-elsif x == 2 :
-    print x
-else :
-    print 'invalid value'
-..
-if x : # if x does not equal nil
-   print 'x has been assigned to'
-..
+    if myMoney == 20 | == 50 :
+        print "Hello, World"
+    ..
+    if x == 2 | == 3 : print ('Hello') ..
+    if x == 1 :
+        print x
+    elsif x == 2 :
+        print x
+    else :
+        print 'invalid value'
+    ..
+    if x : # if x does not equal nil
+       print 'x has been assigned to'
+    ..
 
 TERNARY OPERATOR
-myVar1 : myBool == true : 5 -- 6
-if x == 5 : print('hello') -- print ('bye')
+    myVar1 : myBool == true : 5 -- 6
+    if x == 5 : print('hello') -- print ('bye')
 
 LABELS
-outer:
-for i in 1...10 :
-   for j in 1...10 :
-       print 'i : [i] j : [j]'
-       if j == 5:
-           next outer
+    outer:
+    for i in 1...10 :
+       for j in 1...10 :
+           print 'i : [i] j : [j]'
+           if j == 5:
+               next outer
+           ..
        ..
-   ..
-..
+    ..
 
 CONDITION LIST
-if myVar == a | == b | == c :
-    print myVar
-..
+    if myVar == a | == b | == c :
+        print myVar
+    ..
 
 RANGE
-for  x in 0...9:
-    print (x)
-..
+    for  x in 0...9:
+        print (x)
+    ..
 
 TYPE CHECKING
-if myCar == Car :
-    print 'Type is a Car'
-..
-if myCar == Car.(sub) :
-    print 'Type is a sub-class of Car'
-..
-if myCar == Car.(super) :
-    print 'Type is a super-class of Car'
-..
-:: T[Vehicle.(sub)] ::
-class Transportation :
-    myVehicle1 T
-    myVehicle2 T
-..
+    if myCar == Car :
+        print 'Type is a Car'
+    ..
+    if myCar == Car.(sub) :
+        print 'Type is a sub-class of Car'
+    ..
+    if myCar == Car.(super) :
+        print 'Type is a super-class of Car'
+    ..
+    :: T[Vehicle.(sub)] ::
+    class Transportation :
+        myVehicle1 T
+        myVehicle2 T
+    ..
 
 IMPORT STATEMENT
-import pluto.io.Console
-from pluto.io.Console import print, println
+    import pluto.io.Console
+    from pluto.io.Console import print, println
 
 INHERITANCE # Not Finalized!
-type Animal :
-    move( ) :
+    type Animal :
+        move( ) :
+        ..
     ..
-..
-type Bird [Animal] :
-    override move( ) :
+    type Bird [Animal] :
+        override move( ) :
+        ..
+        fly( ) :
+        ..
     ..
-    fly( ) :
+    type Horse [Animal]:
+        override move( ) :
+        ..
+        gallop( ) :
+        ..
     ..
-..
-type Horse [Animal]:
-    override move( ) :
+    type Pegasus [Bird, Horse] : # inherits Bird and Horse classes
+        override move( ) : # certain conflicts must be overriden
+        ..
     ..
-    gallop( ) :
-    ..
-..
-type Pegasus [Bird, Horse] : # inherits Bird and Horse classes
-    override move( ) : # certain conflicts must be overriden
-    ..
-..
 
 OPERATOR OVERLOADING
-op++(obj Stack<T>):
-    obj.swap(top)
-..
+    op.(++)(obj Stack<T>):
+        obj.swap(top)
+    ..
 
 CAST OPERATOR OVERLOADING
-opString ( ) String:
-    rt '[.x], [.y]'
-..
+    op.(String) () String:
+        rt '[.x], [.y]'
+    ..
 
 ITERATORS
 
 STICKY TYPES MEMBER
-type Person:
-    name String
-    age Int
-    sticky let specie : 'Homo Sapiens'
-    (.name, .age)
-    sticky getSpecie() String: rt .specie
-..
+    type Person:
+        name String
+        age Int
+        sticky let specie : 'Homo Sapiens'
+        (.name, .age)
+        sticky getSpecie() String: rt .specie
+    ..
 
 STICKY TYPES
-sticky type TempConv:
-    convToFahr(celsius Float):..
-    convToCelsius(fahr Float):..
-..
+    sticky type TempConv:
+        convToFahr(celsius Float):..
+        convToCelsius(fahr Float):..
+    ..
 
 STICKY LOCAL VARIABLES
-add(a Int) Int:
-    sticky sum : a
-    rt sum += a
-..
+    add(a Int) Int:
+        sticky sum : a
+        rt sum += a
+    ..
 
 BITWISE OPERATORS
-myVar : 2.&2 # and
-myVar1 : 2.|2 # or
-myVar3 : ~2 # exclusive or
+    myVar : 2.&2 # and
+    myVar1 : 2.|2 # or
+    myVar3 : ~2 # exclusive or
 
 SHIFT OPERATORS
-myVar : 4<<1
-myVar : 2>>2
+    myVar : 4<<1
+    myVar : 2>>2
 
 BINARY LITERALS
-myVar : 0b11001001
+    myVar : 0b11001001
 
 HEXADECIMAL LITERALS
-myVar : 0x5eff77
+    myVar : 0x5eff77
 
 OCTAL LITERALS
-myVar : 0o56773
+    myVar : 0o56773
 
 UTF CHARACTERS
-char : '\u6E'
+    char : '\u6E'
 
-FLOATING POINT LITERALS 
-123.4
-123.4f
-123.4F
-123.4d
-123.4D
-1.234e-2
+FLOATING POINT LITERALS
+    123f
+    123d 
+    123.4
+    123.4f
+    123.4d
+    1.234e-2
 
 ATTRIBUTES
-@deprecated
+    @deprecated
+    @stub
+    @maintain
 
 BUILT-IN TYPES and PARENTS
-Obj (0.4)
-Nil (0.4) 
-String  (0.6.1)
-Int (0.4)
-Float (0.4)
-Num (0.4)
-Double  (0.6.1)
-Bool (0.4)
+    Obj (0.4)
+    Nil (0.4) 
+    String  (0.6.1)
+    Int (0.4)
+    Float (0.4)
+    Num (0.4)
+    Double  (0.6.1)
+    Bool (0.4)
 
 KEYWORDS
-stick (0.4) sticky  (0.6.1) 
-#pub (0.4) public (0.6.1) pub
-priv (0.4) private (0.6.1) priv
-pro (0.4) protected (0.6.1) prot
-pack (0.4) package (0.6.1) pack
-class (0.4) 
-rt (0.7.2)
-def (Rev 0.5.2)
-let (Rev 0.5.2)
-get (Rev 0.5.2)
-set (Rev 0.5.2)
-as (0.8)
-if
-else
-elsif
-while  (0.6.1)
-eval (Rev 0.5.2)
-for
-do
-until (0.6.1)
-next (0.6.1)
-break
-label (0.7.0)
-fixed
+    stick (0.4) sticky  (0.6.1) 
+    #pub (0.4) public (0.6.1) pub
+    priv (0.4) private (0.6.1) priv
+    pro (0.4) protected (0.6.1) prot
+    pack (0.4) package (0.6.1) pack
+    class (0.4) 
+    rt (0.7.2)
+    def (Rev 0.5.2)
+    let (Rev 0.5.2)
+    get (Rev 0.5.2)
+    set (Rev 0.5.2)
+    as (0.8)
+    if
+    else
+    elsif
+    while  (0.6.1)
+    eval (Rev 0.5.2)
+    for
+    do
+    until (0.6.1)
+    next (0.6.1)
+    break
+    label (0.7.0)
+    fixed
  
-Operators
-+
--
-*
-/
-^
-//
-%
---
-++
-=
-+=
--=
-*=
-/=
-^=
-//=
-%=
-==
-!=
-!
->
-<
->=
-<=
-&
-|
-~
-.|
-.&
+OPERATORS
+    +
+    -
+    *
+    /
+    ^
+    //
+    %
+    --
+    ++
+    =
+    +=
+    -=
+    *=
+    /=
+    ^=
+    //=
+    %=
+    ==
+    !=
+    !
+    >
+    <
+    >=
+    <=
+    &
+    |
+    ~
+    .|
+    .&
+    >>
+    <<
 
 
 
 Syntactic Symbols
-|
-*
-~
-@
-.
-:
+    |
+    *
+    ~
+    @
+    .
+    :
 
