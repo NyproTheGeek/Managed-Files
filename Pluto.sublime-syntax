@@ -1,0 +1,161 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/3/syntax.html
+name: Pluto
+file_extensions:
+  - pluto
+  - plu
+scope: source.pluto
+contexts:
+  main:
+
+    - match: '\b([A-Z]|[A-Z][A-Za-z0-9]+)\b' # classes
+      scope: support.class.pluto
+
+    - match: '\b(String|Char|Byte|SByte|Num|Int|Int32|Int64|Int16|UInt|Unt32|UInt64|UInt16|IFit|UIFit|Float|Double|Complex|Complex128|Quat|Quat256|Bool|Obj|Func|Arr|Tab|super|sub)\b'
+      scope: support.class.pluto
+      
+    - match: '\b(set|get|import|from|package)\b'
+      scope: entity.name.function.pluto
+
+    - match: '\b(for|if|elsif|while|eval|until|do|loop|rt|in|step|block|yield|take)\b'
+      scope: keyword.control.flow.pluto
+
+    - match: '\b(true|false|nil|)\b'
+      scope: keyword.operator.pluto
+
+    - match: \b(sticky|abs|const|priv|pack|pass|prod|read|rpriv|rpack|rpass|rprod|wpriv|wpack|wpass|wprod|override|let|where|alias|mod|hold)\b
+      scope: storage.modifier.pluto
+
+    - match: \b(class|case|enum|event|stack|type)\b
+      scope: storage.type.pluto
+
+    - match: \b(print|println|list|listln|main|send|next|break|goto)\b
+      scope: support.function.pluto
+
+    - match: '\b(\d+\.\d+[fd]|\d+\.\d+|\d+[fd]|\d+i)\b'
+      scope: constant.numeric.pluto
+
+    - match: '\b([\+\-]\d+|\d+)\b'
+      scope: constant.numeric.pluto
+
+    - match: '\~|\.\||\.&|\.\^'
+      scope: keyword.operator.pluto
+      name: bitwise_operators
+
+    - match: '\+|-|\*|/|\%|//|\^'
+      scope: keyword.operator.pluto
+      name: unary_operators
+
+    - match: '==|\||\&|>|<|<=|>=|!'
+      scope: keyword.operator.pluto
+      name: conditional_operators
+
+    - match: '\?'
+      scope: keyword.operator.pluto
+      name: ternary_operators
+
+    - match: '=|\+=|-=|\*=||%=|\^=|/=|//='
+      scope: keyword.operator.pluto
+      name: equal_operators
+
+    - match: ':|,|\;|\.\.\.|\.\.|@'
+      scope: markup.bold.pluto # I know, but I need a unique style
+      name: special_operators
+
+    - match: '\[|\]|\(|\)'
+      scope: markup.bold.pluto # I know, but I need a unique style
+
+    - match: '"""'
+      push: triple_double_quote
+
+    - match: '"'
+      push: double_quoted_string
+
+    - match: \'\'\'
+      push: triple_single_quote
+
+    - match: \'
+      push: single_quoted_string
+
+    - match: '#'
+      push: single_line_comment
+
+    - match: '\.#|\\#'
+      push: multiline_comment
+
+    - match: '\{'
+      push: braces
+
+  double_quoted_string:
+    - meta_scope: string.quoted.double.pluto
+    - match: '\.#|\\#'
+      push: multiline_comment
+    - match: '\\.|\..'
+      scope: constant.character.escape.pluto
+    - match: '\['
+      push: escape_brackets
+    - match: '"'
+      scope: punctuation.definition.string.end.pluto
+      pop: true
+
+  single_quoted_string:
+    - meta_scope: string.quoted.single.pluto
+    - match: '\.#|\\#'
+      push: multiline_comment
+    - include: multiline_comment
+    - match: '\\.|\..'
+      scope: constant.character.escape.pluto
+    - match: '\['
+      push: escape_brackets
+    - match: \'
+      scope: punctuation.definition.string.end.pluto
+      pop: true
+
+  triple_single_quote:
+    - meta_scope: string.quoted.single.pluto
+    - match: '\.#|\\#'
+      push: multiline_comment
+    - include: multiline_comment
+    - match: \\\'\'\'
+      scope: constant.character.escape.pluto
+    - match: \'\'\'
+      scope: punctuation.definition.string.end.pluto
+      pop: true
+
+  triple_double_quote:
+    - meta_scope: string.quoted.double.pluto
+    - match: '\.#|\\#'
+      push: multiline_comment
+    - include: multiline_comment
+      scope: constant.character.escape.pluto
+    - match: '\\"""'
+      scope: constant.character.escape.pluto
+    - match: '"""'
+      scope: punctuation.definition.string.end.pluto
+      pop: true
+
+  escape_brackets:
+    - meta_scope: constant.character.escape.pluto
+    - match: '\.#|\\#'
+      push: multiline_comment
+    - match: '\]'
+      pop: true
+
+  single_line_comment:
+    - meta_scope: comment.line.number-sign.pluto
+    - match: $
+      pop: true
+
+  multiline_comment:
+    - meta_scope: comment.line.block.pluto
+    - match: '\.#|\\#'
+      pop: true
+
+  braces:
+    - meta_scope: markup.italic.pluto
+    - match: '\}'
+      pop: true
+
+#    - match: '\b(<String>|<Int>|<Int64>|<Int16>|<UInt>|<UInt64>|<UInt16>|<IFit>|<UIFit>|<Float>|<Float64>|<Complex>|<Complex128>|<Bool>|<Byte>|<Num>)\b'
+#      scope: support.class.pluto

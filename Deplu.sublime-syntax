@@ -1,0 +1,62 @@
+%YAML 1.2
+---
+# http://www.sublimetext.com/docs/3/syntax.html
+name: Deplu
+file_extensions:
+  - deplu
+scope: source.deplu
+contexts:
+  main:
+    - match: \b(true|false|null|_)\b # literals
+      scope: storage.type.deplu
+
+    - match: '\b([A-Za-z][A-Za-z0-9]+)\b' # names
+      scope: support.class.deplu
+
+    - match: '\b(\d+\.\d+|\d+\.\d+e[-+]\d+|\d+\.\d+e\d+)\b' # float numbers
+      scope: constant.numeric.deplu
+
+    - match: '\b([\+\-]\d+|\d+)\b' # integral numbers
+      scope: constant.numeric.deplu
+
+    - match: ':|,|\.\.|\(|\)|@'
+      scope: markup.bold.deplu
+      name: special_operators
+
+    - match: '\[|\]'
+      scope: entity.name.function.deplu
+
+    - match: '"'
+      push: double_quoted_string
+
+    - match: \'
+      push: single_quoted_string
+
+    - match: '#'
+      push: single_line_comment
+
+    - match: '\.#|\\#'
+      push: multiline_comment
+
+  double_quoted_string:
+    - meta_scope: string.quoted.double.deplu
+    - match: '"'
+      scope: punctuation.definition.string.end.deplu
+      pop: true
+
+  single_quoted_string:
+    - meta_scope: string.quoted.single.deplu
+    - match: \'
+      scope: punctuation.definition.string.end.deplu
+      pop: true
+
+  single_line_comment:
+    - meta_scope: comment.line.number-sign.deplu
+    - match: $
+      pop: true
+
+  multiline_comment:
+    - meta_scope: comment.line.block.deplu
+    - match: '\.#|\\#'
+      pop: true
+#
