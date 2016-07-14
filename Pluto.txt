@@ -83,6 +83,25 @@ DUCK TYPING EXAMPLES
 VARIABLES AND SHADOWING
 - In python names are allowed to change refeerence. This is called shadowing.
 - Pluto doesn't support shadowing, a name is bound to its inferred type.
+MULTIPLE CLASSES IN A FILE
+type Person
+type Company 
+type Multiple
+PLUTO USES 1-BASED INDEXING 15/07/16
+- So after looking at Julia, I believe 1-based indexing is the way to go.
+- And I will also introduce three more meta variables along with _end
+    arr[1...3] # index 1 to 3
+    arr[_last] # last index
+    arr[_end] # _last + 1
+    for i : 1; i < arr.end; i++:
+        print(arr[i])
+    ..
+    for i : 0; i < arr.last; i++:
+        print(arr[i++])
+    ..
+- I believe I have catered slightly for begrudging 0-based index lovers.
+- However it is important to keep in mind that Pluto uses 1-based index always. 
+Using the 1-based index makes the whole language coherent and slicing, array length fits nicely.
 TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
 
@@ -109,7 +128,8 @@ VARIABLE DECLARATION & INITIALIZATION
     y : 12f
     z : 'Hello'
     a Car : ('Camaro')
-    b : (Car('Camaro').setDate(2014)) # Car object must be part of an expression
+    b : Car('Camaro') # error. redundant assignment
+    b : Car('Camaro').setDate(2014) # Car object must be part of an extensive expression
     c Car ; c = ('Camaro') # comma is used to separate two statements 
     n : getCar('Camaro')
     o : add(2, 4) 
@@ -132,7 +152,7 @@ NUMERIC FORMATTING
     y : 1_999.99
 
 
-ARRAYS
+ARRAYS # are imlemented as matrices and vectors by default with column-major order
     f [2] Car : [('Camaro'), ('Mustang')]
     g [3] Car ; g [...] = [('Camaro'), ('Mustang'), ('Maserrati')]
     h [] Car ; h [+2] = [('Camaro'), ('Mustang')] 
@@ -141,10 +161,12 @@ ARRAYS
 
 ARRAY SLICING
     arr [6] Int : [1, 2, 3, 4, 5, 6]
-    print(arr[0...3]) # first index to the third
+    print(arr[1...3]) # first index to the third
     print(arr[...5]) # first index to the 5th index
-    print(arr[2...]) # 3rd index to the last
-    print(arr[-2...]) # from the 3rd index  but backwards
+    print(arr[3..._last]) # 3rd index to the last
+    print(arr[-3...]) # from the 3rd index but backwards
+    newArr [] : arr[...] # all elements
+    list(arr[_last...]) # list from behind
 
 
 MULTIDIMENSIONAL ARRAY
@@ -152,6 +174,9 @@ MULTIDIMENSIONAL ARRAY
     arr [2, 2, 2] Int : [1, 2 | 2, 3 || 4, 5 | 6, 7]  
     arr [2, 2] Int : [1, 2 | 3, 4]
     arr [2, ] Int ; arr [, +2] = [1, 2 | 3, 4]
+    list(arr [...])
+    list(arr[2, ...]) # list columns in row 2
+    list(arr[..., 2]) # list rows in col 2
 
 
 RAGGED ARRAY # is untidy !! Needs review
@@ -159,18 +184,43 @@ RAGGED ARRAY # is untidy !! Needs review
     arr [0, +2]
     arr [1, +3]
     arr [0, 0, +3] ; arr [0, 1, +3] 
-    arr [1, 0, +4] ; arr [1, 1, +5] ; arr [1, 2, +6]  
+    arr [1, 0, +4] ; arr [1, 1, +5] ; arr [1, 2, +6]
+
+
+ARRAY OBJECT COMPARISON
+    arr1 < arr2 # true if element size of arr1 is lesser than that of arr2
+    arr3 [] : arr1 \ 2 # divides all elements by 2
 
 
 TABLES # specifying dimen in tables are kinda pointless, they can shrink and grow
-    candidate Int String : index, name [1, 'Aditya' | 2, 'Nypro']
-    list(candidate.index)
-    list(candidate(2, name))
-    cars Int String: [1, 'Camaro' | 2, 'Mustang']
-    list(cars(1))
+    candidate Int String : index, name [1, 'Aditya' | 2, 'Nypro'] # table can grow col or row-wise
+    list(candidate) # 1, 2, 'Aditya', 'Nypro' # column-wise listing
+    list(candidate[]) # 1, 2, 'Aditya', 'Nypro' # column-wise listing
+    list(candidate[...])  1, 'Aditya', 2, 'Nypro' # row-wise listing
+    list(candidate.index) # 1, 2
+    list(canditate[..., 1]) # 1, 2
+    list(candidate(2, name)) # 'Nypro'
+    cars [2] Int String: [1, 'Camaro' | 2, 'Mustang'] # specify col size using array operator
+    list(cars(1)) # 'Aditya'
     cars.add(3, 'Bentley')
+    cars[3] = 'Bentley'
+    x : car[3]
     cars.remove(2)
-    cars [1, 2]
+    cars [2, 2] # access element on 2nd row, 2nd column
+
+
+MATRIX-VECTOR OPERATIONS # column major order
+    m [] : Mat.identity(4, 4)
+    n [] : [1, 1, 1, 0]
+    t [] : m \ n # column-major order
+    u [] : [2, 4, 3 | 3, 1, 5] * [3, 10 | 4, 2 | 1, 7]
+    mRows, mCols : m.size()
+    list(arr[2, ...]) # list columns in row 2
+    list(arr[..., 2]) # list rows in col 2
+    list(m) # column-wise listing
+    list(m[]) # column-wise listing
+    list(m[...]) # row-wise listing
+    z [] : {u'} # z is assigned transpose of matrix u 
 
 
 STRING TYPE
@@ -180,16 +230,16 @@ STRING TYPE
     myStr4 : "Bonjour"
 
 
-CONCATENATION
+STRING INTERPOLATION AND CONCATENATION
     name : 'Pluto'
     time : 2015
-    '[name] is a language started in [time]'
+    '$name is a language started in $time'
     name + ' is a language started in ' + time
 
 
 ESCAPE SEQUENCE
-    .[ .t .n ." .' .#
-    \[  \t \n \" \' \# \. \\
+    .$ .t .n ." .' .#
+    \$ \t \n \" \' \# \. \\
 
 
 MULTILINE STRINGS 
@@ -225,7 +275,7 @@ FOR LOOP
     for i : 0 ; i <= 10 ; i++ :
         a += i
         if  i % 2 == 0 :
-            print i
+            print(i)
         else :
             next 
     ..
@@ -269,7 +319,7 @@ LABELS
     outer:
     for i in 1...10 :
        for j in 1...10 :
-           print 'i : [i] j : [j]'
+           print('i : $i j : $j')
            if j == 5:
                next outer
            ..
@@ -298,6 +348,7 @@ RANGE
 IN
     if x in 2...4 : print('Hello')  
 
+
 WHERE 
     arr [] : x * 3 -> x in 1...30 -> x ^ 2 < 3
 
@@ -319,7 +370,7 @@ IN/STEP
     for x in 1...6 step 2:
         print(x)
     ..
-    if x in 1..10 step 2 -> x == y:
+    if x in 1...10 step 2 -> x == y:
         print(x)
     ..
 
@@ -409,7 +460,7 @@ VARIADIC PARAMETERS
 
 
 UNOVERLOADABLE METHODS
-    add(args [ ] Obj) Obj
+    add(args [])
     ::T:: add(args [ ] T) T
 
 
@@ -425,11 +476,11 @@ RETURNING AN ARRAY
     ..
     p, q, r : 1, 2, 3
     x, y, z : addThree(p, q, r)
-    w : addThree(p, q, r)[0] + z
+    w : addThree(p, q, r)[1] + z
 
     addSubTwo(a, b Int) [2] Int :
-       rt [0] = a + b
-       rt [1] = a - b
+       rt [1] = a + b
+       rt [2] = a - b
     ..
 
 
@@ -441,8 +492,8 @@ RETURNING A TABLE
 
 
 FUNCTION OBJECTS
-    add2(Int, Int) Int : add
-    add3 : add2
+    add2 Func : add
+    add3 Func : add2
 
 
 CLOSURE
@@ -450,8 +501,8 @@ CLOSURE
         a Int : 6
         rt (b Int) : a + b
     ..
-    add (Int) Int : outer
-    sum : outer
+    add Func : outer
+    sum Func : outer
 
 
 ANONYMOUS CLASSES
@@ -588,6 +639,11 @@ IMPORT STATEMENT
     from pluto.io.Console import print, println
 
 
+TYPE ALIAS
+    Int as Meter
+    import pluto.io.Console as Cons
+
+
 INHERITANCE # Not Finalized!
     type Animal :
         move( ) :
@@ -709,13 +765,13 @@ CASES
 
 
 REGEX
-    x : /\w/
-    if('Hello' == x)
+    y : /\w/ # another regex literal
+    if('Hello' == y)
     number Regex : /\d+/
 
 
 PATTERN MATCHING
-    class User; class Account; class PayPal [Account]; class Bitcoin [Account]
+    type User; type Account; type PayPal [Account]; type Bitcoin [Account]
 
     case test (String, Account) ; case ppl (PayPal) ; case btc (Bitcoin)
     mary User
@@ -730,12 +786,8 @@ EVAL
     eval user :
         test (.name, .account) : print ('[name] : [account]')
         User : print (val.toStr( )) // val is an alias to the evaluated
-        _ : print ('Unkown') // default
+        else : print ('Unkown') // default
     ..
-
-
-TYPE ALIAS
-    alias Meter : Int
 
 
 EXPLICIT TYPE CASTING
@@ -755,10 +807,13 @@ MOVE SEMANTICS
 
 
 OPERATOR OVERLOADING
-    op.(++)(obj Stack<T>):
+    _++(obj Stack<T>): # overloading plus operator
         obj.swap(top)
     ..
-    op.(String) () String: # overloading cast operator
+    _() (String) String: # overloading call operator
+        rt '[.x], [.y]'
+    ..
+    _ (String) String: # overloading cast operator
         rt '[.x], [.y]'
     ..
 
@@ -828,19 +883,21 @@ ITERATORS (?)
 FLOATING POINT BITWISE OPERATORS (?)
 
 
-META
+META FUNCTIONS
     a : _type(b)   # pass type
     c : _ref(b)   # to explicitly pass by ref (equal)
     d : _weakRef(e)  # to explicitly pass by ref (weak)
     e : _value(f)   # to explicitly pass by value
     x : _move(y)  # move ownership, works only if the lhs is the owner of the object
     d : c    # default, determined by lang
-- Does meta functions return strings? !! Needs review
-    b.(type)
-    c.(ref)
-    c.(weakRef)
-    e.(value)
-    add.(param)
+    i : _min(Int)
+
+
+CONTEXT SPECIFIC META VARIABLES
+    arr[_last] = 20
+    if(x == _even)
+    if(y == _odd)
+    if(a == _max)
 
 
 COMPLEX, QUATERNION DECLARATION 
@@ -848,10 +905,28 @@ COMPLEX, QUATERNION DECLARATION
     y : 5 + 2i + 3j + 4k # quaternion 
  
 
-NUMERIC CLASS META
-    x : UInt.(max)
-    y : Int32.(min)
+MATHEMATICAL EXPRESSION
+    f : 4f # f is a literal specifier here for f32
+    g : {2/(4f^2) - 1 + (x-1) + 1} # f is a coefficient here
+    h : {3f * 2g/5}f # the first f is a coefficient, the second f specifies that expression uses f32 operations. It is by default f
+    i : {3x + y(4f^2) - 2/d} # y is a coefficient here, not a function call
+    j : {3x + $y(4f^2) - 2/d} # y is a function call here
 
+
+NUMERIC CLASS
+    x : UInt.max
+    y : Int32.min()
+    z : {2x + 4y/3}.round() + (24.25/4).floor()
+
+
+RATIONAL NUMBERS !! Needs review 
+    x : 2//3 
+    x.toFloat() # rational format can be changed to fp
+    r : (2.3).toRatio() # but fp can't be changed to rational format (??)
+    y : 4//6 ; print(y) # 2//3
+    4//2 == 1//2 # true
+    4//2 == 0.5 # true
+    
 
 INTEGER BITWISE OPERATORS
     myVar : 2.&2 # and
@@ -886,16 +961,16 @@ ITERABLES
 - Array objects
 - Iterable SubClasses
 
+
 CLASSES OF OBJECTS
-    Obj
+    Any
     Func
     Var
-    Ind
     Arr
     Tab
 
 
-BUILT-IN TYPES
+PREDEFINED TYPES # These types are optimized as part of the lang
     Int, Int16, Int32, Int64
     UInt, UInt16, UInt32, UInt64
     Float, Double
@@ -905,17 +980,25 @@ BUILT-IN TYPES
     Char
     Byte
     SByte
-    Complex, Complex128
+    Comp, Comp128
     Quat, Quat256
+    BigInt
+    BigFloat
+    Ratio
 
 
-FLOATING POINT LITERALS
+NUMERIC LITERALS
+    123
+    123ui
+    123b
+    123sb
     123f
-    123d 
+    123.0
     123.4
     123.4f
-    123.4d
+    123.4
     1.234e-2
+    1.234e-2f
 
 
 LOGICAL vs BITWISE OPERATORS 
@@ -972,8 +1055,8 @@ OPERATORS
     -
     *
     /
+    // # for ratios
     ^
-    //
     %
     --
     ++
@@ -982,8 +1065,8 @@ OPERATORS
     -=
     *=
     /=
-    ^=
     //=
+    ^=
     %=
     ==
     !=
