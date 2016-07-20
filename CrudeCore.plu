@@ -104,7 +104,7 @@ type Animation: # can be used for transform constraint
 	keys List<Key*>
 	keyFields List<KeyField*>
 	curves List<CurveGraph*>
-	blendSheets List<BlendSheet*> # blendsheets that precede the animation
+	bridgeSheets List<BridgeSheet*> # bridgesheets that precede the animation
 	subAnimations List<SubAnimation*>
 	frames Hash<Int, List<KeyField**>> # frame number and list of keyFields
 	# KeyField repetition is also added up
@@ -116,7 +116,7 @@ type SubAnimation: # SubAnimation is a subset of an animation, it is needed for 
 	range [2] Int # begin and end frame
 ..
 
-type BlendSheet:
+type BridgeSheet:
 	name String
 	curves Hash<Key**, CurveGraph*> # begin key and preceding curve
 ..

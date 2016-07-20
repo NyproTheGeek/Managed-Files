@@ -1,0 +1,144 @@
+----Julia-------
+We want a language that’s open source, with a liberal license. 
+We want the speed of C with the dynamism of Ruby. 
+We want a language that’s homoiconic, with true macros like Lisp, but with obvious, familiar mathematical notation like Matlab. 
+We want something as usable for general programming as Python, as easy for statistics as R, as natural for string processing as Perl, as powerful for linear algebra as Matlab, as good at gluing programs together as the shell. Something that is dirt simple to learn, yet keeps the most serious hackers happy. 
+We want it interactive and we want it compiled.
+
+(Did we mention it should be as fast as C?)
+
+// thru the deplu tokens
+for(auto token : depluStrList){
+    matchFound = false;
+
+    // thru syntaxIndexBranches
+    for(int branchIndex =  0; branchIndex < syntaxGraph[syntaxIndex].first && !matchFound; branchIndex++){
+        DepluSymbol branchSymbol = syntaxList[syntaxGraph[syntaxIndex].second[branchIndex]];
+        if(branchSymbol == DepluSymbol::Name){
+            if(nameRegex.match(token).hasMatch()){
+                qDebug() << "-- " + token + " --syntaxIndex: " + QString::number(syntaxIndex) + " branchIndex: " + QString::number(syntaxGraph[syntaxIndex].second[branchIndex]) + " Name!";
+                syntaxIndex = syntaxGraph[syntaxIndex].second[branchIndex]; // Move to that syntaxIndex
+                matchFound = true;
+            }
+            else if(branchIndex == syntaxGraph[syntaxIndex].first - 1){
+                qDebug() << "-- " + token + " -- SYNTAX ERROR!";
+                return false;
+            }
+        }
+        else if(branchSymbol == DepluSymbol::Value){
+            if(valueRegex.match(token).hasMatch()){
+                qDebug() << "-- " + token + " --syntaxIndex: " + QString::number(syntaxIndex) + " branchIndex: " + QString::number(syntaxGraph[syntaxIndex].second[branchIndex]) + " Value!";
+                syntaxIndex = syntaxGraph[syntaxIndex].second[branchIndex]; // Move to that syntaxIndex
+                matchFound = true;
+            }
+            else if(branchIndex == syntaxGraph[syntaxIndex].first - 1){
+                qDebug() << "-- " + token + " -- SYNTAX ERROR!";
+                return false;
+            }
+        }
+        else if(branchSymbol == DepluSymbol::Empty){
+            if(emptyRegex.match(token).hasMatch()){
+                qDebug() << "-- " + token + " --syntaxIndex: " + QString::number(syntaxIndex) + " branchIndex: " + QString::number(syntaxGraph[syntaxIndex].second[branchIndex]) + " Empty!";
+                syntaxIndex = syntaxGraph[syntaxIndex].second[branchIndex]; // Move to that syntaxIndex
+                matchFound = true;
+            }
+            else if(branchIndex == syntaxGraph[syntaxIndex].first - 1){
+                qDebug() << "-- " + token + " -- SYNTAX ERROR!";
+                return false;
+            }
+        }
+        else if(branchSymbol == DepluSymbol::BracketOpen){
+            if(bracketOpenRegex.match(token).hasMatch()){
+                qDebug() << "-- " + token + " --syntaxIndex: " + QString::number(syntaxIndex) + " branchIndex: " + QString::number(syntaxGraph[syntaxIndex].second[branchIndex]) + " BracketOpen!";
+                syntaxIndex = syntaxGraph[syntaxIndex].second[branchIndex]; // Move to that syntaxIndex
+                matchFound = true;
+            }
+            else if(branchIndex == syntaxGraph[syntaxIndex].first - 1){
+                qDebug() << "-- " + token + " -- SYNTAX ERROR!";
+                return false;
+            }
+        }
+        else if(branchSymbol == DepluSymbol::BracketClose){
+            if(bracketCloseRegex.match(token).hasMatch()){
+                qDebug() << "-- " + token + " --syntaxIndex: " + QString::number(syntaxIndex) + " branchIndex: " + QString::number(syntaxGraph[syntaxIndex].second[branchIndex]) + " BracketClose!";
+                syntaxIndex = syntaxGraph[syntaxIndex].second[branchIndex]; // Move to that syntaxIndex
+                matchFound = true;
+            }
+            else if(branchIndex == syntaxGraph[syntaxIndex].first - 1){
+                qDebug() << "-- " + token + " -- SYNTAX ERROR!";
+                return false;
+            }
+        }
+        else if(branchSymbol == DepluSymbol::BraceOpen){
+            if(braceOpenRegex.match(token).hasMatch()){
+                qDebug() << "-- " + token + " --syntaxIndex: " + QString::number(syntaxIndex) + " branchIndex: " + QString::number(syntaxGraph[syntaxIndex].second[branchIndex]) + " BracketOpen!";
+                syntaxIndex = syntaxGraph[syntaxIndex].second[branchIndex]; // Move to that syntaxIndex
+                matchFound = true;
+            }
+            else if(branchIndex == syntaxGraph[syntaxIndex].first - 1){
+                qDebug() << "-- " + token + " -- SYNTAX ERROR!";
+                return false;
+            }
+        }
+        else if(branchSymbol == DepluSymbol::BraceClose){
+            if(braceCloseRegex.match(token).hasMatch()){
+                qDebug() << "-- " + token + " --syntaxIndex: " + QString::number(syntaxIndex) + " branchIndex: " + QString::number(syntaxGraph[syntaxIndex].second[branchIndex]) + " BraceClose!";
+                syntaxIndex = syntaxGraph[syntaxIndex].second[branchIndex]; // Move to that syntaxIndex
+                matchFound = true;
+            }
+            else if(branchIndex == syntaxGraph[syntaxIndex].first - 1){
+                qDebug() << "-- " + token + " -- SYNTAX ERROR!";
+                return false;
+            }
+        }
+        else if(branchSymbol == DepluSymbol::NewLine){
+            if(newLineRegex.match(token).hasMatch()){
+                qDebug() << "-- " + token + " --syntaxIndex: " + QString::number(syntaxIndex) + " branchIndex: " + QString::number(syntaxGraph[syntaxIndex].second[branchIndex]) + " NewLine!";
+                syntaxIndex = syntaxGraph[syntaxIndex].second[branchIndex]; // Move to that syntaxIndex
+                matchFound = true;
+            }
+            else if(branchIndex == syntaxGraph[syntaxIndex].first - 1){
+                qDebug() << "-- " + token + " -- SYNTAX ERROR!";
+                return false;
+            }
+        }
+        else if(branchSymbol == DepluSymbol::CommaNewLine){
+            if(commaNewLineRegex.match(token).hasMatch()){
+                qDebug() << "-- " + token + " --syntaxIndex: " + QString::number(syntaxIndex) + " branchIndex: " + QString::number(syntaxGraph[syntaxIndex].second[branchIndex]) + " CommaNewLine!";
+                syntaxIndex = syntaxGraph[syntaxIndex].second[branchIndex]; // Move to that syntaxIndex
+                matchFound = true;
+            }
+            else if(branchIndex == syntaxGraph[syntaxIndex].first - 1){
+                qDebug() << "-- " + token + " -- SYNTAX ERROR!";
+                return false;
+            }
+        }
+        else if(branchSymbol == DepluSymbol::Colon){
+            if(colonRegex.match(token).hasMatch()){
+                qDebug() << "-- " + token + " --syntaxIndex: " + QString::number(syntaxIndex) + " branchIndex: " + QString::number(syntaxGraph[syntaxIndex].second[branchIndex]) + " Colon!";
+                syntaxIndex = syntaxGraph[syntaxIndex].second[branchIndex]; // Move to that syntaxIndex
+                matchFound = true;
+            }
+            else if(branchIndex == syntaxGraph[syntaxIndex].first - 1){
+                qDebug() << "-- " + token + " -- SYNTAX ERROR!";
+                return false;
+            }
+        }
+        else if(branchSymbol == DepluSymbol::BlockEnd){
+            if(blockEndRegex.match(token).hasMatch()){
+                qDebug() << "-- " + token + " --syntaxIndex: " + QString::number(syntaxIndex) + " branchIndex: " + QString::number(syntaxGraph[syntaxIndex].second[branchIndex])+ " BlockEnd!";
+                syntaxIndex = syntaxGraph[syntaxIndex].second[branchIndex]; // Move to that syntaxIndex
+                matchFound = true;
+            }
+            else if(branchIndex == syntaxGraph[syntaxIndex].first - 1){
+                qDebug() << "-- " + token + " -- SYNTAX ERROR!";
+                return false;
+            }
+        }
+        else if(branchSymbol == DepluSymbol::EOL){}
+        else if(branchSymbol == DepluSymbol::OBJECT){}
+    }
+}
+
+
+

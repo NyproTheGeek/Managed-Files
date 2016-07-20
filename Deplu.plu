@@ -1,0 +1,22 @@
+#18/07/16
+name : value # value
+name : [name : value] # object
+name : [value, value, value] # value array
+name : [name : value, name : value] # key-based object array
+name : name [basic_value, basic_value] # index-based object array
+name : name, name [[basic_value, basic_value], [basic_value, basic_value]] # index-based object array
+
+
+# name : object
+
+name : value
+name : [name : [name : object]]
+name : [name : [name : object], name : [name : object]]
+name : name,  name[
+	[
+		[name: object], [name : object]
+	], 
+	[
+		[name: object], [name : object]
+	]
+]

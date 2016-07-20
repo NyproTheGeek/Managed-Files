@@ -11,15 +11,15 @@ PLUTO's DESIGN PHILOSOPHY
 Pluto is a flexible language that is both be compiled and interpreted. It can used either as dynamically typed or a statically typed language. As a result it unifies rapid prototyping and fast performance into one cohesive syntax. 
 
 PLUTO WORLD
-- plutoSphere
+- plutoSphere (advanced IDE)
 - The interpreter
 - The compiler
-- LLVM IR
-- Static vs dynamic
+- LLVM IR (bytecode representation)
+- Static and Dynamic. Interpreted and Compiled.
 
 PLUTO DYNAMIC VS STATIC !! Needs Revision
-- Pluto Dynamic Built-in types - Dyn, DynDouble, DynLong, DynBool, DynChar
-- Pluto Static Built-in types - Int, Int16, Int32, Int64, UInt, UInt32, UInt64, Float, Double, Bool, String, Char, Byte, SByte, Complex, Complex1287
+- Pluto Dynamic Built-in types - Dyn, DynDouble, DynLong, DynBool, DynChar (??)
+- Pluto Static Built-in types - Int, Int16, Int32, Int64, UInt, UInt32, UInt64, Float, Double, Bool, String, Char, Byte, SByte, Complex, Complex1287, ...
 
 TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 AUTOMATIC REFERENCE COUNTING
@@ -27,7 +27,7 @@ AUTOMATIC REFERENCE COUNTING
         bones List<Bone*>
     ..
     type Bone:
-        skel** Skeleton
+        skel** Skeleton 
     ..
 - look at sharedptr in C++
 - so existence of both strong/weak referencing and equal referencing.
@@ -46,19 +46,21 @@ UNION TYPING
 VARIABLE TYPING
     myNumber Byte|Int
 DECLARATIVE PLUTO ".deplu" #27/06/16
-    person:
+    person:[
         name : "Nypro"
         fat : false
         tall : true
         hobby : 'programming'
         single : _ # underscore as a value signifies empty
         children : [2, 3, 4, 6]
+        coord : [x : 5]
+        coords : [x : 1, y : 2, z : 3]
         gamesLiked : name, releaseDate, hard [ 
-            ("Crysis", 2007, _),
-            ("Unreal Tournament", 1999, true),
-            ("Portal 2", 2011, true),
+            ["Crysis", 2007, _],
+            ["Unreal Tournament", 1999, true],
+            ["Portal 2", 2011, true],
         ]  
-    ..
+    ]
 A comma can be replaced by a newline
 TABLES
     candidate Int String : [1, 'Aditya' | 2, 'Nypro']
@@ -67,7 +69,8 @@ ASSERTION
     assert x == null
     assert x == null : print("Hello")
 SKIPPING BLOCKS
-    if x == 5 : <3> print('Hello') # block is skipped after the it has been executed 3 times.
+    [skip : 3]
+    if x == 5 : print('Hello') # block is skipped after the it has been executed 3 times.
 RAISED TO POWER
     x ^ 2
 BLOCKS RULES
@@ -102,6 +105,15 @@ PLUTO USES 1-BASED INDEXING 15/07/16
 - I believe I have catered slightly for begrudging 0-based index lovers.
 - However it is important to keep in mind that Pluto uses 1-based index always. 
 Using the 1-based index makes the whole language coherent and slicing, array length fits nicely.
+WILL PLUTO BE HOMOICONI?
+- I've gone too far into the syntax design. I'm not sure if it will
+MULTIPLE DISPATCH
+- Since deplu is both a static and dynamic language, meaning it is going to determine certan things at both compile time and runtime, it only makes sense for it to support Multiple dispatch. Thanks to Julia.
+PLUTO STANDARD LIBRARY
+- Pluto std lib will be statically typed with few dynamic types where appropriate.
+EMPTY FUNCTION
+- Warning is issued when you declare an empty function, cos you might think you are calling a function
+    add() # warning if add is not already declared
 TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
 
@@ -128,17 +140,27 @@ VARIABLE DECLARATION & INITIALIZATION
     y : 12f
     z : 'Hello'
     a Car : ('Camaro')
-    b : Car('Camaro') # error. redundant assignment
-    b : Car('Camaro').setDate(2014) # Car object must be part of an extensive expression
+    b : Car('Camaro') # error. redundant initialisation
+    b : Car('Camaro').setDate(2014) # ok
     c Car ; c = ('Camaro') # comma is used to separate two statements 
     n : getCar('Camaro')
     o : add(2, 4) 
     p List<Car>(3) # generics
+    x : nil ; x = Car('Camaro')
 
 
 CONSTANT VARIABLE DECLARATION
     let x : 25
     let y Car : ('Camaro')
+
+
+MUTABLE VARIABLE DECLARATION
+- When immutable is set on all variables, default variables become constants by default.
+    x : 25 # x is immutable
+    x = 52 # error!
+    mut y : 52 # y is mutable
+    y = 25 # ok
+
 
 
 MULTIPLE ASSIGNMENT
@@ -193,7 +215,7 @@ ARRAY OBJECT COMPARISON
 
 
 TABLES # specifying dimen in tables are kinda pointless, they can shrink and grow
-    candidate Int String : index, name [1, 'Aditya' | 2, 'Nypro'] # table can grow col or row-wise
+    candidate [~] Int String : index, name [1, 'Aditya' | 2, 'Nypro'] # table can grow col or row-wise
     list(candidate) # 1, 2, 'Aditya', 'Nypro' # column-wise listing
     list(candidate[]) # 1, 2, 'Aditya', 'Nypro' # column-wise listing
     list(candidate[...])  1, 'Aditya', 2, 'Nypro' # row-wise listing
@@ -210,17 +232,17 @@ TABLES # specifying dimen in tables are kinda pointless, they can shrink and gro
 
 
 MATRIX-VECTOR OPERATIONS # column major order
-    m [] : Mat.identity(4, 4)
-    n [] : [1, 1, 1, 0]
-    t [] : m \ n # column-major order
-    u [] : [2, 4, 3 | 3, 1, 5] * [3, 10 | 4, 2 | 1, 7]
+    m [,] : Mat.identity(4, 4)
+    n [,] : [1, 1, 1, 0]
+    t [,] : m \ n # column-major order
+    u [,] : [2, 4, 3 | 3, 1, 5] * [3, 10 | 4, 2 | 1, 7]
     mRows, mCols : m.size()
     list(arr[2, ...]) # list columns in row 2
     list(arr[..., 2]) # list rows in col 2
     list(m) # column-wise listing
     list(m[]) # column-wise listing
     list(m[...]) # row-wise listing
-    z [] : {u'} # z is assigned transpose of matrix u 
+    z [,] : {u'} # z is assigned transpose of matrix u 
 
 
 STRING TYPE
@@ -228,6 +250,10 @@ STRING TYPE
     myStr2 String : ('Hi')
     myStr3 : 'Halo'
     myStr4 : "Bonjour"
+
+STRING FORMATTING
+    myStr : 'Hello' * 5
+    print('myStr')
 
 
 STRING INTERPOLATION AND CONCATENATION
@@ -238,8 +264,8 @@ STRING INTERPOLATION AND CONCATENATION
 
 
 ESCAPE SEQUENCE
-    .$ .t .n ." .' .#
-    \$ \t \n \" \' \# \. \\
+    .[ .t .n ." .' .#
+    \[ \t \n \" \' \# \. \\
 
 
 MULTILINE STRINGS 
@@ -310,13 +336,11 @@ UNLESS LOOP # useful because you know the terminating condition
 
 
 DO UNLESS LOOP
-    do :
-        print ("Hello ")
-    unless myBool
+    do : print ("Hello ") | unless myBool
 
 
 LABELS
-    outer:
+    [label: outer]
     for i in 1...10 :
        for j in 1...10 :
            print('i : $i j : $j')
@@ -342,7 +366,7 @@ TERNARY OPERATOR
 
 
 RANGE
-    x, y, z = 1...4
+    x, y, z = 1...3
 
 
 IN
@@ -492,12 +516,12 @@ RETURNING A TABLE
 
 
 FUNCTION OBJECTS
-    add2 Func : add
-    add3 Func : add2
+    add2(~) : add1
+    add3(~) : (Int, Int) Int
 
 
 CLOSURE
-    outer( ) :
+    outer() :
         a Int : 6
         rt (b Int) : a + b
     ..
@@ -538,7 +562,7 @@ COROUTINES
 
 
 EVENTS
-    event mathOps (Float, Float) Float
+    mathOps(~) Event : (Float, Float) Float
     mathOps += add, subtract, divide
     mathOps -= divide
     event buttonPressed : createProject
@@ -572,7 +596,7 @@ DESTRUCTORS
             self.name = name
         ..
         (.name, .model)
-        (~) : # destructor
+        (!) : # destructor
             print 'Object Deleted!'
     ..
 
@@ -617,17 +641,17 @@ PROPERTIES / GETTERS SETTERS
     myVar3 : get()Int: rt myVar1
 
 
-    TYPE CHECKING
-    if myCar == Car :
+TYPE CHECKING
+    if myCar == Car._exact :
         print 'Type is a Car'
     ..
-    if myCar == Car.(sub) :
+    if myCar == Car._sub :
         print 'Type is a sub-class of Car'
     ..
-    if myCar == Car.(super) :
+    if myCar == Car._super :
         print 'Type is a super-class of Car'
     ..
-    :: T[Vehicle.(sub)] ::
+    :: T[Vehicle._sub] ::
     class Transportation :
         myVehicle1 T
         myVehicle2 T
@@ -642,29 +666,6 @@ IMPORT STATEMENT
 TYPE ALIAS
     Int as Meter
     import pluto.io.Console as Cons
-
-
-INHERITANCE # Not Finalized!
-    type Animal :
-        move( ) :
-        ..
-    ..
-    type Bird [Animal] :
-        override move( ) :
-        ..
-        fly( ) :
-        ..
-    ..
-    type Horse [Animal]:
-        override move( ) :
-        ..
-        gallop( ) :
-        ..
-    ..
-    type Pegasus [Bird, Horse] : # inherits Bird and Horse classes
-        override move( ) : # certain conflicts must be overriden
-        ..
-    ..
 
 
 METHOD CHAINING
@@ -720,12 +721,50 @@ STICKY LOCAL VARIABLES
     ..
 
 
-HOLD VARIABLES
+HOLD VARIABLES IN LOOPS
     for x in 1...50:
         hold x : 0
         print(x * y)
         x++
-    .. 
+    ..
+
+
+INHERITANCE # Not Finalized!
+    type Animal:
+        move()
+    ..
+    type Bird [Animal]:
+        override move()
+        fly()
+    ..
+    type Horse [Animal]:
+        override move()
+        gallop()
+    ..
+    type Pegasus [Bird, Horse] : # inherits Bird and Horse classes
+        override move() # certain conflicts must be overriden
+    ..
+
+VIRTUAL FUNCTIONS
+    type Listener :
+        virtual respond()
+    ..
+    type ButtonListener [Listener] :
+        override respond()
+    ..
+
+
+ABSTRACT TYPES
+    abs type Player:
+        play()
+        rewind()
+        fastForward()
+    ..
+    type DigitalPlayer [Player]:
+        override play()
+        override rewind()
+        override fastForward()
+    ..
 
 
 DOWNCASTING ! Needs review
@@ -760,7 +799,7 @@ ENUMS
 CASES
     a : 'world'
     b : 5
-    case test (String, Int)
+    test Case : (String, Int)
     if test(a, b) : print ('Hello .[a]')
 
 
@@ -782,7 +821,7 @@ PATTERN MATCHING
 
 
 EVAL
-    case test (String, Account)
+    test Case : (String, Account)
     eval user :
         test (.name, .account) : print ('[name] : [account]')
         User : print (val.toStr( )) // val is an alias to the evaluated
@@ -823,13 +862,14 @@ TRY & ASSOCIATES
         ensure:
             file.close()
         ..
-        # can be seperated from try/catch statement
-        # in that case it acts like defer
-        print("Hello")
-        print ("Nigeria")
-        try file.open()
-        catch(fnfe FileNotFoundErr):
-            printErr('Can't find file!')
+
+        print("I'm about to open a text file and print its first 500 characters")
+        file File : ("C:/Users/Hello/hello.txt")
+
+        try file.open().print(1...500)
+        catch(fnfe FileNotFoundErr, ioobe IndexOutOfBoundErr):
+            if(fnfe): printErr('Can't find file!')
+            if(ioobe): printErr('Can't find file!')
         ..
     ..
     try:
@@ -910,11 +950,15 @@ MATHEMATICAL EXPRESSION
     g : {2/(4f^2) - 1 + (x-1) + 1} # f is a coefficient here
     h : {3f * 2g/5}f # the first f is a coefficient, the second f specifies that expression uses f32 operations. It is by default f
     i : {3x + y(4f^2) - 2/d} # y is a coefficient here, not a function call
-    j : {3x + $y(4f^2) - 2/d} # y is a function call here
+    j : {3x + [y(4f^2)] - 2/d} # y is a function call here
+
+
+EXPRESSION CAPTURE
+    x Exp : (4 * y)
 
 
 NUMERIC CLASS
-    x : UInt.max
+    x : UInt.max()
     y : Int32.min()
     z : {2x + 4y/3}.round() + (24.25/4).floor()
 
@@ -959,7 +1003,9 @@ ITERABLES
 - Coroutines
 - Range
 - Array objects
+- Table objects
 - Iterable SubClasses
+- String
 
 
 CLASSES OF OBJECTS
@@ -1006,10 +1052,14 @@ LOGICAL vs BITWISE OPERATORS
     ~ .& .|
 
 
-ATTRIBUTES
-    @deprecated
+ANNOTATIONs/ATTRIBUTES/MACROS/DECORATORS
+    @deprecated: [msg: "MediaPlayer class should be used instead"]
     @stub
-    @maintain
+    @compiler: [vars: "immutable"]
+
+
+COMPILER ANNOTATIONS
+    @compiler: [vars : "immutable", typing: "static"]
 
 
 BUILT-IN TYPES and PARENTS
@@ -1029,6 +1079,7 @@ KEYWORDS
     priv (0.4) private (0.6.1) priv
     pro (0.4) protected (0.6.1) prot
     pack (0.4) package (0.6.1) pack
+    pass (0.7.5)
     class (0.4) 
     rt (0.7.2)
     def (Rev 0.5.2)
@@ -1082,6 +1133,7 @@ OPERATORS
     .&
     >>
     <<
+    '
 
 
 SYNTACTIC SYMBOLS
