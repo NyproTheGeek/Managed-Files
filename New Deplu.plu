@@ -1,0 +1,13 @@
+name: value
+
+name: [name: value]
+
+name: [name: value, name: value]
+
+name: [value, value, value]
+
+name: name, name, name[
+	[value, value, value], 
+	[value, value, value], 
+	[value, value, value] 
+]

@@ -22,6 +22,8 @@ PLUTO DYNAMIC VS STATIC !! Needs Revision
 - Pluto Static Built-in types - Int, Int16, Int32, Int64, UInt, UInt32, UInt64, Float, Double, Bool, String, Char, Byte, SByte, Complex, Complex1287, ...
 
 TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 AUTOMATIC REFERENCE COUNTING
     type Skeleton:
         bones List<Bone*>
@@ -63,16 +65,13 @@ DECLARATIVE PLUTO ".deplu" #27/06/16
     ]
 A comma can be replaced by a newline
 TABLES
-    candidate Int String : [1, 'Aditya' | 2, 'Nypro']
-    candidate Int String : index, name [1, 'Aditya' | 2, 'Nypro']
-ASSERTION
-    assert x == null
-    assert x == null : print("Hello")
+    candidate Int String: [1, 'Aditya' | 2, 'Nypro']
+    candidate Int String: index, name [1, 'Aditya' | 2, 'Nypro']
 SKIPPING BLOCKS
     [skip : 3]
     if x == 5 : print('Hello') # block is skipped after the it has been executed 3 times.
 RAISED TO POWER
-    x ^ 2
+    x^2
 BLOCKS RULES
 - empy blocks should not be preceded by colon or block end
 - can't have more than one block on a line, with the exception of chained blocks (if-else)
@@ -87,19 +86,19 @@ VARIABLES AND SHADOWING
 - In python names are allowed to change refeerence. This is called shadowing.
 - Pluto doesn't support shadowing, a name is bound to its inferred type.
 MULTIPLE CLASSES IN A FILE
-type Person
-type Company 
-type Multiple
+    type Person
+    type Company 
+    type Multiple
 PLUTO USES 1-BASED INDEXING 15/07/16
 - So after looking at Julia, I believe 1-based indexing is the way to go.
 - And I will also introduce three more meta variables along with _end
     arr[1...3] # index 1 to 3
     arr[_last] # last index
     arr[_end] # _last + 1
-    for i : 1; i < arr.end; i++:
+    for i : 1 | i < arr.end | i++:
         print(arr[i])
     ..
-    for i : 0; i < arr.last; i++:
+    for i : 1 | i < arr.last | i++:
         print(arr[i++])
     ..
 - I believe I have catered slightly for begrudging 0-based index lovers.
@@ -114,6 +113,8 @@ PLUTO STANDARD LIBRARY
 EMPTY FUNCTION
 - Warning is issued when you declare an empty function, cos you might think you are calling a function
     add() # warning if add is not already declared
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
 
 
@@ -232,17 +233,17 @@ TABLES # specifying dimen in tables are kinda pointless, they can shrink and gro
 
 
 MATRIX-VECTOR OPERATIONS # column major order
-    m [,] : Mat.identity(4, 4)
-    n [,] : [1, 1, 1, 0]
-    t [,] : m \ n # column-major order
-    u [,] : [2, 4, 3 | 3, 1, 5] * [3, 10 | 4, 2 | 1, 7]
+    mX [,] : Mat.identity(4, 4)
+    mY [,] : [1, 1, 1, 0]
+    mZ [,] : mX / mY
+    mP [,] : [2, 4, 3 | 3, 1, 5] * [3, 10 | 4, 2 | 1, 7]
     mRows, mCols : m.size()
     list(arr[2, ...]) # list columns in row 2
     list(arr[..., 2]) # list rows in col 2
     list(m) # column-wise listing
     list(m[]) # column-wise listing
     list(m[...]) # row-wise listing
-    z [,] : {u'} # z is assigned transpose of matrix u 
+    mQ [,] : {u'} # z is assigned transpose of matrix u 
 
 
 STRING TYPE
@@ -256,19 +257,33 @@ STRING FORMATTING
     print('myStr')
 
 
-STRING INTERPOLATION AND CONCATENATION
+STRING INTERPOLATION
     name : 'Pluto'
     time : 2015
-    '$name is a language started in $time'
+    '[name] is a language started in [time]'
     name + ' is a language started in ' + time
 
 
+STRING OPERATIONS
+    'ab' + 'c' # = 'abc'
+    'abc' * 2 # = 'abcabc'
+    'abcabc' + 'ca' # = 'abbc'
+    'abcabc' / 'c' # = ['ab', 'ab']
+    ['ab', 'ab'] * 'c' # = 'abcab'
+
+
+NON-STANDARD STRING LITERAL
+    byteArr : /b/"FFE305"
+    myRegex : /r/"^(\w+)$"
+
+
 ESCAPE SEQUENCE
-    .[ .t .n ." .' .#
-    \[ \t \n \" \' \# \. \\
+- .[ .t .n ." .' .#
+- \[ \t \n \" \' \# \. \\
 
 
-MULTILINE STRINGS 
+MULTILINE STRINGS !! Might remove this
+    str : 
     ." 
     Hello
     Folks
@@ -281,24 +296,24 @@ VERBATIM STRING
 
 
 IF SATEMENT
-    if myMoney == 50 :
-        print "Hello, World"
+    if myMoney == 1_000_000:
+        print("Yay! I'm rich!")
     ..
-    if x == 3 : print ('Hello') ..
+    if x == 3 : print('Hello') ..
     if x == 1 :
-        print x
+        print(x)
     elsif x == 2 :
-        print x
+        print(x)
     else :
-        print 'invalid value'
+        print('invalid value')
     ..
     if x : # if x does not equal nil
-       print 'x has been assigned to'
+       print('x has been assigned to')
     ..
 
 
 FOR LOOP
-    for i : 0 ; i <= 10 ; i++ :
+    for i : 1 | i <= 10 | i++ :
         a += i
         if  i % 2 == 0 :
             print(i)
@@ -329,20 +344,20 @@ DO WHILE LOOP
     while myBool == true
 
 
-UNLESS LOOP # useful because you know the terminating condition
-    unless myBool == true :
+UNTIL LOOP # useful because you know the terminating condition
+    until myBool == true :
         print ("Hello ")
     ..
 
 
-DO UNLESS LOOP
-    do : print ("Hello ") | unless myBool
+DO UNTIL LOOP
+    do : print ("Hello ") | until myBool
 
 
 LABELS
     [label: outer]
-    for i in 1...10 :
-       for j in 1...10 :
+    for i thru 1...10 :
+       for j thru range(10) :
            print('i : $i j : $j')
            if j == 5:
                next outer
@@ -353,7 +368,7 @@ LABELS
 
 CONDITION LIST
     if myVar == a | == b | == c :
-        print myVar
+        print(myVar)
     ..
     if x == y == z :
         play()
@@ -361,43 +376,36 @@ CONDITION LIST
 
 
 TERNARY OPERATOR
-    myVar1 : myBool == true : 5 -- 6
-    if x == 5 : print('hello') -- print ('bye')
+    myVar1 : (myBool == true)? 5 | else 6
+    divide(num, denom): (denom == 0)? nan | else num / denom
 
 
 RANGE
     x, y, z = 1...3
 
 
-IN
-    if x in 2...4 : print('Hello')  
+THRU
+    list(x thru 2...4)
 
 
 WHERE 
     arr [] : x * 3 -> x in 1...30 -> x ^ 2 < 3
 
 
-FOR/IN
-    for x -> x in 1...20: # long form
-        print (x)
-    ..
-    for x in 1...20: # short form
-        print(x)
-    ..
-
-
 COMPREHENSION LIST
     arr [] : x * 3 -> x in 1...30 -> x ^ 2 < 3
 
 
-IN/STEP
-    for x in 1...6 step 2:
-        print(x)
-    ..
-    if x in 1...10 step 2 -> x == y:
+THRU/STEP
+    for x thru 1...6 step 2: 
         print(x)
     ..
 
+IN
+    x : 3
+    if x in 1...10:
+        print(x)
+    ..
 
 NOT IN
     a [] : x -> x in 0...20 -> x not in 2...5
@@ -407,7 +415,7 @@ NIL CONDITION
     if let x : getValue() : # x is available only in the if branch
         print(x)
     else:
-        print('can't get value')
+        print('can\'t get value')
     .. 
     if let name : getChars() -> name.characters.count in 4...5:
         print ('hello')
@@ -422,8 +430,8 @@ ONE-LINE BLOCK
     addThree(a, b, c Int) Int: print (a + b + c) ; rt a + b + c 
     if x == y
     if x == y : print(x) 
-    if x == y : print(x) ; print(y)
-    x == y : x -- y
+    if x == y : print(x) | else print(y)
+    (x == y): print(x)
 
 
 USE BLOCK
@@ -434,14 +442,14 @@ USE BLOCK
     ..
 
 
-NAMED BLOCK
-    block y :
-        m =  a + b
-        n = m + a + b
-    .. 
-    if m < 2:
-        goto y
-    ..
+#NAMED BLOCK
+#    block y :
+#        m =  a + b
+#        n = m + a + b
+#    .. 
+#    if m < 2:
+#        goto y
+#    ..
 
 
 UNNAMED BLOCK
@@ -457,7 +465,11 @@ METHOD DEFINITION
     ..
 
 
-COMPOUND FUNCTIONS
+ARGUMENT NAMING
+    addPerson(name : 'Aditya', age : 28)
+
+
+COMPOUND METHODS
     getValue Int:
         x : 1, y : 2 Int
         () :
@@ -475,7 +487,7 @@ COMPOUND FUNCTIONS
 VARIADIC PARAMETERS
     add(first, arr [] Int) Int:
         tmp : first + arr
-        for x in arr:
+        for x thru arr:
             tmp += x
         ..
         rt tmp
@@ -495,59 +507,65 @@ PASSING FUNCTION AS ARGUMENT
 
 
 RETURNING AN ARRAY
-    addThree (a, b, c Int) [3] Int :
+    addThree (a, b, c Int) [3] Int:
         rt [...3] = a + b, a + c, b + c
     ..
-    p, q, r : 1, 2, 3
-    x, y, z : addThree(p, q, r)
-    w : addThree(p, q, r)[1] + z
+    p, q, r: 1, 2, 3
+    x, y, z: addThree(p, q, r)
+    w: addThree(p, q, r)[1] + z
 
-    addSubTwo(a, b Int) [2] Int :
+    addSubTwo(a, b Int) [2] Int:
        rt [1] = a + b
        rt [2] = a - b
     ..
 
 
 RETURNING A TABLE
-    getUser(u User) String Int :
-        ret u.name, u.age
+    getUser(u User) String Int:
+        rt u.name, u.age
     ..
-    x [1, 1] : getUser( )
+    x [~] : getUser()
 
 
-FUNCTION OBJECTS
-    add2(~) : add1
-    add3(~) : (Int, Int) Int
+RETURNING UNMODIFIABLE VARIABLES
+    getList() [~]:
+        rt list._readOnly
+    ..
+
+
+METHOD OBJECTS
+    add2(~): add1
+    add3(~): (Int, Int) Int
 
 
 CLOSURE
-    outer() :
+    outer():
         a Int : 6
         rt (b Int) : a + b
     ..
-    add Func : outer
-    sum Func : outer
+    add Func: outer
+    sum Func: outer
 
 
 ANONYMOUS CLASSES
-    keyListener(Event e) : e.printText( ) ..
+    keyListener(Event e): e.printText()
     keyListener( 
-        Event () :
-            printText( ) :
+        Event ():
+            printText():
                 print ('Hello, World')
             ..
         ..)
      
  
 LAMBDAS
-    keyListener(Event e) : e.printText() ..
+    keyListener(Event e): e.printText()
     keyListener(
-        Event () : 
-            printText() : 
+        Event (): 
+            printText(): 
                 print ('Hello, ')
             ..
         ..)
-    keyListener(() : print ("World")) # lambda
+    keyListener((): print ("World")) # lambda
 
 
 COROUTINES
@@ -562,15 +580,15 @@ COROUTINES
 
 
 EVENTS
-    mathOps(~) Event : (Float, Float) Float
+    mathOps(~) Event: (Float, Float) Float
     mathOps += add, subtract, divide
     mathOps -= divide
-    event buttonPressed : createProject
+    buttonPressed Event: createProject
     buttonPressed += addNewEvent 
 
 
 CLASS DEFINITION
-    class Car :
+    type Car:
         name, model String
         (name String) :  # Constructor
             self.name = name
@@ -580,7 +598,7 @@ CLASS DEFINITION
 
 
 SELF REFERENCE
-    class Car :
+    type Car:
         name, model String
         (name String) :
             .name = name
@@ -590,7 +608,7 @@ SELF REFERENCE
 
 
 DESTRUCTORS
-    class Car :
+    type Car:
         name, model String
         (name String) :  # constructor
             self.name = name
@@ -633,26 +651,26 @@ MODIFIERS IN LIST DECLARATION
 
 
 PROPERTIES / GETTERS SETTERS
-    myVar1 : set(a, b, c Int) Int: rt x : a * b * c ; get( ) Int: rt x
+    myVar1 : set(a, b, c Int): myVar1 = a * b * c | get(): rt myVar1
     myVar1 = (1, 2, 3)
     myVar2 : 
-        set(a, b Int) Int: rt x : a * b * c
-        get( ) Int: rt x
-    myVar3 : get()Int: rt myVar1
+        set(a, b Int): myVar1 = a * b * c
+        get(): rt myVar1
+    myVar3 : get(): rt myVar1
 
 
 TYPE CHECKING
     if myCar == Car._exact :
-        print 'Type is a Car'
+        print('Type is a Car')
     ..
     if myCar == Car._sub :
-        print 'Type is a sub-class of Car'
+        print('Type is a sub-class of Car')
     ..
     if myCar == Car._super :
-        print 'Type is a super-class of Car'
+        print('Type is a super-class of Car')
     ..
     :: T[Vehicle._sub] ::
-    class Transportation :
+    type Transportation :
         myVehicle1 T
         myVehicle2 T
     ..
@@ -665,7 +683,7 @@ IMPORT STATEMENT
 
 TYPE ALIAS
     Int as Meter
-    import pluto.io.Console as Cons
+    import marko.io.SimplifiedRegex as Regex
 
 
 METHOD CHAINING
@@ -674,10 +692,10 @@ METHOD CHAINING
         value Float
 
         add(a, b Float) Float:
-            value = a + b ;
+            value = a + b
         ..
         subtract(a, b Float) Float:
-            value = a - b ;
+            value = a - b
         ..
     ..
     m Math
@@ -702,13 +720,13 @@ STICKY TYPES MEMBER
 
    
 STICKY CONSTRUCTOR
-    sticky class :
+    sticky type MyClass:
         x, y Int
         (): # they can't have parameters. They only initialise class fields at first use
             .x = 2
             .y = 3
         ..
-        add (x, y Int) Int :
+        add (x, y Int) Int:
             rt a + b
         ..
     ..
@@ -722,8 +740,8 @@ STICKY LOCAL VARIABLES
 
 
 HOLD VARIABLES IN LOOPS
-    for x in 1...50:
-        hold x : 0
+    for x thru 1...50:
+        hold x : 1
         print(x * y)
         x++
     ..
@@ -746,7 +764,7 @@ INHERITANCE # Not Finalized!
     ..
 
 VIRTUAL FUNCTIONS
-    type Listener :
+    type Listener:
         virtual respond()
     ..
     type ButtonListener [Listener] :
@@ -763,24 +781,36 @@ ABSTRACT TYPES
     type DigitalPlayer [Player]:
         override play()
         override rewind()
-        override fastForward()
+        # override fastForward() # overriding is not compulsory.
     ..
 
 
 DOWNCASTING ! Needs review
     # assuming Movie and Song extends MediaItem
-    for item in library:
+    for item thru library:
         if item == Song:
             print('Song: [song.name]')
         elsif item == Movie:
             print ('Movie: [movie.name]')
+        ..
+    ..
+
+
+CONSTANT CLASS
+    let type MyClass:
+        x : 'is immutable'
+        mut y : 'is mutable'
+    ..
+
+UNINHERITABLE CLASS
+    solo type MyClass:
+        x : 'Class Cannot Be Inherited'
     ..
 
 
 GENERICS
-    @deprecated
     ::T [String | Int], U::
-    class DataManager:
+    type DataManager:
         T dataID
         U dataX 
         U dataY 
@@ -789,7 +819,7 @@ GENERICS
 
 
 ENUMS
-    enum RealNum: decimal (/\d|\d+\.\d+/), scientific(/\d\.\d+e[\-\+*]\d/)
+    enum RealNum: decimal(/\d|\d+\.\d+/), scientific(/\d\.\d+e[\-\+*]\d/)
     checkNum(rn RealNum): 
         if rn == decimal: print('[rn] is decimal') 
         elsif rn == scientific: print('[rn] is scientific')
@@ -797,35 +827,35 @@ ENUMS
 
 
 CASES
-    a : 'world'
+    a : 'WORLD'
     b : 5
     test Case : (String, Int)
-    if test(a, b) : print ('Hello .[a]')
+    (test(a, b)): print('Hello [a]') | else print("Bummer!")
 
 
 REGEX
-    y : /\w/ # another regex literal
-    if('Hello' == y)
-    number Regex : /\d+/
+    x : /\d+/
+    x Regex : ("\d+")
+    x : /r/"\d+"
 
 
 PATTERN MATCHING
     type User; type Account; type PayPal [Account]; type Bitcoin [Account]
 
-    case test (String, Account) ; case ppl (PayPal) ; case btc (Bitcoin)
+    test Case: (String, Account) ; ppl Case: (PayPal) ; btc Case: (Bitcoin)
     mary User
     eval mary :
-        test (.name, ppl (.account)) : print ('[name] : [account]') # covariance in case matching
-        test (.name, btc (.account)) : print ('[name] : [account]') # covariance in case matching
+        (test (_.name, ppl (_.account))): print ('[name]: [account]') # covariance in case matching
+        (test (_.name, btc (_.account))): print ('[name]: [account]') # _ represent the value passed into eval block
     ..
 
 
 EVAL
     test Case : (String, Account)
-    eval user :
-        test (.name, .account) : print ('[name] : [account]')
-        User : print (val.toStr( )) // val is an alias to the evaluated
-        else : print ('Unkown') // default
+    eval mary :
+        (test(_.name, _.account)): print ('[name]: [account]')
+        (User): print (_.toStr( )) # val is an alias to the evaluated
+        else : print ('Unkown') # default
     ..
 
 
@@ -845,15 +875,53 @@ MOVE SEMANTICS
     x : _move(getPerson('Akinyemi'))
 
 
+CONCURRENCY
+- All singular (_var+) and associative (_var+=) operations on variables are atomic by default. 
+- In an assignment or initialisation operation. The whole expression is singularly atomic
+- Variables are volatile by default 
+- And methods are sychronised by default
+
+
+ATOMIC EXPRESSION
+    x : y .= 5 # get then set
+    x : y = 5 # set then get
+    lock (y == 5)? print('y is 5')
+
+
+ATOMIC BLOCKS
+    lock block:
+        x : y
+        y = 5
+    ..
+
+
 OPERATOR OVERLOADING
-    _++(obj Stack<T>): # overloading plus operator
-        obj.swap(top)
+    _var++ ():
+        value++
     ..
-    _() (String) String: # overloading call operator
-        rt '[.x], [.y]'
+    _++var ():
+        ++value
     ..
-    _ (String) String: # overloading cast operator
-        rt '[.x], [.y]'
+    _-var ():
+        0 - value
+    ..
+    _var* (other MyObj) MyObj:
+        rt MyObj(.value * other.value)
+    ..
+    _var() (other Int):
+        value = other
+    ..
+    _type() (other Int) MyObj:
+        rt MyObj(other)
+    ..
+    _var[] (row Int, col Int) MyObj:
+        rt my2DArr[row, col]
+    ..
+    _var=[] (args [] Int) MyObj:
+        for x thru args:
+            hold i : 1
+            my1DArr[i] = x
+        ..
     ..
 
 
@@ -862,27 +930,26 @@ TRY & ASSOCIATES
         ensure:
             file.close()
         ..
-
         print("I'm about to open a text file and print its first 500 characters")
         file File : ("C:/Users/Hello/hello.txt")
 
         try file.open().print(1...500)
         catch(fnfe FileNotFoundErr, ioobe IndexOutOfBoundErr):
-            if(fnfe): printErr('Can't find file!')
-            if(ioobe): printErr('Can't find file!')
+            if(fnfe): printErr('Can\'t find file!')
+            if(ioobe): printErr('Can\'t find file!')
         ..
     ..
     try:
         file.open()
         file.write('Hello')
     catch(fnfe FileNotFoundErr):
-        printErr('Can't find file!')
+        printErr('Can\'t find file!')
     ..
     try:
         file.open()
         file.write('Hello')
     catch(fnfe FileNotFoundErr):
-        printErr('Can't find file!')
+        printErr('Can\'t find file!')
     ensure:
         file.close()
     ..
@@ -894,14 +961,14 @@ TRY & ASSOCIATES
         let x : getObject()
     except x == nil:
     catch(ne NilErr):
-        printErr('x can't be nil!')
+        printErr('x can\'t be nil!')
     ..
     try:
         let x : getObject()
     except x == nil: 
         throw NilErr
     catch(ne NilErr):
-        printErr('x can't be nil!')
+        printErr('x can\'t be nil!')
     ..
     try:
         file.open()
@@ -909,12 +976,17 @@ TRY & ASSOCIATES
     except x == nil: 
         throw NilErr
     catch(ne NilErr):
-        printErr('x can't be nil!')
+        printErr('x can\'t be nil!')
     catch(fnfe FileNotFoundErr):
-        printErr('Can't find file!')
+        printErr('Can\'t find file!')
     ensure:
         file.close() 
     ..
+
+
+ASSERTION
+    assert x == null
+    assert x == null : print("Hello")
 
 
 ITERATORS (?)
@@ -923,21 +995,69 @@ ITERATORS (?)
 FLOATING POINT BITWISE OPERATORS (?)
 
 
-META FUNCTIONS
-    a : _type(b)   # pass type
-    c : _ref(b)   # to explicitly pass by ref (equal)
-    d : _weakRef(e)  # to explicitly pass by ref (weak)
-    e : _value(f)   # to explicitly pass by value
-    x : _move(y)  # move ownership, works only if the lhs is the owner of the object
-    d : c    # default, determined by lang
-    i : _min(Int)
+ANNOTATIONs/ATTRIBUTES/MACROS/DECORATORS
+    @deprecated: [msg: "MediaPlayer class should be used instead"]
+    @stub
+    @if:[platform: "Mac"] print("This is a Machintosh Computer") | @endif
+    #------------------------------------
+    @compiler: [] # evaluated at compile-time
+    @linker: [] # evaluated at link-time
+    @runtime: [] # evaluated at runtime
+    @if: [] # evaluated at compile, link and run time
 
+
+COMPILER MACROS
+    @compiler: [
+        typing: "static"
+    ]
+
+
+NON-STANDARD STRING LITERAL AND MACROS
+    myByteArr []: /b/"FFE305"
+    myRegex: /r/"^(\w+)$"
+    @compiler: [ 
+        stringLiteral: [
+            r: "Regex(_str)", 
+            b: "tokenize(_str, /[\dA-Fa-f][\dA-Fa-f]/).toByteArray()" 
+        ]
+    ]
+
+
+META VARIABLES
+    a : b._type  # pass type
+    c : b._ref   # to explicitly pass by ref (equal)
+    d : e._strongRef  # to explicitly make a strong ref, any other refs to the object will be weak
+    e : f._value   # to explicitly pass by value
+    x : y._move  # move ownership, works only if the lhs is the owner of the object
+    d : c    # default, determined by lang
+    i : int._min
 
 CONTEXT SPECIFIC META VARIABLES
     arr[_last] = 20
     if(x == _even)
     if(y == _odd)
     if(a == _max)
+
+
+REFLECTION
+    # dynmically determining which class to use
+    @if:[ stage: "runtime", condition: ["Main.useOldClass == true"] ]
+        type Class:
+            value String: set(x String): value = x | get(): rt value 
+            (.value)
+        ..
+    @else
+        type Class:
+            str String: set(x String): value = x | get(): rt value
+            num Float64: set(x Float64): value = x | get(): rt value
+            (.str)
+            (.num)
+        ..
+    @endif
+
+
+HOMOICONIC !! Needs Review
+
 
 
 COMPLEX, QUATERNION DECLARATION 
@@ -948,7 +1068,7 @@ COMPLEX, QUATERNION DECLARATION
 MATHEMATICAL EXPRESSION
     f : 4f # f is a literal specifier here for f32
     g : {2/(4f^2) - 1 + (x-1) + 1} # f is a coefficient here
-    h : {3f * 2g/5}f # the first f is a coefficient, the second f specifies that expression uses f32 operations. It is by default f
+    h : {3f * 2g/5}f32 # the first f is a coefficient, the second f specifies that expression uses f32 operations. It is by default f
     i : {3x + y(4f^2) - 2/d} # y is a coefficient here, not a function call
     j : {3x + [y(4f^2)] - 2/d} # y is a function call here
 
@@ -995,7 +1115,7 @@ OCTAL LITERALS
     myVar : 0o56773
 
 
-UTF CHARACTERS
+UTF-8 CHARACTERS
     char : '\u6E'
 
 
@@ -1014,6 +1134,7 @@ CLASSES OF OBJECTS
     Var
     Arr
     Tab
+    Exp
 
 
 PREDEFINED TYPES # These types are optimized as part of the lang
@@ -1052,16 +1173,6 @@ LOGICAL vs BITWISE OPERATORS
     ~ .& .|
 
 
-ANNOTATIONs/ATTRIBUTES/MACROS/DECORATORS
-    @deprecated: [msg: "MediaPlayer class should be used instead"]
-    @stub
-    @compiler: [vars: "immutable"]
-
-
-COMPILER ANNOTATIONS
-    @compiler: [vars : "immutable", typing: "static"]
-
-
 BUILT-IN TYPES and PARENTS
     Obj (0.4)
     Nil (0.4) 
@@ -1075,14 +1186,14 @@ BUILT-IN TYPES and PARENTS
 
 KEYWORDS
     stick (0.4) sticky  (0.6.1) 
-    #pub (0.4) public (0.6.1) pub
+    # pub (0.4) public (0.6.1) pub
     priv (0.4) private (0.6.1) priv
     pro (0.4) protected (0.6.1) prot
     pack (0.4) package (0.6.1) pack
     pass (0.7.5)
     class (0.4) 
     rt (0.7.2)
-    def (Rev 0.5.2)
+    # def (Rev 0.5.2)
     let (Rev 0.5.2)
     get (Rev 0.5.2)
     set (Rev 0.5.2)
@@ -1098,7 +1209,18 @@ KEYWORDS
     next (0.6.1)
     break
     label (0.7.0)
-    fixed
+    # fixed
+    thru (0.8)
+    in(0.7.2)
+    skip(0.8)
+    ensure (0.8)
+    try
+    catch 
+    except
+    self
+    mut (0.8)
+    nan (0.8)
+    nil 
  
 
 OPERATORS
@@ -1133,7 +1255,8 @@ OPERATORS
     .&
     >>
     <<
-    '
+-   '
+    .=
 
 
 SYNTACTIC SYMBOLS
@@ -1144,3 +1267,17 @@ SYNTACTIC SYMBOLS
     .
     :
 
+
+
+DUCK TYPING
+    c : nil
+    a : 25
+    b : [1, 2, 3, 4, 5] # array
+    c = [1, 2, 3 | 4, 5, 6] # multi dimen array
+    d : ['Hello', 25, 1.3f, 'Hi'] # table
+    getArea(length, breadth):
+       rt length * breadth
+    ..
+    length : 10
+    breadth : 25
+    rectangleArea : getArea(length, breadth)
