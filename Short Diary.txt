@@ -45,3 +45,7 @@ I might still change it later.
 
 #31/05/16
 I discovered KSI and Deji's channel yesterday. Unbelievable. Been on Youtube for years nw nad I'm just discovering them.
+
+
+#24/07/16
+Last year (or was it the year before?) I noticed that the way most approached AI was wrong. Building an adult-humanoid AI with photographic memory is perhaps the wrong way of developing AI. For me, I think an AI is meant to be grown, just like humans grow from being babies to being adults. The memory model used for AI too is ineffective. For examples we shouldn't record what an AI sees as videos files or what it it hears audio files. Those data types are meant for human perception only. An AI memory model should be about retrieving inputs in the form of textures, shapes or structural bits, that are stored and connected other related bits in a neural digraph. In short, it models how humans remember things. Humans don't remember things photographically, they remember it by piecing experiences together. 

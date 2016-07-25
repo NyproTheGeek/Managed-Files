@@ -126,8 +126,7 @@ Navigation
 - Filters/Tags
 - Isolating
 - Visibility
-- Interactibility
-
+- Interactivity
 Advanced Stuffs
 IK
 - 
@@ -268,7 +267,6 @@ AUTO WEIGHING
 AUTO MESHING
 
 
-
 // 25/05/16
 SCRIPT
 - Theme editing
@@ -279,13 +277,6 @@ SCRIPT
 - Toast and pop-up window creation and customisation
 - Querying info about almost all components of the app
 - Commands that act on objects
-
-
-
-
-
-
-
 
 
 ////
@@ -321,7 +312,7 @@ CANVAS
 
 
 "REASONS WHY YOU MIGHT WANT SPINE (OR OTHER 2D SKELETAl ANIMATION APP)"
-- Support for GPUs below OpenGL 3.3. // Depends on whether I use fuctionailities other than vertex and frag shader.
+- Support for GPUs below OpenGL 3.3. // Depends on whether I use functionailities other than vertex and frag shader.
 - Supports a satisfying number of game engines.
 - Dedicated customer service.
 - 
