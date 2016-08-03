@@ -1,3 +1,22 @@
+//25/07/16
+// getting random value
+// RAND_MAX is usually 2^15 -1 = 32767.
+ qsrand(QDateTime::currentDateTime().toTime_t());
+ int random = qrand() % maxRange;
+
+// getting a hash value
+    QString(QCryptographicHash::hash(myString.toUtf8(),QCryptographicHash::Sha3_224).toHex())
+
+// Get DateTime day, month and year as Int
+// This is the only way I know of. Dunno why a helper function
+// wasn't provided, given one can use date for hashing
+    QDateTime currDateTime = QDateTime::currentDateTime();
+    qDebug() << currDateTime.toString();
+    int currYear = currDateTime.toString("yyyy").toInt();
+    int currMonth = currDateTime.toString("MM").toInt();
+    int currDay = currDateTime.toString("dd").toInt();
+    qDebug() << QString("Year: %1, Month: %2, Day: %3").arg(currYear).arg(currMonth).arg(currDay);
+
 // 14/06/16
 // QString is mutable
 QString str = "Hello";
@@ -26,7 +45,7 @@ QString::toStdString
 // Won't lose Unicode properties
 
 
-// get a directory from File Exxplorer
+// get a directory from File Explorer
 QString dir = QFileDialog::getExistingDirectory(
         this,
         tr("Open Directory")

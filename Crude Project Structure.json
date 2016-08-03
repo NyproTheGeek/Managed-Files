@@ -1,0 +1,184 @@
+# Project
+	! History.json
+	! Project.json
+	! Groups.json
+	! Models.json
+	! Meshes.json
+	! Session.json
+	# Versions
+	# Model
+		# Images
+		# Textures
+		# Skel
+			! MeshFrames.json
+			! Skel.json
+			! Skin.json
+			! Animations.json
+
+
+HEADER JSON
+"properties": {
+	"type": "",
+	"crudeVersion": "2016001",
+	"hash": "CG8bW5uDYybRkXYnPQHdO0m",
+	"dateCreated": "29/07/2016",
+	"dateModified": "29/07/2016",
+	"extra": null
+}
+
+PROJECT JSON
+"properties": {},
+"folders" : [{"name" : "Versions", "dir" : "C:/Users/Public/Public Folder"}],
+"projectPath" : "C:/Users/Public/Public Folder",
+"extra" : null
+
+HISTORY JSON
+"properties": {},
+"log" : [
+	{"index" : 0, "active" : true, "date" : "29/07/2016", "type" : "project", "details" : {}, "extra": null}
+],
+"projectPath" : "C:/Users/Public/Public Folder",
+"extra" : null
+
+
+GROUPS JSON
+"properties": {},
+"modelGroups": [
+	{"name": "Pirates", "modelsNames": ["Parrot Model", "Captain Model"], "extra": null}
+],
+"projectPath" : "C:/Users/Public/Public Folder",
+"extra" : null
+
+MODELS JSON
+"properties": {},
+"models": [
+	{"name": "Captain", "skeletons": ["Young Captain Skel", "Old Captain Skel"], "extra": null}
+],
+"projectPath" : "C:/Users/Public/Public Folder",
+"extra" : null
+
+MESHES JSON
+"properties": {},
+"meshes": [
+	{"name": "Captain", "type" : "2D", "depth": 1.0,
+	"vertices": [{"x": 2.0, "y": 1.3}], 
+	"indices": [{"x": 0, "y": 1}],
+	"abstractMesh":{"aX": 1, "aY": 1, "bX": 1, "bY": -1, "cX": 1, "cY": -1, "dX": -1, "dY": -1}, 
+	"skeletons": ["Normal Captain Skel", "Ghost Captain Skel", "Red Captain Skel"],
+	"extra": null}
+],
+"projectPath" : "C:/Users/Public/Public Folder",
+"extra" : null
+
+
+SESSION JSON
+"properties": {},
+"guiState": [
+	{"widget": "modelList", "height": 200, "width": 70, "horizontalScroll": 0, "verticalScroll": 50}
+],
+"projectPath" : "C:/Users/Public/Public Folder",
+"extra" : null
+
+
+
+
+ANIMATIONS JSON
+"properties": {},
+"name": "",
+"keys": {
+	"rotateKeys": [{"id": 1, "rotateValue": 20, "curveID": 1}],
+	"translateKeys": [{"id": 4, "translateXValue": 5, "translateYValue": 10, "curveXID": 2, "curveYID": 3}],
+	"scaleKeys": [{"id": 40, "scaleXValue": 2, "scaleYValue": 2, "curveXID": 4, "curveYID": 5}],
+	"translateVertexKeys": [{"id": 20, "translateXValue": 6, "translateYValue": 17, "curveXID": 6, "curveYID": 7}],
+	"drawOrderKeys": [{"id": 100, "oldPos": 2, "newPos": 3}],
+	"tintKeys": [{"id": 50, "r": 255, "g": 255, "b": 0, "a": 1.0, "curveID": 14}],
+	"swapKeys": [{"id": 70, "visibleSprites": [{"indexInSlot": 2, "alpha": 100}], "curveID": 15}]
+},
+"keyFields": { // top-level keyfields are stored on top, subKeyFields below
+	"rotateKeyFields": [
+		{
+			"id": 117, "boneIndex": 123, "progressiveLoop": true, "loopTimes": 2,
+			"isSubKeyField": false, "subKeyFieldRefer": 20, 
+			"spriteIndex": -1, "subKeyFields": [{"id": 173, "frameNumber": 78}],
+			"keys": [{"id": 167, "frameNumber": 800}]
+		}
+	],
+	"translateKeyFields": [
+		{
+			"id": 203, "boneIndex": 46, "progressiveLoop": true, "loopTimes": 1,
+			"isSubKeyField": false, "subKeyFieldRefer": 3, 
+			"spriteIndex": -1, "subKeyFields": [{"id": 129, "frameNumber": 23}],
+			"keys": [{"id": 5, "frameNumber": 143}]
+		}
+	],
+	"scaleKeyFields": [
+		{
+			"id": 203, "boneIndex": 46, "progressiveLoop": true, "loopTimes": 1,
+			"isSubKeyField": false, "subKeyFieldRefer": 3, 
+			"spriteIndex": -1, "subKeyFields": [{"id": 129, "frameNumber": 23}],
+			"keys": [{"id": 5, "frameNumber": 143}]
+		}
+	],
+	"translateVertexKeyFields": [
+		{
+			"id": 203, "boneIndex": 46, "vertexIndex": 57, "progressiveLoop": true, 
+			"loopTimes": 1, "isSubKeyField": false, "subKeyFieldRefer": 3, 
+			"spriteIndex": -1, "subKeyFields": [{"id": 129, "frameNumber": 23}],
+			"keys": [{"id": 5, "frameNumber": 143}]
+		}
+	],
+	"drawOrderKeyFields": [
+		{
+			"id": 203, "progressiveLoop": true, "loopTimes": 1,
+			"isSubKeyField": false, "subKeyFieldRefer": 3, 
+			"spriteIndex": -1, "subKeyFields": [{"id": 129, "frameNumber": 23}],
+			"keys": [{"id": 5, "frameNumber": 143}]
+		}
+	],
+	"tintKeyFields": [
+		{
+			"id": 203, "boneIndex": 46, "progressiveLoop": true, "loopTimes": 1,
+			"isSubKeyField": false, "subKeyFieldRefer": 3, 
+			"spriteIndex": -1, "subKeyFields": [{"id": 129, "frameNumber": 23}],
+			"keys": [{"id": 5, "frameNumber": 143}]
+		}
+	],
+	"swapKeyFields": [
+		{
+			"id": 203, "boneIndex": 46, "progressiveLoop": true, "loopTimes": 1,
+			"isSubKeyField": false, "subKeyFieldRefer": 3, 
+			"spriteIndex": -1, "subKeyFields": [{"id": 129, "frameNumber": 23}],
+			"keys": [{"id": 5, "frameNumber": 143}]
+		}
+	]
+},
+"curves": [],
+"bridgeSheets": [],
+"subAnimations": [],
+"frames": [],
+"projectPath" : "C:/Users/Public/Public Folder",
+"extra" : null
+
+MESHFRAMES JSON
+"properties": {},
+"name": "",
+"keys": [],
+"keyFields": [],
+"projectPath" : "C:/Users/Public/Public Folder",
+"extra" : null
+
+SKEL JSON
+"properties": {},
+"guiState": [
+	{"widget": "modelList", "height": 200, "width": 70, "horizontalScroll": 0, "verticalScroll": 50}
+],
+"projectPath" : "C:/Users/Public/Public Folder",
+"extra" : null
+
+SKIN JSON
+"properties": {},
+"guiState": [
+	{"widget": "modelList", "height": 200, "width": 70, "horizontalScroll": 0, "verticalScroll": 50}
+],
+"projectPath" : "C:/Users/Public/Public Folder",
+"extra" : null

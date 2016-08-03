@@ -1117,7 +1117,7 @@ HOMOICONIC !! Needs Review
         type Hello:
             show(): print("Hello!")
         ..)
-    d[Hello()].show()
+    d[Hello].show()
 
 
 COMPLEX, QUATERNION DECLARATION 
@@ -1135,7 +1135,8 @@ MATHEMATICAL EXPRESSION
 
 SYMBOLIC CLASSES
     a Exp : (4 * 5)
-    b Symbol : (:Hello, Hi, Halo, Bonjour)
+    b : (:Hello, Hi, Halo, Bonjour) # inferred as a Synbol object. They are parsed as stringLitera
+    c Symbol : b
     x : a.eval() # 20
     y : b.toString() # 'HelloHiHaloBonjour'
 

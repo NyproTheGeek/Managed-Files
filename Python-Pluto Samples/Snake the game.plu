@@ -1,0 +1,274 @@
+import Win32API, Win32Console, Win32GUI, Codecs
+import Sys
+from pluto.ext.graphics.PluGame
+
+clock := PluGame.time.Clock()
+
+gameDisplay := PluGame.display.setMode([displayWidth, displayHeight]) 
+
+white := [255, 255, 255]
+black := [0, 0, 0]
+red := [255, 0, 0]
+green := [0, 155, 0]
+
+displayWidth := 800
+displayHeight := 600
+
+img := PluGame.image.load("snakehead.png")
+appleImg := PluGame.image.load("apple.png")
+
+appleThickness := 30
+blockSize := 20
+fps := 15
+
+direction := "right"
+
+smallFont := PluGame.font.SysFont("comicsansms", 25)
+medFont := PluGame.font.SysFont("comicsansms", 50)
+largeFont := PluGame.font.SysFont("comicsansms", 80)
+
+introSound := PluGame.mixer.Sound("intro.wav")
+deadSound := PluGame.mixer.Sound("dead.wav")
+
+main():
+    PluGame.init()
+
+    win := Win32Console.getConsoleWindow()
+    Win32API.showWindow(win,0)
+
+    PluGame.display.setCaption("Flafel")
+
+    icon := PluGame.image.load("apple.png")
+    PluGame.display.set_icon(icon)   
+
+    PluGame.mixer.init()
+
+    introSound.play()
+
+    gameIntro()
+
+    introSound.stop()
+    
+    gameLoop()
+..
+
+gameIntro():
+    intro := true
+    while intro:
+        for event thru PluGame.event.get():
+            if event.kind == PluGame.QUIT:
+                PluGame.quit()
+                quit()
+            ..
+            if event.kind == PluGame.KEYDOWN:
+                if event.key == PluGame.K_c:
+                    intro = false
+                if event.key == PluGame.K_q:
+                    PluGame.quit()
+                    quit()
+                ..
+            ..
+        ..
+        gameDisplay.fill(white)
+        
+        messageToScreen("Welcome to Flafel", green, -100, "large")
+        messageToScreen("The objective of the game is to eat red apples", black, -30)
+        messageToScreen("The more apples you eat,the longer you get", black, 10)
+        messageToScreen("If you run into yourself, or the edges, you die!", black, 50)
+        messageToScreen("Press C to play, P to pause or Q to quit", black, 180)
+
+        PluGame.display.update()
+
+        clock.tick(15)
+    ..
+..
+
+pause():
+    paused := true
+    
+    messageToScreen("Paused", black, -100, size := "large")
+    messageToScreen("Press C to continue or Q to quit", black, 25)
+
+    PluGame.display.update()
+
+    while paused:
+        for event thru PluGame.event.get():
+            if event.kind == PluGame.QUIT:
+                PluGame.quit()
+                quit()
+            ..
+            if event.kind == PluGame.KEYDOWN:
+                if event.key == PluGame.K_C:
+                    paused = false
+                elsif event.key == PluGame.K_Q:
+                    PluGame.quit()
+                    quit()
+                ..
+            ..
+        ..
+        
+        clock.tick(5)
+    ..
+..
+    
+score(score):
+    text := smallFont.render("Score: [score]", true, black)
+    gameDisplay.blit(text, [0, 0])
+..
+
+randAppleGen():
+    randAppleX = (random.range(0, displayWidth - appleThickness)).round() #/10.0)*10.0
+    randAppleY = (random.range(0, displayHeight - appleThickness)).round() #/10.0)*10.0
+    rt randAppleX, randAppleY
+..
+
+snake(blockSize, snakeList):
+    if direction == "right":
+        head = PluGame.transform.rotate(img,270)
+    if direction == "left":
+        head = PluGame.transform.rotate(img,90)
+    if direction == "up":
+        head = img
+    if direction == "down":
+        head = PluGame.transform.rotate(img,180)
+
+    gameDisplay.blit(head, (snakeList[-1, 0],snakeList[-1, 1]))
+
+    for xny thru snakeList[_last...]:
+        pygame.draw.rect(gameDisplay, green, (xny[0], xny[1], blockSize, blockSize))
+    ..
+..
+
+textObjects(text, color, size):
+    textSurface := nil
+    if size == "small":
+        textSurface = smallFont.render(text, true, color)
+    elsif size == "medium":
+        textSurface = medFont.render(text, true, color)
+    elsif size == "large":
+        textSurface = largeFont.render(text, true, color)
+    rt textSurface, textSurface.getRect(
+..
+    
+messageToScreen(msg, color, yDisplace := 0, size := "small"):
+    textSurf, textRect := textObjects(msg,color,size)
+    textRect.center = [(displayWidth/2) , (display_height/2) + yDisplace]
+    gameDisplay.blit(textSurf, textRect)
+..
+    
+gameLoop():
+    direction = "right"
+    running := true
+    gameOver := false
+
+    leadX := displayWidth/2
+    leadY := displayHeight/2
+
+    leadXChange := 10
+    leadYChange := 0
+
+    snakeList := []
+    snakeLength = 1
+
+    randAppleX, randAppleY := randAppleGen()
+    
+    while running:
+        if gameOver:
+            messageToScreen("Game over", red, -50, size := "large")
+            messageToScreen("Press C to play again or Q to quit", black, 50, size := "medium")
+            PluGame.display.update()
+        ..  
+        while gameOver:
+            #gameDisplay.fill(white)
+            for event thru PluGame.event.get():
+                if event.kind == PluGame.QUIT:
+                    gameOver = false
+                    running = false
+                ..
+                if event.kind == PluGame.KEYDOWN:
+                    if event.key == PluGame.KQ:
+                        running = false
+                        gameOver = false
+                    ..
+                    if event.key == PluGame.KC:
+                        gameLoop()
+                ..
+            .. 
+        ..           
+        for event in PluGame.event.get():
+            if event.kind == PluGame.QUIT:
+                running = false
+            if event.kind == PluGame.KEYDOWN:
+                if event.key == PluGame.K_LEFT:
+                    direction = "left"
+                    leadXChange = -blockSize
+                    leadYChange = 0
+                elsif event.key == PluGame.K_RIGHT:
+                    direction = "right"
+                    leadXChange = blockSize
+                    leadYChange = 0
+                elsif event.key == PluGame.K_UP:
+                    direction = "up"
+                    leadYChange = -blockSize
+                    leadXChange = 0
+                elsif event.key == PluGame.K_DOWN:
+                    direction = "down"
+                    leadYChange = blockSize
+                    leadXChange = 0
+                elsif event.key == PluGame.K_p:
+                    pause()
+                ..
+            ..
+        ..
+        if leadX >= display_width | < 0 | leadY < 0 | >= displayHeight:
+           gameOver = true
+           deadSound.play()
+        ..
+        leadX += leadXChange
+        leadY += leadYChange
+
+        gameDisplay.fill(white)
+
+        gameDisplay.blit(appleImg, (randAppleX, randAppleY))
+
+        
+        snakeHead := []
+        snakeHead.append(leadX)
+        snakeHead.append(lead_y)
+        snakeList.append(snakeHead)
+
+        if snakeList.length() > snakeLength:
+            snakeList.remove(1)
+        for eachSegment thru snakeList[_last...]:
+            if eachSegment == snakeHead:
+                gameOver = true
+                deadSound.play()
+            ..
+        ..
+                 
+        snake(blockSize, snakeList)
+
+        score(snakeLength - 1)
+        
+        PluGame.display.update()
+
+        if leadX > randAppleX & < randAppleX + appleThickness 
+            | leadX + blockSize > randAppleX
+            & < randAppleX + appleThickness:
+
+            if leadY > randAppleY & < randAppleY + appleThickness:
+                randAppleX, randAppleY = randAppleGen()
+                snakeLength++
+            elsif leadY + blockSize > randAppleY | < randAppleY + appleThickness:
+                randAppleX, randAppleY = randAppleGen()
+                snakeLength++
+            ..
+        ..
+
+        clock.tick(fps)
+    ..
+    
+    PluGame.quit()
+    quit()
+..
+

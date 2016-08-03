@@ -9,8 +9,28 @@ scope: source.pluto
 contexts:
   main:
 
+    - match: '^([A-Z\-]+ *.*)$' # Not Part of Pluto Syntax
+      scope: comment.line.number-sign.pluto
+
+    - match: '^(\-[ A-Za-z\-]+ *.*)$' # Not Part of Pluto Syntax
+      scope: comment.line.number-sign.pluto
+
+    - match: '/[^ ]+/' # regex
+      scope: keyword.operator.pluto
+      name: regex
+
+    - match: ':=|:|,|\;|\.\.\.|\.\.|@'
+      scope: markup.bold.pluto # I know, but I need a unique style
+      name: special_operators
+
     - match: '\b([A-Z]|[A-Z][A-Za-z0-9]+)\b' # classes
       scope: support.class.pluto
+
+    - match: '\b(_(\-|\+|\-\-|\+\+)?[A-Za-z0-9]+(\-|\+|\*|/|\%|//|\^|\-\-|\+\+|\=|\(\)|\=\=|\=\[\]|\[\]|\+=|-=|\*=||%=|\^=|/=|//=)*)' # operator overloading metas
+      scope: constant.numeric.pluto
+
+    - match: '\b(_[A-Za-z0-9]+)\b' # metas
+      scope: constant.numeric.pluto
 
     - match: '\b(String|Char|Byte|SByte|Num|Int|Int32|Int64|Int16|UInt|Unt32|UInt64|UInt16|IFit|UIFit|Float|Double|Complex|Complex128|Quat|Quat256|Bool|Obj|Func|Arr|Tab|super|sub)\b'
       scope: support.class.pluto
@@ -18,25 +38,28 @@ contexts:
     - match: '\b(set|get|import|from|package)\b'
       scope: entity.name.function.pluto
 
-    - match: '\b(for|if|elsif|while|eval|until|do|loop|rt|in|step|block|yield|take)\b'
+    - match: '\b(for|if|else|elsif|while|eval|until|do|loop|block|try|catch|except|ensure)\b'
       scope: keyword.control.flow.pluto
 
     - match: '\b(true|false|nil|)\b'
       scope: keyword.operator.pluto
 
-    - match: \b(sticky|abs|const|priv|pack|pass|prod|read|rpriv|rpack|rpass|rprod|wpriv|wpack|wpass|wprod|override|let|where|alias|mod|hold)\b
+    - match: \b(sticky|abs|solo|const|priv|pack|pass|prod|prot|read|rpriv|rpack|rpass|rprod|wpriv|wpack|wpass|wprod|wprot|override|virtual|let|self|mut|alias|mod|hold|nan|lock)\b
       scope: storage.modifier.pluto
 
-    - match: \b(class|case|enum|event|stack|type)\b
-      scope: storage.type.pluto
+    - match: \b(class|enum|event|stack|type)\b
+      scope: keyword.control.flow.pluto
 
-    - match: \b(print|println|list|listln|main|send|next|break|goto)\b
+    - match: \b(print|println|printErr|list|listln|main|send|next|break|as|rt|in|not[\s]+in|yield|take|step|label|skip|thru|use)\b
       scope: support.function.pluto
 
-    - match: '\b(\d+\.\d+[fd]|\d+\.\d+|\d+[fd]|\d+i)\b'
+    - match: '\b((\d_?)+\.(\d_?)+(e[+-](\d_?)+)?[a-z]*|(\d_?)+[a-z]+)\b' # floating points
       scope: constant.numeric.pluto
 
-    - match: '\b([\+\-]\d+|\d+)\b'
+    - match: '\b([\+\-]*(\d_?)+)\b' # integers
+      scope: constant.numeric.pluto
+
+    - match: '\b([\+\-]*0x([0-9A-Fa-f]_?)+|[\+\-]*0o([0-8]_?)+|[\+\-]*0b([01]_?)+)\b' # hex, oct, bin
       scope: constant.numeric.pluto
 
     - match: '\~|\.\||\.&|\.\^'
@@ -55,43 +78,61 @@ contexts:
       scope: keyword.operator.pluto
       name: ternary_operators
 
-    - match: '=|\+=|-=|\*=||%=|\^=|/=|//='
+    - match: '=|\+=|-=|\*=||%=|\^=|/=|//=|\.='
       scope: keyword.operator.pluto
       name: equal_operators
 
-    - match: ':|,|\;|\.\.\.|\.\.|@'
-      scope: markup.bold.pluto # I know, but I need a unique style
-      name: special_operators
+    - match: '(@deprecated|@stub|@compiler|@if|@else|@elsif|@endif|@compiler|@linker|@runtime)' # annotations
+      scope: markup.bold.pluto 
 
     - match: '\[|\]|\(|\)'
+      scope: markup.bold.pluto # I know, but I need a unique style
+
+    - match: "\\w'"
       scope: markup.bold.pluto # I know, but I need a unique style
 
     - match: '"""'
       push: triple_double_quote
 
-    - match: '"'
+    - match: '"|[A-Za-z]+"'
       push: double_quoted_string
 
     - match: \'\'\'
       push: triple_single_quote
 
-    - match: \'
+    - match: \'|[A-Za-z]+\'
       push: single_quoted_string
 
     - match: '#'
       push: single_line_comment
 
-    - match: '\.#|\\#'
+    - match: '\.#|\#'
       push: multiline_comment
+
+    - match: "\\.\\'|\\.\""
+      push: multiline_string
 
     - match: '\{'
       push: braces
+
+  multiline_string:
+    - meta_scope: string.quoted.single.pluto
+    - match: '\.#|\\#'
+      push: multiline_comment
+    - include: multiline_comment
+    - match: "\\b(\\.\\[|\\.t|\\.n|\\.#|\\\\\\[|\\\\t|\\\\n|\\\\\"|\\\\\'|\\\\\\#|\\\\\\.|\\\\\\\\)\\b"
+      scope: constant.character.escape.pluto
+    - match: '\['
+      push: escape_brackets
+    - match: "\\.\\'|\\.\""
+      scope: punctuation.definition.string.end.pluto
+      pop: true
 
   double_quoted_string:
     - meta_scope: string.quoted.double.pluto
     - match: '\.#|\\#'
       push: multiline_comment
-    - match: '\\.|\..'
+    - match: "\\b(\\.\\[|\\.t|\\.n|\\.\"|\\.\'|\\.#|\\\\\\[|\\\\t|\\\\n|\\\\\"|\\\\\'|\\\\\\#|\\\\\\.|\\\\\\\\)\\b"
       scope: constant.character.escape.pluto
     - match: '\['
       push: escape_brackets
@@ -104,7 +145,7 @@ contexts:
     - match: '\.#|\\#'
       push: multiline_comment
     - include: multiline_comment
-    - match: '\\.|\..'
+    - match: "\\b(\\.\\[|\\.t|\\.n|\\.\"|\\.\'|\\.#|\\\\\\[|\\\\t|\\\\n|\\\\\"|\\\\\'|\\\\\\#|\\\\\\.|\\\\\\\\)\\b"
       scope: constant.character.escape.pluto
     - match: '\['
       push: escape_brackets
@@ -114,9 +155,6 @@ contexts:
 
   triple_single_quote:
     - meta_scope: string.quoted.single.pluto
-    - match: '\.#|\\#'
-      push: multiline_comment
-    - include: multiline_comment
     - match: \\\'\'\'
       scope: constant.character.escape.pluto
     - match: \'\'\'
@@ -125,19 +163,25 @@ contexts:
 
   triple_double_quote:
     - meta_scope: string.quoted.double.pluto
-    - match: '\.#|\\#'
-      push: multiline_comment
-    - include: multiline_comment
-      scope: constant.character.escape.pluto
     - match: '\\"""'
       scope: constant.character.escape.pluto
     - match: '"""'
       scope: punctuation.definition.string.end.pluto
       pop: true
 
+
+  # regex:
+  #   - meta_scope: string.quoted.single.pluto
+  #   - match: '\.#|\\#'
+  #     push: multiline_comment
+  #   - include: multiline_comment
+  #   - match: '\/'
+  #     scope: punctuation.definition.string.end.pluto
+  #     pop: true
+
   escape_brackets:
     - meta_scope: constant.character.escape.pluto
-    - match: '\.#|\\#'
+    - match: "\\b(\\.\\[|\\.t|\\.n|\\.\"|\\.\'|\\.#|\\\\\\[|\\\\t|\\\\n|\\\\\"|\\\\\'|\\\\\\#|\\\\\\.|\\\\\\\\)\\b"
       push: multiline_comment
     - match: '\]'
       pop: true
