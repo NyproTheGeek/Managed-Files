@@ -1,0 +1,64 @@
+1. What will the name of your app be?
+
+2. What is the purpose be of your app?
+
+3. Who are the target audience of your app?
+
+4. What domain would you place your app in? 
+	(a) Social Networking	(b)Entertainment	(c)Educational 
+	(d) Finance				(e)Informational
+
+5. Will there be a back-end logic to your app. If yes, can you state why?
+
+6. What do you favour more? Performance or Attractiveness?
+
+7. When is the expected deadline for the completrion of the app
+
+8. It is highly recommended to attach references or drafts of how you would like the app to work or look.
+
+------------------------------------------------------------------------
+
+My services are provided as is.The fees are for developing the product only, not for maintaining it.
+However, I will provide one-year of bug-fix service in order to ensure the stability and quality of the product.
+I will not be held accountable for any direct or indirect damage the product does to anyone or property in the future.
+
+------------------------------------------------------------------------
+
+UI: The UI also called the User Interface, is the part of your app the user can directly interact with. It is usually the visible aspect of ur app. The menus, toolbars, buttons, sliders, etc. This part of the app needs creative focus and effort as it contributes majorly to user's perception of your app.
+
+UX: UX (User Experience) is the perception users build towards your app through usage. A good UX design makes the user's experience of an app smooth, intuitive, coherent and pleasant.
+
+Front-end: The front-end is the programmed logic that makes the UI part of an app possible. It usually deals with the visible constructs of your app. What happens when a user tap a button; how the icons on a page are arranged, etc. The front-end logic resides in the end-user's phone or PC because it needs to be rapidly accessible any time the app is started.
+
+Back-end: The back-end is the logic behind the processing of certain user inputs that do not reside on the end-user's device. These inputs are sent to web servers for back-end programs to process and give corresponding otput. An example of app domains that need back-end logic is social networking apps. These apps transfers user messages and status updates to a central server over the internet where back-end programs operate on them and relay appropriate contents to other users.
+Back-end development is usually more expensive than front-end development.
+
+-------------------------------------------------------------------------
+
+
+
+WHAT IT TAKES TO DEVELOP AN ANDROID APP (For Beginners Only)
+Building an Android app comes down to two major skills: Java and Android. Java is the offical language of Android development, but it also encompasses learning XML for the design of the app, learning the concepts of Android, and using the concepts programmatically with Java.
+
+Once you learn Java and XML (XML is really easy to get used to, and you should learn the language as you program your app rather than learning it beforehand like you would with Java), you need to learn how to connect these two using Android principles.
+
+For a total beginner, I recommend learning Java. There are no shortcuts here, you just have to learn Java.
+You can start with YouTube tutorials to get the basic idea of how to install Eclipse (the Integrated Development Environment, or IDE, for Java) and the Java Development Kit (JDK). It also helps to get the basic idea of syntax behind Java concepts, such as for loops and if statements.
+
+But from then on, after you have learned the very basics, I highly recommend ditching the YouTube tutorials in favor of a book or a lecture series. YouTube tutorials very often do not give intuition behind important concepts, which I feel is 100% necessary if you wish to make an Android app.
+
+Using Google to search up any questions that you are stuck on will save a lot of time and stress. The top results will usually lead to Stack Overflow, but when Stack Overflow doesn't have an answer you can post your questions on /r/androiddev Subreddit. They are always there to help.
+
+So to wrap it up, here are the 5 basic things you need:
+1. You need to learn Java, there is no way around it
+2. Android part encompasses learning XML for the app design, understanding concepts of Android and using said concepts programmatically with Java
+3. Beginners should probably use an IDE (I prefer Android Studio over Eclipse)
+4. Building your first app is time-consuming: it won’t happen overnight. This is not a project for those looking for a fast result
+5. When stuck on a problem (which will inevitably happen), turn to Stack Overflow. If no luck there, seek the Android Subreddit where there is a helpful community
+
+--learntocodewith.me
+
+PS: For your Windows, Android, Linux and Mac app development, you can contact me at: 
+appcypher@outlook.com
+08108753144
+My services are cheap.

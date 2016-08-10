@@ -1,0 +1,20 @@
+#include <QApplication>
+#include <QtWidgets>
+
+int main(int argc, char *argv[])
+{
+    QApplication a(argc, argv);
+    QWidget *window = new QWidget;
+    window->setWindowTitle("TinyPose Dev");
+
+    QPlainTextEdit *ptEdit = new QPlainTextEdit("Hello!");
+    QHBoxLayout *layout = new QHBoxLayout;
+
+    layout->addWidget(ptEdit);
+
+    /// TODO
+
+    window->setLayout(layout);
+    window->show();
+    return a.exec();
+}

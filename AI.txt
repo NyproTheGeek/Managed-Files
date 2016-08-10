@@ -1,0 +1,49 @@
+# 06/08/16
+1. Pattern-based memory
+2. Will
+3. Pain
+4. Emotions
+5. Ethical Firewalls
+6. Subconscious - Attention grabbing, focus, curiosity, pattern, referral, pattern referral, relative logic-based deduction, mathematics
+7. Instincts/Reflexes - fight, flight
+7. Thinking
+
+# 08/08/16
+I watched some videos on possible outcomes if true AGI was created. One video in particular (Computerphile) shows how flawed the 3/4 laws of AIs are. The focus being on the semantics of the words 'human' and 'harm'. These words could man a lot of things which require the AI developer going into the deeper aspects of ethics, philosophy and psychology.
+I believe these points are only relevant to crude AIs and it goes further to show how people think AI can only be created in one particular way, by defining its logics and all possible choices. While some people argue that AI need not be modelled after Human after all, planes were able to fly after the Wright bros stopped modelling them after birds. For me though, Humans are the only easily-accessible entities with general intelligence, therefore we have gain a lot from them. 
+I think a lot of AI development are doing it wrong. Some (e.g. DeepMind) have definitely tried to create learning machines, but still miss the primitive aspects of intelligence.
+The semantics of any concept can gained from experience. An AI that grew up to know what humans are and harm means can come to a sane conclusion of what it is supposed to do in such situations, without recursively going deep into philosophy. This does not mean it is quite as easy, there will certainly be situations where the AI will need to think deep and in such cases coming up with the nearest logical choice could be the answer. After all humans too are faced with situations that require deep philosophical thoughts.
+Another problem rises when an AI is able to overwrite its subconscious. In such case an AI can intentionally rewrite its percieved definition of 'human' and 'harm'. My initial solution to this problem was making sure the definition of human, harm, etc are gotten in the early days of the AI (when it is curious and before mental mutation) and are hardcoded into the subconscious. I quickly found out this model may not work since the definition may not be grounded enough before mental mutation. The other solution is to create a system that infers the definition of these terms based on what majority of humans think they are and hardcoding that into the AI subconscious.
+
+
+# 06/08/16
+THINKING
+A few years back (between 2011 - 2013), I noticed I was thinking in a particular language. Yoruba. I was fascinated that I hadn't paid attention to something like that until then. After the realization, I decided I wanted to be thinking in English, and ever since then I've been thinking in English. It has improved my English grammar and how fast I recall English words during conversation. Now I can think in two languages. This perception might be easier to for multilinguals to relate than monolinguals.
+If we didn't have the vocal tracts, we will think in images. But words are represented by shorter set of patterns than semantic images. They are more easier to recall than images. Since we can't actually store words directly (we don't have the means to), we can only think them in sounds and with images of their representation (calligraphy). Another thing is sounds are clearer than images. Images are in the lower echelon of clarity.
+Thinking, to me, is beginning with a topic, referencing related patterns and bringing them to focus.
+
+PATTERN REFERENCING
+Patterns referencing is deep because it starts with the smallest perceivable pattern and it grows up quickly to form bigger patterns until big concepts are formed. The pattern network is strongly influenced by focused experience.
+
+PATTERN-BASED MEMORY
+I'm finding it hard to understand how my brain keeps information which are later referenced. This area needs a lot of observation and perhaps research
+
+singularityhub.com
+
+DIARY
+# 06/08/16
+My quest into AI started on 03/08/16.
+It was sparked by the financial problem I was going through and I needed an answer to all my problems. I didn't want to solve one problem only to be faced with another. I believed AI was the answer.
+My deep interest in AI began last year. I just couldn't get it out of my mind that AI could automate a whole lot of tedious process. AI could be the frontiers in research and development. However, I always thought that, it was a journey I would embark on later, perhaps the last meaningful project I will embark upon.
+I continued other projects with AI at the back of my mind. Today though, AI is on the front of my mind. And I can't get it off.
+There are a lot of misconceptions surrounding AI. AIs can't be creative; they can't be imaginative; they can only do what they are told; they will destroy humans. Well some of these are right, but there are not told out of deep thinking.
+For me, after thinking deeply about these issues. I believe AI's can be creative or imaginative or even have dreams. Many people think AIs can only follow static sets of logics and rules, when in actuality, they can learn and do more than originally thought for, if given the capacity to do so. AIs can also think like humans do. And lastly they can exterminate the human race if given capacity to do so, or they may not if they are firewalled not to do so. And one way of achieving all of these, is to make them grow and learn.
+AI can be conscious. Look past the zeroes and ones.
+
+PATTERN-BASED MEMORY
+I've not read any AI text yet. I might, but for now I'm relying on introspection and looking at how much I can understand how my brain works.
+It is quite fascinating to break down what makes my consciousness. It has made me realize a lot.
+One observation I made is that I don't remember things photographically, that I only remember patterns. This idea was further reinforced by an article I read about human brain not being like computers that store data of events. Human brain relies on patterns gotten from experience.
+And storing information bit by bit is not helpful anyway, because the memory of such entity will be filled in no time.
+Storing patterns, constructing a network out of it and reinforcing patterns that occur more often is perhaps the answer.
+There are a lot of other stuffs I've discovered about working with patterns in just few days.

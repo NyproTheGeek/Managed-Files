@@ -5,6 +5,9 @@
 # the user can override the id, tho it must not clash 
 # with the ids of other objects in the category.
 
+# 06/08/16
+# virtually everythng has an ID, so if there is no name, id is saved instead
+
 type Group:
 	name := String
 	id := Int
@@ -32,8 +35,7 @@ type Skeleton:
 
 type Bone:
 	name := String
-	id := Int
-	orderIndex := Int
+	orderIndex := Int # also id
 	children := List<ref Bone>
 	ref baseParent := Bone
 	ref tipParent := Bone
@@ -76,7 +78,7 @@ type ImageData:
 	ref texAtlas := TextureAtlas
 	texPos := [2] Float
 	texDimen := [2] Float
-	texAngle := [2] Float
+	texAngle := Float
 ..
 
 type TextureAtlas:
@@ -98,7 +100,7 @@ type AbstractMesh:
 	vertexData := [8] Float
 ..
 
-type MeshFrame:
+type MeshFrame: # just for grouping meshes # just like group groups models
 	name := String
 	id := Int
 	mesh := List<ref Mesh>
@@ -120,7 +122,7 @@ type Animation: # can be used for transform constraint
 	curves := List<own CurveGraph> # destroyed when animation is disposed
 	bridgeSheets := List<own BridgeSheet> # bridgesheets that precede the animation # destroyed when animation is disposed
 	subAnimations := List<own SubAnimation> # destroyed when animation is disposed
-	frames := HashMap<Int, List<ref KeyField>> # frame number and list of keyFields
+	frames := HashMap<Int, List<ref KeyField>> # frame number and list of top-level keyFields
 	# KeyField loopTimes appends the KeyField to the Timeline by exactly the loopTimes
 ..
 
@@ -138,7 +140,6 @@ type BridgeSheet:
 ..
 
 type CurveGraph:
-	name := String
 	id := Int
 	isStepped := Bool
 	p1 := [2] Float 
@@ -150,6 +151,7 @@ type CurveGraph:
 # KEYFIELDS
 
 type KeyField:
+	id := Int
 	boneIndex := Int
 	progressiveLoop := Bool
 	loopTimes := Float
@@ -185,8 +187,6 @@ type TranslateVertexKeyField [KeyField]:
 ..
 
 type DrawOrderKeyField [KeyField]:
-	# bone Index is useless for this one
-	# instead it works with the skeleton
 	subKeyFields := HashMap<own DrawOrderKeyField, Int>
 	keys := HashMap<ref DrawOrderKey, Int>
 ..
@@ -241,4 +241,9 @@ type TintKey [Key]:
 type SwapKey [Key]:
 	visibleSprites := HashMap<Int, Int> # indexInSlot and alpha
 	curve := CurveGraph
+..
+
+
+# EDITOR
+type Label:
 ..
