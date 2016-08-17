@@ -1,0 +1,9 @@
+'.source.pluto':
+  'editor':
+    'autoIndentOnPaste': false
+    'softTabs': true
+    'tabLength': 2
+    # 'foldEndPattern': '^\\s*"""\\s*$'
+    'commentStart': '# '
+    'increaseIndentPattern': ':\\s*$'
+    'decreaseIndentPattern': '^\\s*(elsif|else|catch|ensure)\\b.*:|\\.\\.' # while

@@ -49,3 +49,9 @@ I discovered KSI and Deji's channel yesterday. Unbelievable. Been on Youtube for
 
 #24/07/16
 Last year (or was it the year before?) I noticed that the way most approached AI was wrong. Building an adult-humanoid AI with photographic memory is perhaps the wrong way of developing AI. For me, I think an AI is meant to be grown, just like humans grow from being babies to being adults. The memory model used for AI too is ineffective. For examples we shouldn't record what an AI sees as videos files or what it it hears audio files. Those data types are meant for human perception only. An AI memory model should be about retrieving inputs in the form of textures, shapes or structural bits, that are stored and connected other related bits in a neural digraph. In short, it models how humans remember things. Humans don't remember things photographically, they remember it by piecing experiences together. 
+
+#17/08/16
+I've installed vmware since July 29. But I was only able to download Linux last Sunday. I installed and it worked fine, albeit some issues during installation. 
+And the next day, I found out I couldn't resume my pc, so I had to force shut down, which affected the hibernated VM as I was unable to start up my ubuntu VM later. So I had create new one from scratch yesterday and it is urrently working fine.
+I've learnt my lesson to always shutdown the guest OS before hibernating.
+I'm still downloading the VMware tools, it is taking incredibly long, and it is just 160+ mb.

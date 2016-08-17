@@ -1,8 +1,8 @@
 # 19/06/16
 # 30/07/16 # revised to Pluto 0.8.1
-# names are compulsory for some 
-# ids are provided by default by the appends# however, 
-# the user can override the id, tho it must not clash 
+# names are compulsory for some
+# ids are provided by default by the appends# however,
+# the user can override the id, tho it must not clash
 # with the ids of other objects in the category.
 
 # 06/08/16
@@ -32,6 +32,7 @@ type Skeleton:
 	anims := List<ref Animation>
 	ref model := Model
 ..
+play(skel := Skeleton, anim := Animation, speed := 1f)
 
 type Bone:
 	name := String
@@ -41,7 +42,7 @@ type Bone:
 	ref tipParent := Bone
 	ref skel := Skeleton
 	spriteSlot := SpriteSlot
-	pos := [2] Float
+	pos := 2 Float []
 	angle := Float
 	length := Float
 	ikWeight := Float
@@ -53,51 +54,52 @@ type SpriteSlot:
 	sprites := List<ref Sprite>
 	visibleSprites := HashMap<Int, Int> # sprite index and alpha
 	# if a visible sprite has an alpha of 0, it is not rendered at all
-	pos := [2] Float
+	pos := 2 Float []
 	angle := Float
-	scale := [2] Float
-	shear := [2] Float
-	tint := [4] Float
+	scale := 2 Float []
+	shear := 2 Float []
+	tint := 4 Float []
 	alpha := Float
 ..
+
 
 type Sprite:
 	name := String
 	id := Int
 	ref mesh := Mesh
-	pos := [2] Float
+	pos := 2 Float []
 	angle := Float
-	scale := [2] Float
-	shear := [2] Float
-	rgba := [4] Float
+	scale := 2 Float []
+	shear := 2 Float []
+	rgba := 4 Float []
 	image := ImageData
 ..
 
 type ImageData:
 	id := Int # must correspond to associated image
 	ref texAtlas := TextureAtlas
-	texPos := [2] Float
-	texDimen := [2] Float
+	texPos := 2 Float []
+	texDimen := 2 Float []
 	texAngle := Float
 ..
 
 type TextureAtlas:
 	name := String
 	id := Int
-	bitmap := [,] Vec4f 
+	bitmap := [,] Vec4f
 ..
 
 type Mesh:
 	name := String # it can be empty
 	id := Int
-	vertexData := List<[4] Float> # positions and uvs
-	indices := List<[2] Int> 
-	meshSeamVertexData := List<[4] Float>
+	vertexData := List<4 Float []> # positions and uvs
+	indices := List<2 Int []>
+	meshSeamVertexData := List<4 Float []>
 	absMesh := AbstractMesh
 ..
 
 type AbstractMesh:
-	vertexData := [8] Float
+	vertexData := 8 Float []
 ..
 
 type MeshFrame: # just for grouping meshes # just like group groups models
@@ -130,7 +132,7 @@ type SubAnimation: # SubAnimation is a subset of an animation, it is needed for 
 	name := String
 	id := Int
 	ref parentAnim := Animation
-	range := [2] Int # begin and end frame
+	range := 2 Int [] # begin and end frame
 ..
 
 type BridgeSheet:
@@ -142,8 +144,8 @@ type BridgeSheet:
 type CurveGraph:
 	id := Int
 	isStepped := Bool
-	p1 := [2] Float 
-	p2 := [2] Float
+	p1 := 2 Float []
+	p2 := 2 Float []
 	# if respectively, p1 and p2 are 0,0|1,1 or 0,0|0,0 or 1,1|1,1 or 1,1|0,0 then they are linear
 	# if isStepped is true, then p1.x is used as the step value; it must be in the range 0 and 1
 ..
@@ -212,29 +214,29 @@ type RotateKey [Key]:
 ..
 
 type TranslateKey [Key]:
-	translateValue := [2] Float
+	translateValue := 2 Float []
 	curveX := CurveGraph
 	curveY := CurveGraph
 ..
 
 type ScaleKey [Key]:
-	scaleValue := [2] Float
+	scaleValue := 2 Float []
 	curveX := CurveGraph
 	curveY := CurveGraph
 ..
 
 type TranslateVertexKey [Key]:
-	translateValue := [2] Float
+	translateValue := 2 Float []
 	curveX := CurveGraph
 	curveY := CurveGraph
 ..
 
 type DrawOrderKey [Key]:
-	bonePosChanges := List<[2] Int> # old pos and new pos
+	bonePosChanges := List<2 Int []> # old pos and new pos
 ..
 
 type TintKey [Key]:
-	tint := [4] Float # rgba
+	tint := 4 Float [] # rgba
 	curve := CurveGraph
 ..
 

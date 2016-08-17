@@ -1,10 +1,10 @@
 # Project
-	! History.json
 	! Project.json
+	! History.json
+	! Session.json
 	! Groups.json
 	! Models.json
 	! Meshes.json
-	! Session.json
 	# Versions
 	# Model
 		# Images
@@ -30,19 +30,28 @@ HEADER JSON
 
 PROJECT JSON
 "properties": {},
+"name": "The Pirates"
 "folders" : [{"name" : "Versions", "dir" : "C:/Users/Public/Public Folder", "extra": null }],
-"projectPath" : "C:/Users/Public/Public Folder",
+"projectDir" : "C:/Users/Public/Public Folder",
 "extra" : null
 
 
 HISTORY JSON
 "properties": {},
 "log" : [
-	{"index" : 0, "active" : true, "date" : "29/07/2016", "type" : "project", "details" : {}, "extra": null}
+	{"index" : 0, "active" : true, "date" : "29/07/2016", "type" : "project", "action": "create", "details" : {"name": "The Pirates", "dir": "C:/Users/Public/Public Folder"}, "extra": null}
 ],
 "projectPath" : "C:/Users/Public/Public Folder",
 "extra" : null
 
+SESSION JSON
+"properties": {},
+"guiState": [
+	{"widget": "modelList", "height": 200, "width": 70, "horizontalScroll": 0,
+	"verticalScroll": 50, "openedModelIDs": [23, 5], "extra": null}
+],
+"projectPath" : "C:/Users/Public/Public Folder",
+"extra" : null
 
 GROUPS JSON
 "properties": {},
@@ -74,16 +83,6 @@ MESHES JSON
 "extra" : null
 
 
-SESSION JSON
-"properties": {},
-"guiState": [
-	{"widget": "modelList", "height": 200, "width": 70, "horizontalScroll": 0,
-	"verticalScroll": 50, "openedModelIDs": [23, 5]}
-],
-"projectPath" : "C:/Users/Public/Public Folder",
-"extra" : null
-
-
 ANIMATIONS JSON
 "properties": {},
 "animations": [
@@ -95,7 +94,8 @@ ANIMATIONS JSON
 			"translateVertexKeys": [{"id": 20, "translateXValue": 6, "translateYValue": 17, "curveXID": 6, "curveYID": 7}],
 			"drawOrderKeys": [{"id": 100, "oldPos": 2, "newPos": 3}],
 			"tintKeys": [{"id": 50, "r": 255, "g": 255, "b": 0, "a": 255, "curveID": 14}],
-			"swapKeys": [{"id": 70, "visibleSprites": [{"indexInSlot": 2, "alpha": 100}], "curveID": 15}]
+			"swapKeys": [{"id": 70, "visibleSprites": [{"indexInSlot": 2, "alpha": 100}], "curveID": 15}],
+			"extra": null
 		},
 		"keyFields": { // top-level keyFields are stored on top, subKeyFields below
 			"rotateKeyFields": [
@@ -103,7 +103,8 @@ ANIMATIONS JSON
 					"id": 117, "boneName": "leftUpperArm", "progressiveLoop": true, "loopTimes": 2,
 					"isSubKeyField": false, "subKeyFieldRefer": 20,
 					"spriteIndex": -1, "subKeyFields": [{"id": 173, "frameID": 78}],
-					"keys": [{"id": 167, "frameID": 200}]
+					"keys": [{"id": 167, "frameID": 200}],
+					"extra": null
 				}
 			],
 			"translateKeyFields": [
@@ -111,7 +112,8 @@ ANIMATIONS JSON
 					"id": 203, "boneName": "leftUpperArm", "progressiveLoop": true, "loopTimes": 1,
 					"isSubKeyField": false, "subKeyFieldRefer": 3,
 					"spriteIndex": -1, "subKeyFields": [{"id": 129, "frameID": 23}],
-					"keys": [{"id": 5, "frameID": 143}]
+					"keys": [{"id": 5, "frameID": 143}],
+					"extra": null
 				}
 			],
 			"scaleKeyFields": [
@@ -119,7 +121,8 @@ ANIMATIONS JSON
 					"id": 203, "boneName": "leftUpperArm", "progressiveLoop": true, "loopTimes": 1,
 					"isSubKeyField": false, "subKeyFieldRefer": 3,
 					"spriteIndex": -1, "subKeyFields": [{"id": 129, "frameID": 23}],
-					"keys": [{"id": 5, "frameID": 143}]
+					"keys": [{"id": 5, "frameID": 143}],
+					"extra": null
 				}
 			],
 			"translateVertexKeyFields": [
@@ -127,7 +130,8 @@ ANIMATIONS JSON
 					"id": 203, "boneName": "leftUpperArm", "vertexIndex": 57, "progressiveLoop": true,
 					"loopTimes": 1, "isSubKeyField": false, "subKeyFieldRefer": 3,
 					"spriteIndex": -1, "subKeyFields": [{"id": 129, "frameID": 23}],
-					"keys": [{"id": 5, "frameID": 143}]
+					"keys": [{"id": 5, "frameID": 143}],
+					"extra": null
 				}
 			],
 			"drawOrderKeyFields": [
@@ -135,7 +139,8 @@ ANIMATIONS JSON
 					"id": 203, "boneName": "leftUpperArm", "progressiveLoop": true, "loopTimes": 1,
 					"isSubKeyField": false, "subKeyFieldRefer": 3,
 					"spriteIndex": -1, "subKeyFields": [{"id": 129, "frameID": 23}],
-					"keys": [{"id": 5, "frameID": 143}]
+					"keys": [{"id": 5, "frameID": 143}],
+					"extra": null
 				}
 			],
 			"tintKeyFields": [
@@ -143,7 +148,8 @@ ANIMATIONS JSON
 					"id": 203, "boneName": "leftUpperArm", "progressiveLoop": true, "loopTimes": 1,
 					"isSubKeyField": false, "subKeyFieldRefer": 3,
 					"spriteIndex": -1, "subKeyFields": [{"id": 129, "frameID": 23}],
-					"keys": [{"id": 5, "frameID": 143}]
+					"keys": [{"id": 5, "frameID": 143}],
+					"extra": null
 				}
 			],
 			"swapKeyFields": [
@@ -151,7 +157,8 @@ ANIMATIONS JSON
 					"id": 203, "boneName": "leftUpperArm", "progressiveLoop": true, "loopTimes": 1,
 					"isSubKeyField": false, "subKeyFieldRefer": 3,
 					"spriteIndex": -1, "subKeyFields": [{"id": 129, "frameID": 23}],
-					"keys": [{"id": 5, "frameID": 143}]
+					"keys": [{"id": 5, "frameID": 143}],
+					"extra": null
 				}
 			]
 		}
@@ -167,7 +174,7 @@ ANIMATIONS JSON
 
 MESHFRAMES JSON
 "properties": {},
-"meshFrames": [{"name": "Captain mesh frame", "id": 4, "meshIDs": [12, 34, 56]}],
+"meshFrames": [{"name": "Captain mesh frame", "id": 4, "meshIDs": [12, 34, 56], "extra": null}],
 "projectPath" : "C:/Users/Public/Public Folder",
 "extra" : null
 
@@ -183,7 +190,8 @@ SKEL JSON
 		"angle": 35, "length": 12, "ikWeight": 23, "propertiesFlag": "0110 0111",
 		"spriteSlot": {
 			"skinName": "Captain skin", "spriteNames": ["Head sprite green", "Head sprite yellow"]
-		}
+		},
+		"extra": null
 	}
 ],
 "skinNames": ["Captain Skin", "Parrot Skin"]
@@ -203,7 +211,8 @@ SKIN JSON
 		"imageData": {
 			"texAtlasName": "Captain texAtlas", "texPosX": 0.0, "texPosY": 2.5,
 			"texDimenX": 250, "texDimenY": 250, "texAngle": 270
-		}
+		},
+		"extra": null
 	}
 ],
 "projectPath" : "C:/Users/Public/Public Folder",

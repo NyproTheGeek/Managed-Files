@@ -1,6 +1,16 @@
+# 08/08/16
+# I think lookkbehind is somewhat buggy
+# I can't do dth like this "(?<=(?:[A-za-z_][A-za-z_0-9]*)|\\)|\"|\')(\\.(?:[A-za-z_][A-za-z_0-9]*))"
+# I had to use capturing instead with "(?:[A-za-z_][A-za-z_0-9]*|\\)|\"|\')\\.([A-za-z_][A-za-z_0-9]*)"
+# Took me a 2 days to compose this syntax, more refinements are still being done tho.
+
+
+# add folds and stuffs
 fileTypes: [
   "plu", "pluto"
 ]
+foldingStartMarker: ":"
+foldingStopMarker: "\\.\\."
 name: "Pluto"
 patterns: [
   {
@@ -22,10 +32,19 @@ patterns: [
     include: "#function_calls"
   }
   {
+    include: "#dot_members"
+  }
+  {
     include: "#numbers"
   }
   {
+    include: "#cpp_symbol"
+  }
+  {
     include: "#strings"
+  }
+  {
+    include: "#math_expressions"
   }
   {
     include: "#operators"
@@ -49,22 +68,38 @@ repository:
   annotations:
     patterns:[
       {
-        begin: "\\@([:alnum:]+)\\s*:\\["
-        beginCaptures:
-          "0":
-            name: "punctuation.definition.comment.begin.pluto"
-        end: "]"
-        endCaptures:
-          "0":
-            name: "punctuation.definition.comment.end.pluto"
+        begin: "\\@(?:[A-za-z_][A-za-z_0-9]*)\\s*\\:\\s*\\["
+        end: "\\]"
         name: 'support.function.macro.pluto'
+        patterns: [
+          {
+            include: '#nest_block'
+          }
+        ]
+      }
+      {
+        match: "\\@(?:[A-za-z_][A-za-z_0-9]*)"
+        name: 'support.function.macro.pluto'
+      }
+    ]
+  nest_block:
+    patterns: [
+      {
+        begin: '\\['
+        end: '\\]'
+        name: 'support.function.macro.pluto'
+        patterns: [
+          {
+            include: '#nest_block'
+          }
+        ]
       }
     ]
   brackets:
     patterns: [
       {
-        match: "(?:\\(|\\)|\\[|\\]|\\{|\\}|,)(?!('|(?:\\.'))*\\.?')"
-        name: "meta.bracket.julia"
+        match: "(?:\\(|\\)|\\[|\\]|,)(?!('|(?:\\.'))*\\.?')"
+        name: "meta.bracket.pluto"
       }
     ]
   comments:
@@ -103,7 +138,7 @@ repository:
       }
       # TYPES
       {
-        match: '\\b(?:Str|Char|Byte|SByte|Num|Int|Int32|Int64|Int16|UInt|Unt32|UInt64|UInt16|IFit|UIFit|Float|Double|Complex|Complex128|Quat|Quat256|Bool|Any|Func|Arr|Tab|None)\\b',
+        match: '\\b(?:AStr|Str|Char|Byte|SByte|Num|Int|Int32|Int64|Int16|UInt|UInt32|UInt64|UInt16|IFit|UIFit|Float|Double|Float16|Float32|Float64|Comp|Comp128|Quat|Quat256|Bool|Any|Func|Arr|Tab|None)\\b',
         name: 'support.type.pluto'
       }
       # LANG VARIABLES
@@ -113,17 +148,17 @@ repository:
       }
       # CONTROL FLOW
       {
-        match: '\\b(?:for|if|else|elsif|rt|while|match|until|do|loop|block|try|catch|ensure|raise|next|break|skip|step|yield|take|run)\\b',
+        match: '\\b(?:for|if|else|elsif|rt|while|match|case|until|do|loop|label|block|try|except|ensure|raise|next|break|skip|step|yield|take|run|import)\\b',
         name: 'keyword.control.pluto'
       }
       # MODIFIERS
       {
-        match: '\\b(?:sticky|abs|solo|const|priv|pack|pass|prod|prot|rpriv|rpack|rpass|rprod|rpub|wpriv|wpack|wpass|wprod|wprot|wpub|override|hold|nan|lock|iso|val|ref|own|to|from)\\b',
+        match: '\\b(?:sticky|abs|solo|const|priv|pack|pass|prod|prot|rpriv|rpack|rpass|rprod|rpub|wpriv|wpack|wpass|wprod|wprot|wpub|hold|nan|lock|iso|val|ref|own|to|from)\\b',
         name: 'storage.modifier.pluto'
       }
       # CATEGORIES
       {
-        match: '\\b(?:type|pipe|let|mut|virtual|mod|as)\\b',
+        match: '\\b(?:type|enum|pipe|let|mut|mod|as)\\b',
         name: 'storage.type.pluto'
       }
       # CLASSES
@@ -133,7 +168,7 @@ repository:
       }
       # FUNCTIONS
       {
-        match: '\\b(?:set|get|print|println|printerr|scan|scanln|list|listln)\\b',
+        match: '\\b(?:set|get|print|printx|printErr|scan|list|listx|show|showx)\\b',
         name: 'support.function.pluto'
       }
       # OTHERS
@@ -145,12 +180,12 @@ repository:
   function_calls:
     patterns: [
       {
-        begin: "([[:alpha:]_][[:word:]!]*)\\s*({(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*})?\\("
+        begin: "([[:alpha:]_][[:word:]!]*)\\s*(?:\\<(?:[A-za-z_][A-za-z_0-9]*,*)+\\>)?({(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*})?\\("
         beginCaptures:
           "1":
-            name: "support.function.pluto"
+            name: "entity.name.function.pluto"
           "2":
-            name: "support.type.pluto"
+            name: "keyword.operator.pluto"
         end: "\\)(('|(\\.'))*\\.?')?"
         endCaptures:
           "1":
@@ -160,6 +195,27 @@ repository:
             include: "$self"
           }
         ]
+      }
+    ]
+  dot_members:
+    patterns: [
+      # OTHERS
+      {
+        # match: "(?<=[A-za-z_][A-za-z_0-9]*|\\)|\"|\')\\.([A-za-z_][A-za-z_0-9]*)"
+        # name: "variable.language.pluto"
+        # I seriously don't know what is wrong with the above regex, but it is the solution to the problem
+        # I'm having with the method below.
+        match: "(?:[A-za-z_][A-za-z_0-9]*|\\)|\"|\')?\\.([A-za-z_][A-za-z_0-9]*)\\b"
+        captures:
+          "1":
+            name: "variable.language.pluto"
+      }
+      # FOR NUMBERS
+      {
+        match: "\\b(?:[+-]?(?:[0-9]_?)+\\.(?:[0-9]_?)+(?:e[+-](?:[0-9]_?)+)?[a-z]*|[+-]?\\.?(?:[0-9]_?)+[a-z]*[0-9]*|[+-]?(?:[0-9]_?)+\\.?[a-z]*[0-9]*|[\\+\\-]*0x(?:[0-9A-Fa-f]_?)+|[\\+\\-]*0o(?:[0-8]_?)+|[\\+\\-]*0b(?:[01]_?)+)\\.([A-za-z_][A-za-z_0-9]*)\\b"
+        captures:
+          "1" :
+            name: "variable.language.pluto"
       }
     ]
   numbers:
@@ -180,7 +236,7 @@ repository:
     patterns: [
       #PUNCTUATIONS
       {
-        match: '(?:,|;|:|\\.\\.\\.|\\.\\.)',
+        match: '(?:,|;|::|\\.\\.\\.|\\.\\.|:)',
         name: 'keyword.operator.pluto'
       }
       # UNARY OPERATORS
@@ -214,48 +270,30 @@ repository:
         name: 'keyword.operator.pluto'
       }
     ]
+  cpp_symbol:
+    patterns:[
+      {
+        begin: "(cpp)(\\[:)"
+        beginCaptures:
+          "1":
+            name: 'variable.interpolation.pluto'
+          "2":
+            name: 'variable.interpolation.pluto'
+        end: "\\]"
+        endCaptures:
+          "0":
+            name: 'variable.interpolation.pluto'
+        name: 'embed.cxx.pluto'
+        contentName: 'source.cpp'
+        patterns: [
+          {
+            include: 'source.cpp'
+          }
+        ]
+      }
+    ]
   strings:
     patterns: [
-      # CPP MULTILINE STRING
-      {
-        begin: "(cxx)(\"\"\")"
-        beginCaptures:
-          "1":
-            name: "support.function.macro.pluto"
-          "2":
-            name: "punctuation.definition.string.begin.pluto"
-        end: "\"\"\""
-        endCaptures:
-          "0":
-            name: "punctuation.definition.string.end.pluto"
-        name: 'embed.cxx.pluto'
-        contentName: 'source.cpp'
-        patterns: [
-          {
-            include: 'source.cpp'
-          }
-        ]
-      }
-      # CPP SINGLE-LINE STRING
-      {
-        begin: "(cxx)(\")"
-        beginCaptures:
-          "1":
-            name: "support.function.macro.pluto"
-          "2":
-            name: "punctuation.definition.string.begin.pluto"
-        end: "\""
-        endCaptures:
-          "0":
-            name: "punctuation.definition.string.end.pluto"
-        name: 'embed.cxx.pluto'
-        contentName: 'source.cpp'
-        patterns: [
-          {
-            include: 'source.cpp'
-          }
-        ]
-      }
       # SINGLE-LINE SINGLE-QUOTE STRING
       {
         begin: "([A-Za-z0-9_]*)(')"
@@ -272,6 +310,12 @@ repository:
         patterns: [
           {
             include: "#string_escaped_chars"
+          }
+          {
+            include: "#string_interpolate"
+          }
+          {
+            include: "#comments"
           }
         ]
       }
@@ -291,6 +335,12 @@ repository:
         patterns: [
           {
             include: "#string_escaped_chars"
+          }
+          {
+            include: "#string_interpolate"
+          }
+          {
+            include: "#comments"
           }
         ]
       }
@@ -313,6 +363,9 @@ repository:
           }
           {
             include: "#string_interpolate"
+          }
+          {
+            include: "#comments"
           }
         ]
       }
@@ -339,17 +392,20 @@ repository:
           {
             include: "#comment"
           }
+          {
+            include: "#comments"
+          }
         ]
       }
     ]
   string_escaped_chars:
     patterns: [
       {
-        match: "\\b(\\.\\[|\\.t|\\.n|\\.\"|\\.\'|\\.#|\\\\\\[|\\\\t|\\\\n|\\\\\"|\\\\\'|\\\\\\#|\\\\\\.|\\\\\\\\)\\b"
+        match: "\\.(\\[|t|n|\"|\'|#)|\\\\(\\[|\\t|\\n|\"|\'|#|\\.|\\\\)"
         name: "constant.character.escape.julia"
       }
     ]
-  string_interpolates:
+  string_interpolate:
     patterns: [
       {
         begin: '\\[',

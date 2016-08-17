@@ -1,0 +1,1653 @@
+Revised 11/08/16
+# 2016.0.8.2
+#=
+Major Change:
+   Restructuring for Multiple Dispatch
+   Import is now module-based instead than type-based because of the new multiple Dispatch
+   a type's method may be defined outside the type's file
+=#
+
+PLUTO's DESIGN PHILOSOPHY
+- let it do more with less
+- make it fast
+- make it legible
+- make it consistent
+- make it flexible. Dynamic and statically typed
+- make it lightweight
+
+DESCRIPTION
+Pluto is a flexible language that is both be compiled and interpreted.
+It can used either as dynamically typed or a statically typed language. As a result it unifies rapid prototyping and fast performance into one cohesive syntax.
+
+PLUTO WORLD
+- PlutoSphere (advanced IDE)
+- The REPL
+- The AOT and JIT Compilers
+- Static and Dynamic Analysis.
+- AI
+
+
+--! THE EXAMPLES BELOW ARE MOSTLY STATICALLY TYPED !--
+SINGLE-LINE COMMENTS
+   # Hello
+
+
+MULTILINE COMMENTS
+   #=
+   I'm Pluto
+   I'm cool
+   =#
+
+
+DOCUMENTATION
+   # <code> Car </code>  class is deprecated # xml
+   # [ code: 'Car' ] class is deprecated # deplu
+
+
+VARIABLE DECLARATION & INITIALIZATION
+   x := nil ; x = Car('Camaro')
+   y := 12f
+   z := 'Hello'
+   a := Car('Camaro')
+   b := Car('Camaro').setDate(2014) # ok
+   c := Car ; c = ('Camaro') # comma is used to separate two statements
+   n := getCar('Camaro')
+   o := add(2, 4)
+   p := List<Car>(3) # generics
+   add (a, b, c := UInt) Int
+   add (a := 1, b := 2, c := UInt(3)) UInt
+
+
+VARIABLES AND REFERENCES
+   # see pass table below
+   pet := own getObject() # pet now holds a sole strong ref to the object returned
+   pet := iso getObject() # pet exclusively owns the object returned
+   # some ops pass by val or ref implicitly
+   # but you can explicitly specify
+   put := val pet # assigned by value
+   pat := own move(put) # ownership moved from put to pat, put is now nil
+   pot := read pat # pot references object but cannot assign to it
+   let pit := val put
+
+   subtract(let ref a, let ref b, ref c):
+      c = a - b
+      rt ref c
+   dean := val subtract(x, y) # gets a copy
+   cop := subtract(x, y) # gets a ref
+
+   add(ref a, ref b):
+      rt val a + b
+   alm := ref add(val x, val y) # warning, return a val to a ref
+
+   swap!(val a, val b)
+
+
+OPTIONAL TYPE DECLARATION
+   myNumber Str|Int
+   # every varaible is optional implicitly to None and one other type
+   myNumber = '01000999'
+   # might change the below behavior in the future
+   myNumber = 23 # error! variable already bound to String
+
+
+CONSTANT VARIABLE DECLARATION
+   let x := 25
+   let y := Car('Camaro')
+
+
+MUTABLE VARIABLE DECLARATION
+- When immutable is set on all variables, default variables become constants by default.
+   x := 25 # x is immutable
+   x = 52 # error!
+   mut y := 52 # y is mutable
+   y = 25 # ok
+
+
+MULTIPLE ASSIGNMENT
+   a, b, c := array[2...4]
+   x, y := y, x
+   a, b, c, d := 1...4
+
+
+NUMERIC FORMATTING
+   x := 1_000_000
+   y := 1_999.99
+
+
+ARRAYS / LIST
+   # major diff between lists and arrays is that, the type and size of an array are
+   # inferrable at compile time, this allows for arrays to be stored like traditional array
+   fin := Car[('Camaro'), ('Mustang')]
+   gin := 3 Car[]
+   gin = [('Camaro'), ('Mustang'), ('Maserrati')]
+   tin := 3 Car [('Camaro'), ('Mustang'), ('Maserrati')]
+   let ted := [1, 2, 3, 4, 5]
+   top := ted[]
+   go := Car[('Camaro'), ('Mustang')] # redundancy
+
+   pot := Arr
+   # or better
+   pot := []
+   pit := Arr{Int, 3} # an Int array with the size of three
+   # or better
+   pit := 3 Int []
+
+   pet := [5] # this is an array with one element, 5
+   put := 5 [] # you have to specify a type in order specify a size
+   pat := 4 [1, 2, 3, 4]
+
+   pat.foldleft(0, (a, b): rt a + b) # (((0 + 1) + 2) + 3) + 4 = 10
+   mat := getArray()
+   net := getArray() # error, array not exposed, so '[]' must be used
+   list(go) # list elements row-wise
+   list(go[_col]) # list elements col-wise
+   dean := Arr
+   dean = [10, 8, 6 ,4, 2]
+
+
+DICTIONARIES / TUPLES
+   fin := ['Tola', 1.2, 50, 'Tola']
+   dict := [
+      'Peter Parker'   : 'Spider-man'     , 20 |
+      'Steve Rogers'   : 'Captain America', 32 |
+      'Tchaka Tchalla' : 'Black Panther'  , 29
+   ]
+   candidate := index, name [
+      1 : 'Aditya' |
+      2 : 'Nypro'
+   ]
+   list(candidate.index) # 1, 2
+   aditya := Str Int Int ["Aditya Singh", 19, 6.2]
+   aditya := name, age, height Str Int Int ["Aditya Singh", 19, 6.2]
+
+
+ARRAY SLICING
+   arr := [1, 2, 3, 4, 5, 6]
+   print(arr[1...3]) # first index to the third
+   print(arr[...5]) # first index to the 5th index
+   print(arr[3..._last]) # 3rd index to the last
+   print(arr[-3...]) # from the 3rd index but backwards
+   newArr := arr[...] # all elements
+   list(arr[_last...]) # list from behind
+
+
+MULTIDIMENSIONAL ARRAY
+   arr := [2, 2] [1, 2 | 3, 4]
+   arr := [2, 2, 2] Int [1, 2 | 2, 3 || 4, 5 | 6, 7]
+   arr := [,] [1, 2 | 3, 4]
+   list(arr [...])
+   list(arr[2, ]) # list columns in row 2
+   list(arr[, 2]) # list rows in col 2
+   arr := [1, 2] # vcat
+   # 1 2
+   arr := [1, 2 | 3, 4] # vhcat
+   # 1 2
+   # 3 4
+   arr := [1 2] # hcat
+   # 1
+   # 2
+   arr := [1 2 | 3 4] # hvcat
+   # 1 3
+   # 2 4
+
+
+RAGGED ARRAY # is untidy !! Needs review
+   arr := [2, ]
+   arr = [0, +2]
+   arr = [1, +3]
+   arr = [0, 0, +3] ; arr = [0, 1, +3]
+   arr = [1, 0, +4] ; arr = [1, 1, +5] ; arr = [1, 2, +6]
+
+
+ARRAY OBJECT OPERATIONS
+   arr1 == arr2
+   arr1 < arr2
+   arr3 := arr1 / 2
+
+
+MATRIX-VECTOR OPERATIONS # column major order
+   mX := [,] Mat.identity(4, 4)
+   mY := [1, 1, 1, 0]
+   mZ := [,] mX / mY
+   mP := [,] [2, 4, 3 | 3, 1, 5] * [3, 10 | 4, 2 | 1, 7]
+   mRows, mCols := m.size()
+   mQ := [,] u’ # z is assigned transpose of matrix u
+
+
+STRING TYPE
+   myStr1 := "Hello"
+   myStr2 := Str('Hi')
+   str := AStr("This is an ascii string") # ASCII string
+   myStr3 := 'Halo'
+   str2 := Str
+
+
+STRING INTERPOLATION
+   name := 'Pluto'
+   time := 2015
+   tap := '[name] is a language started in [time]'
+   tin := 'Hello #= Beautiful =# World'
+   print("This is a number: ", 4)
+
+
+STRING OPERATIONS
+   'ab' + 'c' # = 'abc'
+   'abc' * 2 # = 'abcabc'
+   'abcabc' + 'ca' # = 'abbc'
+   'abcabc' / 'c' # = ['ab', 'ab']
+   ['ab', 'ab'] * 'c' # = 'abcab'
+
+
+NON-STANDARD STRING LITERAL
+   byteArr := ba"87004" # 8, 7, 0, 0, 4 repesent the actual byte to be placed in memory
+   byteArr := bv"data\xff" # converts the values d, a, t, a, \xff into binary that fits in a byte
+   myRegex := re"^(\w+)$"
+
+
+ESCAPE SEQUENCE
+- .[ .t .n ." .' .#
+- \[ \t \n \" \' \# \. \\
+
+
+MULTILINE STRINGS
+   cap :=
+   "Hello "
+   "World"
+
+
+VERBATIM STRING
+   '''Use \t for tab and \n for newline'''
+   """Use \t for tab and \n for newline"""
+
+CONTINUE ON NEXT line
+   men := (length == 0)? 25 | 0
+   mune := (length == 1)? \
+      25 | 0
+   meter := \
+      getMeter()
+
+
+IF SATEMENT
+   if myMoney == 1_000_000:
+      print("Yay! I'm rich!")
+   ..
+   if x == 3 : print('Hello') ..
+   if x == 1 :
+      print(x)
+   elsif x == 2 :
+      print(x)
+   else :
+      print('invalid value')
+   ..
+   if x : # if x does not equal nil or false
+      print('x has been assigned to')
+   ..
+
+
+FOR LOOP
+   for i thru 1...10:
+      if  i % 2 == 0 :
+         print('[i] is an even number')
+      else :
+         next
+   ..
+
+
+LOOP
+   loop :
+      if x != 0 :
+         print ('Hi')
+      else :
+         break
+      ..
+   ..
+
+
+WHILE LOOP
+   while myBool == true :
+      print ('Hello ')
+   ..
+
+
+DO WHILE LOOP
+   do :
+      print ("Hello ")
+   while myBool == true
+
+
+UNTIL LOOP # useful because you know the terminating condition
+   until myBool == true :
+      print("Hello ")
+   ..
+
+
+DO UNTIL LOOP
+   do: print ("Hello ") | until myBool
+
+
+CONDITION LIST
+   if myVar == a | == b & == c :
+      print(myVar)
+   ..
+   if x == y == z :
+      play()
+   ..
+   if "two-syllable word" == pit & == pot & == pet:
+      print("That's wierd")
+   ..
+   # or better
+   if pit and pot and pet == "two-syllable word":
+      print("That's wierd")
+   ..
+   if "two-syllable word" == pit | == pot | == pet:
+      print("That's wierd")
+   # or better
+   if pit or pot or pet == "two-syllable word":
+      print("That's wierd")
+   # 'and' and 'or' here are used in a different manner
+   # than in Python
+   if pit or (pot and pet) == "two-syllable word":
+      print("That's wierd")
+   ..
+
+
+TERNARY OPERATOR
+   # single expression ternary operator
+   myVar1 := (myBool == true)? 5 | 6
+   divide(num, denom): rt (denom == 0)? nan | num / denom
+   myBool := (myName == "Nypro")? # this ternary operator returns true or false
+
+
+RANGE
+   x, y, z := 1...3
+   for x thru 1...(20 - 1)
+
+
+THRU
+   list(x thru 2...4)
+   y := (x thru 1...30):: x # this returns a list of 1 to 30
+
+
+WHERE
+   arr := (x thru 1...30):: x * 3 => x % 2 == 0
+
+
+COMPREHENSION LIST
+   arr := (x thru 1...30):: x * 3 => x % 2 == 0
+
+
+THRU/STEP
+   for x thru 1...6 step 2:
+      print(x)
+   ..
+
+
+IN
+   x := 3
+   if x in 1...10:
+      print(x)
+   ..
+
+
+NOT IN
+   arr := (x thru 1...30):: x * 3 => x not in 2...5
+
+
+NIL CONDITION
+   if let data := getValue() : # x is available only in the if branch
+      print(data)
+   else:
+      print('can\'t get value')
+   ..
+   if let name := getChars() => name.characters.count in 4...15:
+      print ('hello')
+   if x := getStr(): print(x) | else : print('x is nil')
+   someone := (person.getData().getAge())? _ | printErr('someone is no one') # problematic if _arg is a bool object
+   # better
+   someone := (person.getData().getAge() == nil)? _ | printerr('someone is no one')
+   # better still
+   someone := person.getData().getAge()?? printerr('someone is no one')
+
+   penny := purse.change()?? 0 # expression returns 0 if purse.change() returns nil
+   myName := me.name?? "Unknown"
+
+
+ONE-LINE BLOCK
+   addTwo(a, b := Int) Int:
+      print (a + b)
+      rt a + b
+   ..
+   addThree(a, b, c := Int) Int: print (a + b + c) ; rt a + b + c
+   if x == y
+   if x == y : print(x)
+   if x == y : print(x) | else print(y)
+   (x == y): print(x)
+
+
+UNNAMED BLOCK
+   block:
+      m = a + b
+      n = m + a + b
+   ..
+   # or
+   do:
+      m = a + b
+      n = m + a + b
+   ..
+   # note that if do block immediately follows a function call
+   # it will be interpreted as a anoymous fucntion
+
+
+EXCLUSIVE BLOCK
+   do x, y: # can only use x and y from the outer scope
+      m = a + b
+      n = m + a + b
+   ..
+   # note that if do block immediately follows a function call
+   # it will be interpreted as a anonymous fucntion
+
+
+LABELS
+   [label: outer]
+   for i thru 1...10:
+      for j thru range(10) :
+         print('i : [i] j : [j]')
+         if j == 5:
+            next outer
+         ..
+      ..
+   ..
+
+
+SKIPPING BLOCKS
+   [skip : 3]
+   if x == 5 : print('Hello') # block is skipped after the it has been executed 3 times.
+
+
+FUNCTION DEFINITION
+   add(a := Int, b := Int) Int:
+      rt a + b
+   ..
+
+RETURNING A VALUE
+   add(a := Int, b := Int) Int:
+      rt a + b
+   ..
+   # the last expression in a method is automatically returned if it is returnable
+   add(a, b): a + b
+
+
+GLOBAL FUNCTIONS
+   # Pluto contains a lot of helpful global methods
+   str := "Hello"
+   length(str)
+   typeMin(25)
+   typeOf(Int)
+
+
+LIST DECLARATION IN METHOD PARAMETER
+   add(a, b := nil): rt a + b # a and b are nil
+   add(a, b): a + b  # or better
+
+   add(a, b := Int): rt a + b # a and b are Int
+   add(a := nil, b := Int): rt a + b # a is nil, b is Int
+   add4(a, b := nil, c, d := Int) Int: # a and b are nil, c and d are Int
+      rt a + b + c + d
+   ..
+
+
+CONSTANT PARAMETER
+   # guarantees that the parameter won't be changed
+   add(let a, let b): c := a + b ; rt c
+   # or
+   let add(a, b): c := a + b ; rt c
+   # not just the params, local vars are also constant by default
+
+
+ARGUMENT NAMING
+   addPerson(name = 'Aditya', age = 28)
+   sum(a, b := 1, c := 0):
+      rt a + b + c
+   ..
+   # arg naming can be used to skip optional args
+   sum(3, c = 6) # b skipped
+
+
+COMPOUND METHODS
+   getValue():
+      sticky x := 1, y := Int(2)
+      ():
+         rt x + y
+      ..
+      (a := Int):
+         rt x + y + a
+      ..
+      (a, b := Int):
+         rt x + y + a + b
+      ..
+   ..
+
+
+VARIADIC PARAMETERS
+   sum(first := Int, others := Int []):
+      tmp := first + arr
+      for x thru arr:
+         tmp += x
+      ..
+      rt tmp
+   ..
+   # or better
+   sum(first := Int, others := Int []): rt first + others
+   lion := sum(1, 2, 3, 4, 5, 6)
+
+   addEven(first := Int, others := Int []):
+      sum := first._move
+      sum += (x thru others):: x => (x == _even)? # idiomatic pluto :)
+      sum
+   ..
+   dean := [1, 2, 3, 4, 5]
+   jean := addEven(0, dean)
+   joan := addEven(0, [1, 2, 3, 4, 5])
+   jane := addEven(0, 1, 2, 3, 4, 5)
+   add(a := 3 []): rt sum(a) # conflicts with the function below
+   add(a, b, c): rt a + b + c # conflicts with the function above
+
+
+
+MUTATIVE FUNCTIONS
+   add(x, y): a + b
+   swap!(ref x, ref y): x, y = y, x # use exclamtion mark for functions that can change values
+
+   tip := add(2, 3)
+   top := add(4, 5)
+   swap!(tip, top)
+
+
+UNOVERLOADABLE FUNCTIONS
+   add(args := [])
+   <T> add(args := [] T) T
+
+
+RETURNING AN ARRAY
+   addThree (a, b, c := Int) 3 Int []:
+      arr := [a + b, a + c, b + c]
+      arr
+   ..
+   p, q, r:= 1, 2, 3
+   x, y, z:= addThree(p, q, r)
+   w:= addThree(p, q, r)[1] + z
+
+   addSubTwo(a, b := Int) Int []:
+      arr := [a + b, a - b]
+      arr
+   ..
+
+
+RETURNING A TABLE
+   getDetails(u := User):
+      rt name, age [.name, .age ]
+   ..
+   x := getUser()
+
+
+RETURNING VARIABLES
+   # check for pass table in notes
+   getReadOnly() []:
+      rt read myList # unmodifiable after it has been returned
+   ..
+   getVal():
+      rt val myList
+   ..
+   getRef():
+      rt ref myList
+   ..
+   getOwnership() [,]:
+      rt array._move
+   ..
+   pat := val getVal() # redundant
+   put := ref getRef() # redundant
+   pit := read getReadOnly() # redundant
+   cup := ref getVal() # returned value is moved
+   cap := val getRef() # returned reference is copied
+   cep := own getRef() # error, already has reference
+   cip := iso getRef() # error, already has reference
+   hola := read getVal() # returned value is moved, but cannot write
+
+
+FUNCTION OBJECTS
+   add2 := add
+   add3 := Func{Int Int Int : Int}
+
+
+CLOSURES
+   outer():
+      a := 6
+      rt (b := Int) : a + b # a closure can access variables in outer scope
+   ..
+   add := outer
+   # nameless closures (except those returned by a function or another closure) are executed at the
+   # point they are declared
+   # named closures on the other hand are not executed until they are called
+   add (x, y := Int):
+      (): rt x + y
+   ..
+   sum := Func
+   sum := add
+   tip := Func{Int Int > Bool}
+
+
+PASSING FUNCTIONS AS ARGUMENT / ANONYMOUS FUNCTIONS
+   addThree(a, b, c := nil, myFunc := Func{Int Int}):
+      rt myFunc(a, b) + c
+   ..
+   addThree(1, 2, 3, (a, b): a * b)
+   # or
+   addThree(1, 2, 3) do a, b: a * b
+
+
+
+ANONYMOUS TYPES
+   keyListener(e := Event): e.printText()
+   keyListener(
+      Event:
+         printText():
+            print ('Hello, World')
+         ..
+      ..)
+
+
+LAMBDAS
+   keyListener(e := Event): e.printText()
+   keyListener(
+      Event:
+         printText():
+            print ('Hello, ')
+         ..
+      ..)
+   keyListener((): print("World")) # lambda
+   keyListener(rt print("World")) # shortened lambda using 'rt'
+   myList.fold(0, (a, b): a + b)
+   myList.fold(0, rt a + b) # shortened lambda, rt must be included
+
+
+COROUTINES
+   # New Proposed Coroutine with Concurrency. Thanks to Go 03/08/16
+   # Concurrent Coroutine
+   pinger(pipe p := String):
+      loop:
+         p <- "ping"
+
+   printer(n := Int):
+      loop:
+         msg := <- p
+      print(msg)
+      time.sleep(time.second * 1)
+   ..
+
+   main():
+      pipe p := String # pipe creation
+      run pinger(p) # run pinger concurrently
+      run printer(p) # run printer concurrently
+      input := String
+      scanln(input)
+   ..
+
+   doSth(from p := String) # can only send thru the channel
+
+   doSth(to p := String) # can only recieve thru the channel
+
+  # Sequential Coroutine using sticky variables
+   addUp(a, b):
+      sticky x
+      if x == _init:
+         rt x += b
+      else:
+         rt x = a + b
+   ..
+   print(addUp(3, 4))
+   print(addUp(0, 5)) # gotcha! only the second argument is summed up.
+   print(addUp(0, 6)) # gotcha! only the second argument is summed up.
+
+
+EVENTS
+   mathOps := Event{Float Float : Float}
+   mathOps += add, subtract, divide
+   mathOps -= divide
+   buttonPressed := Event(createProject)
+   buttonPressed += addNewEvent
+
+
+TYPE DEFINITION
+   type Car:
+      name, model := Str
+      (name := Str):  # Constructor implicitly contains a first parameter of type Car
+         self.name = name
+      ..
+      (name, model := Str):
+         self.name = name
+         self.model = model
+      ..
+   ..
+
+
+SELF REFERENCE
+   type Car:
+      name, model := Str
+      (name := Str):
+         .name = name # the self can be ommitted leaving the dot and the field
+      ..
+      (.name, .model)
+   ..
+   # this is also applicable to methods where its is the type of the first parameter
+   getDetails(car := Car): rt [.name, .model]
+   hasModel(car := Car, model := Str): rt (.model == model)?
+
+
+USING A FUNCTION AS METHOD
+   show(a := Person): print(.name)
+   nigel := Person("Nigel Nicargua")
+   show(nigel)
+   nigel.show() # using show funtion as a method since Person is the first argument
+   +(a := MyNum, b := Int): rt .value + b
+   duke := MyNum(25)
+   deck := +(duke, 20)
+   duck := duke + 20
+
+
+DESTRUCTORS
+   type Car:
+      name, model := Str
+      (.name)
+      (.name, .model)
+      (!) : # Destructor implicitly contains a first parameter of type Car
+         print('Object Deleted!')
+   ..
+
+
+MODIFIERS IN CLASS
+- No public modifer, members are all public by default
+   priv a := 10
+   pack b := 'HELLO'
+   pass a := true # synon with protected
+   prod let x := 5f # synon with internal
+- proj(ect), prod(uction), prog(ram) clashes with prot(ected)
+
+MODIFIERS CAN BE ON CLASSES AND METHODS Took
+   priv addPerson() # is accessible only within the module
+   pass getNumber() # is accessible within the module and to associated types
+   priv type Company # is accessible only within the module
+   prod createSession() # is accessible only to production unit
+
+
+PACKAGE ACCESS LEVEL
+   pack< date := Date
+   pack>> isbn := Long
+
+
+READ-ONLY WRITE-ONLY ACCESS
+   rpriv, rpack, rprod, rpub
+   wpriv, wpack, wprod, wpub
+
+
+MODIFIER BLOCK
+   # modifier block is the only block in Pluto that may not be indented
+   mod priv let :
+   x := 4.5f
+   y := 2.5f
+   z := 0.0f
+   ..
+   # you can also chain modifier blocks together
+   mod priv let:
+   x := 4.5f
+   y := 2.5f
+   z := 0.0f
+   mod pass:
+   name:= getName()
+   age:= getAge()
+   ..
+   mod :
+
+
+MODIFIERS IN LIST DECLARATION
+  priv let i, j := Int
+
+
+PROPERTIES / GETTERS SETTERS
+   myVar1 := set(a, b, c := Int): _ = a * b * c | get(): rt _
+   myVar1 = (1, 2, 3)
+   myVar2 :=
+      set(a, b := Int): _ = a * b * c
+      get(): rt _
+   myVar2 = (1, 2)
+   myVar3 := set(a := Int): _ = a | get(): rt _
+   myVar3 = 1
+   myVar4 := set(a := Int) | get()
+   myVar3 = 2
+   tip := get(): rt myVar3
+
+
+TYPE CHECKING
+   if myCar == Car._exact:
+      print('Type is a Car')
+   ..
+   if myCar == Car._sub :
+      print('Type is a sub-class of Car')
+   ..
+   if myCar == Car._super :
+      print('Type is a super-class of Car')
+   ..
+   <T[Vehicle._sub]>
+   type Transportation :
+      myVehicle1 := T
+      myVehicle2 := T
+   ..
+
+
+IMPORT / USING STATEMENT
+Now module-based
+   import pluto.io # imports all types and funtions in a module
+   import pluto.io: Console # imports a type and its associated methods (where its the type of the first parameter) from a module
+   import pluto.io: add(), subtract() # imports only add and subtract function from the module
+
+
+TYPE ALIAS
+   Int as Meter
+   import marko.io: SimplifiedRegex as Regex
+
+
+METHOD CHAINING
+- Method chaining is automatic, no need to return self
+   type Math:
+      value := Float
+   ..
+   add(a := Math, b, c := Float) Float:
+      a.value = b + c
+   ..
+   subtract(a := Math, b, c := Float) Float:
+      a.value = b - c
+   ..
+   m := Math
+   m.add(1, 2).subtract(3, 4)
+   n := "This is the first string".&"This is another string".reverse().toUpper()
+
+
+STICKY TYPES
+   sticky type TempConv
+   convToFahr(a := TempConv, celsius := Float) Float
+   convToCelsius(a := TempConv, fahr := Float) Float
+
+
+STICKY TYPES MEMBER
+   type Person:
+      name := Str
+      age := Int
+      sticky let race := 'Mongoloid'
+      (.name, .age)
+   ..
+   sticky getRace(a := Person): .race
+
+
+STICKY CONSTRUCTOR
+   sticky type MyClass:
+      x, y := Int
+      (): # they can't have parameters. They only initialise class fields at first use
+         .x = 2
+         .y = 3
+      ..
+   ..
+
+
+STICKY LOCAL VARIABLES
+  # sticky local variables are promoted to fields implicitly but can only be accessed in their
+  # parent method.
+  # I like sticky local variables because it brings variables closer to where they are needed
+   add(a := Int) Int:
+      sticky sum := a # this variable will maintain its state whenever the function is called
+      rt sum += a
+   ..
+
+
+HOLD VARIABLES IN LOOPS
+   for x thru 1...50:
+      hold x := 1
+      print(x * y)
+      x++
+   ..
+
+
+INHERITANCE, COVARIANCE AND CONTRAVARIANCE
+   type Person: name := String; age := Int; (.name, .age)
+   showDetails(person := Person): print("name: [.name], .age: [.age]")
+
+   type Employee [Person]: job := String ; (.name, .age, .job)# Employee now inherits Person's field and associated methods
+   changeName(emp := Employee, name := Str): .name = name
+   changeName(emp := Employee, age := Str): .age = age
+   changejob(emp := Employee, job := Str): .job = job
+
+   main():
+      jide := Employee('Jide Abass', 28, 'Clerk')
+      # Covariance
+      showDetails(jide) # prints "name: Jide Abass, age: 28"
+      okoro := Person("Okoro Johnson", 37)
+      # Contravariance
+      okoro.changeJob("Manager") # error at .job
+      okoro.changeName("Okoro Nwabuike") # ok, contravariance successful
+      # Covariance
+      library := MediaItem [Movie("Zack Snyder's Sucker Punch"), Song("Lazy - Bruno Mars"), Song("Radioactive - Imagine Dragons"), Movie("Zack Snyder's 300")]
+   ..
+
+
+INHERITANCE # Not Finalized!
+   type Animal
+   move(a := Animal)
+
+   type Bird [Animal]
+   move(a := Bird): print("Soar!") # overides move method for Animal, a super method
+   fly()
+
+   type Horse [Animal]
+   move(a := Horse): print("Gallop!") # overides move method for Animal, a super method
+   gallop()
+
+   type Pegasus [Bird, Horse] # inherits Bird and Horse classes
+   move(a := Pegasus): print("Soar and Gallop!") # overides move method because of CONFLICT in  Bird and Horse
+
+   eagle := Bird()
+   horse := Horse()
+   pegasus := Pegasus()
+   move(eagle) # "Soar!"
+   move(horse) # "Gallop!"
+   move(pegasus) # "Soar and Gallop!"
+   animals := Animal[Bird(), Horse(), Pegasus()]
+   animals[1].move() # "Soar!"
+   animals[2].move() # "Gallop!"
+   animals[3].move() # "Soar and Gallop!"
+
+
+SUPER METHODS AND SUB METHODS
+   type Listener
+   type ButtonListener [Listener]
+   respond(a := Listener) # this is a super method to the more specific method below
+   respond(a := ButtonListener): rt # this is a sub method to the method above
+
+
+VIRTUAL METHODS
+   respond(a := Listener) # a method without a body is implicitly virtual and cannot be called
+   respond(a := ButtonListener) # error, a virtual super method can't be overriden by a virtual sub method
+
+
+OVERRIDING METHODS
+Pluto does not, currently, have an override keyword. Methods are overriden implicitly
+This might cause some unexpected problems. Important super methods could be overiden without knowing
+I'm going to look into the problem later
+   play(a := Player): .start()
+   play(a := DigitalPlayer): .startAt(0) # this play overrides its super method implicitly
+
+
+
+ABSTRACT TYPES
+   abs type Player # cannot be instantiated
+   play(a := Player)
+   rewind(a := Player)
+   fastForward(a := Player)
+
+   type DigitalPlayer [Player]
+
+
+DOWNCASTING ! Needs review
+  # assuming Movie and Song extends MediaItem
+   library := MediaItem [Movie("Zack Snyder's Sucker Punch"), Song("Lazy - Bruno Mars"), Song("Radioactive - Imagine Dragons"), Movie("Zack Snyder's 300")]
+   for item thru library:
+      if item === Song:
+         print('Song: [song.name]')
+      elsif item === Movie:
+         print ('Movie: [movie.name]')
+      ..
+   ..
+
+
+CONSTANT CLASS
+   let type MyClass:
+      x := 'is immutable'
+      mut y := 'is mutable'
+   ..
+
+
+UNINHERITABLE CLASS
+   solo type MyClass:
+      x := 'Class Cannot Be Inherited'
+   ..
+
+
+GENERICS
+   <T[Str|Int], U>
+   type DataManager:
+       T dataID
+       U dataX
+       U dataY
+   ..
+   object DataManager<Str, Car>
+
+   <T[Integer]>type Ratio # means Integer and its subtypes
+   chan : Ratio(3//2) # uses Integer
+   chen : Ratio<UInt>(6//4)  # uses subtype UInt
+
+   myMovies := List<own Movie>
+   favoriteMovie := ref Movie
+
+   <T>add(a, b, c := T): a + b + c
+   add<Int>(1, 2, 3)
+   add(1f, 2f, 3f)
+   add(2, 3, 4f) # error, mismatched types
+
+
+ENUMS
+   # can have the same name with a class in the same file
+   # enums only have one unoverloadable constructor with a Symbol object param
+   enum Days: MONDAY; TUESDAY; WEDNESDAY; THURSDAY; FRIDAY; SATURDAY; SUNDAY # elemental enum
+   todayIs(day := Days): # todayIs{SUNDAY}
+      if day == MONDAY: print('today [day]') # today is MONDAY
+      elsif day == TUESDAY: print('today is [day]') # today is TUESDAY
+      elsif day == WEDNESDAY: print('today is [day]') # today is WEDNESDAY
+      elsif day == THURSDAY: print('today is [day]') # today is THURSDAY
+      elsif day == FRIDAY: print('today is [day]') # today is FRIDAY
+      elsif day == SATURDAY: print('today is [day]') # today is SATURDAY
+      elsif day == SUNDAY: print('today is [day]') # today is SUNDAY
+   ..
+
+   enum RealNum: decimal := re"\d|\d+\.\d+"; scientific := re"\d\.\d+e[\-\+*]\d" # case enum
+   checkNum(rn := RealNum): # checkNum{123.4e10}
+      if rn == decimal: print('[rn.toStr()] is decimal')
+      elsif rn == scientific: print('[rn.toStr()] is scientific')
+   ..
+
+   # accessing an elemental enum's element
+   sym := Days[1] # SUNDAY is returned as a symbol
+
+   # iterating thru enum
+   for x thru Days:
+      print(x)
+   ..
+
+
+REGEX
+   x := Regex("\d+")
+   x := re"\d+"
+
+
+PATTERN MATCHING
+   type User; type Account; type PayPal [Account]; type Bitcoin [Account]
+
+   test (name, acc): (name === Str & acc === Account)?
+   pypl(acc): (acc === PayPal)? acc | nil
+   btc(acc): (acc === Bitcoin)? acc | nil
+
+   mary := User
+
+   match mary :
+      case test (mary.name, pypl (mary.account)): print ('[mary.name]: [mary.account]') # covariance in case matching
+      case test (mary.name, btc (mary.account)): print ('[mary.name]: [mary.account]') # _ represent the value passed into eval block
+   ..
+
+
+
+EXPLICIT TYPE CASTING
+   x := Int(5)
+   y := Byte(6)
+   let z := y + Int(y)
+
+
+STACK EXPRESSION
+   a := add (x, y) >>> subtract(_, z) # tmp represent the value passed from preceding method
+   a := subtract(_, z) <<< add (x, y) # same as above
+
+
+MOVE SEMANTICS
+- Move feature is automated in Pluto in any place where it is possible.
+- But you can still explicitly specify it.
+   y := getPerson('Californio')._move
+
+
+CONCURRENCY
+- All singular (_var+) and associative (_var+=) operations on variables are atomic by default.
+- In an assignment or initialisation operation. The whole expression is singularly atomic
+- Variables are volatile by default
+- And methods are sychronised by default
+
+
+ATOMIC EXPRESSION
+   lock: x := 5; y := x
+   lock: if y == 5: print('y is 5')
+
+
+ATOMIC BLOCKS
+   lock block:
+      x := 5
+      y := x
+   ..
+   # or better
+   lock:
+      x := 5
+      y := x
+   ..
+   lock if tip == top:
+   print("Hello")
+   print(" World!")
+   ..
+
+
+OPERATOR OVERLOADING
+   # !! REVISION NEEDED
+   _var++ ():
+      value++
+   ..
+   _-var ():
+      0 - value
+   ..
+   _var* (other := MyObj) MyObj:
+      rt MyObj(.value * other.value)
+   ..
+   _var() (other := Int):
+      value = other
+   ..
+   _type() (other := Int) MyObj:
+      rt MyObj(other)
+   ..
+   _var[] (row := Int, col := Int) MyObj:
+      rt my2DArr[row, col]
+   ..
+   _var=[] (args := Int []) MyObj:
+      for x thru args:
+         hold i := 1
+         my1DArr[i] = x
+      ..
+   ..
+   # Proposed
+   +(x, y): tmp := nil;  tmp.value = x.value + y.value
+   ++()!: self.value++
+   # others
+   [A B C] # hcat()
+   [A, B, C] # vcat()
+   [A B; C D] # hvcat()
+   A’ # ctranspose()
+   1...n # thru()
+   A[i] # getindex()
+   A[i]=x # setindex!()
+   A(x) # call()
+
+
+TRY & ASSOCIATES
+   main():
+      ensure:
+         file.close()
+      ..
+      print("I'm about to open a text file and print its first 500 characters")
+      file := File("C:/Users/Hello/hello.txt")
+      try file.open().print(1...500)
+      except(fnfe := FileNotFoundErr, ioobe := IndexOutOfBoundErr):
+         if fnfe: printErr('Can\'t find file!')
+         if ioobe: printErr('Out of index error!')
+      ..
+   ..
+
+   try:
+      file.open()
+      file.write('Hello')
+   except(fnfe := FileNotFoundErr):
+      printErr('Can\'t find file!')
+   ..
+
+   try:
+      raise Err()
+   except(e := Err):
+      printErr('Error!')
+   ensure:
+      file.close()
+   ..
+
+   try let x := getObject()
+      print('x is nil')
+   ..
+
+   try:
+      let x := getObject()
+      raise NilErr()
+   except(ne := NilErr):
+      printErr('x can\'t be nil!')
+   ..
+
+   try:
+      let x := getObject()
+   except(ne := NilErr):
+      printErr('x can\'t be nil!')
+   ..
+
+   try:
+      file.open()
+      let x := file.readLine()
+   except(ne := NilErr):
+      printErr('x can\'t be nil!')
+   except(fnfe := FileNotFoundErr):
+      printErr('Can\'t find file!')
+   ensure:
+      file.close()
+   ..
+
+
+ERR
+Err stops application whenever it is evoked
+   if num and den == 0:
+      err DivideByZeroErr()
+   ..
+
+
+ASSERTION
+   @assert(x == nil, "Hello")
+   @assert(x == nil)
+
+
+ITERATORS (?)
+
+
+FLOATING POINT BITWISE OPERATORS (?)
+
+
+HINTS
+   @deprecated:
+      msg: "MediaPlayer class should be used instead"
+   @stub
+   @if (platform: "Mac"): print("This is a Machintosh Computer") | @endif
+   #------------------------------------
+   @compiler # evaluated at compile-time
+   @linker # evaluated at link-time
+   @runtime # evaluated at runtime
+   @if: [] # evaluated at compile, link and run time
+
+
+COMPILER HINT
+   @compiler:
+      typing := "static"
+      variable := "immutable"
+      warn_me := {
+         unimplemented_inherited_functions
+         unimplemented_inherited_fields
+         }
+   ..
+
+
+NON-STANDARD STRING LITERAL HINT
+   myRegex := re"^(\w+)$"
+   @strLiteral:
+      re: {Regex(_str)}
+
+
+METAVARS CONTEXT SPECIFIC ENVIRONMENT
+   arr[_last] = 20
+   if(x == _even)
+   match camaro:
+      case _.make == mustang.make: print("Make: [_.make]")
+   ..
+   sum := add(a, b) >>> add(_, x)
+   tip := set(a := Int): _ = 25 | get(): rt _
+
+
+LIST OF METAVARS
+   _init # to check if sth is initialised
+   _
+   _last
+   _even
+   _odd
+   _min
+   _max
+
+
+REFLECTION
+   # dynmically determining which class to use
+   @if (stage := "runtime", condition := "Main.useOldClass == true"): # ????
+    type Class:
+      value := set(x Str): value = x | get(): rt value
+      (.value)
+    ..
+   @else
+    type Class:
+      str := set(x Str): str = x | get(): rt str
+      num := set(x Float64): num = x | get(): rt num
+      (.str)
+      (.num)
+    ..
+   @endif
+
+MACROS
+   @macro greeting(name := AStr):
+      print("Hello, [name]")
+   ..
+
+   @greeting("Tunde")
+
+
+COMPLEX, QUATERNION DECLARATION
+   x := 5 + 2i # complex
+   y := 5 + 2i + 3j + 4k # quaternion
+
+
+MATHEMATICAL EXPRESSION
+   top := 3x - 2y/5 + r * (d^5) # to avoid ambiguity with function calls, * operator must be put between coefficients and enclosing brackets
+   pat := (4y - 2x * (z^2)).round()
+
+
+SYMBOL, EXPR, HOMOICONICITY
+   # Symbol
+   buck := {1}
+   back := {1 2 3} # Symbol stores an array of string delimited by spaces
+   beak := {"hello " [name]} # quotes allows spaces to be stored # interpolation is allowed as well
+   bean := {hello {hi {halo}}} # can store nested words as well
+   # Functions
+   foo := Func{Int Int : Bool}
+   # Expressions
+   pet := Expr({call}, {+}, 1, ({call}, {*}, 2, 3))
+   # or better
+   pat := Expr{call, +, 1, {call, *, 2, 3}}
+   exp := parse("1 + 2 + 3")
+   ingrid := eval(exp)
+   parse(pat)
+
+
+CPLUSPLUS SYMBOL
+   str := cpp{ void add(int a, int b) {return a + b;}}
+   parse(str)
+   sum := str.add
+   brim := sum(1, 3)
+
+
+NON-STANDARD SYMBOL LITERAL HINT
+   str := cpp{ void main() {printf("Hello")}}
+   @symLiteral:
+      cpp:= {Cpp(_str.toStr())}
+
+
+NUMERIC CLASS
+   x := UInt.max()
+   y := Int32.min()
+   z := {2x + 4y/3}.round() + (24.25/4).floor()
+
+
+RATIO CLASS RATIONAL NUMBERS
+   xianghou := 2//3
+   dean := x.toFloat() # rational format can be changed to fp
+   bean := 4//6 ; print(y) # 2//3
+   4//2 == 1//2 # true
+   4//2 == 0.5 # true
+
+
+RAW CLASS
+   # bits stored in multiples of 8
+   bits8 := Raw<8>
+   bits16 := Raw<16>
+
+
+INTEGER BITWISE OPERATORS
+   myVar := 2.&2 # and
+   myVar1 := 2.|2 # or
+   myVar3 := ~2 # exclusive or
+
+
+SHIFT OPERATORS
+   myVar := 4<<1
+   myVar := 2>>2
+
+
+BINARY LITERALS
+   myVar := 0b11001001
+
+
+HEXADECIMAL LITERALS
+   myVar := 0x5eff77
+
+
+OCTAL LITERALS
+   myVar := 0o56773
+
+
+UTF-8 CHARACTERS
+   char := '\u6E'
+
+
+CLASSES OF OBJECTS
+   Obj (0.7), Any (0.8)
+   Func (0.7)
+   Var (0.7)
+   Arr (0.7)
+   Tab (0.7)
+   Exp (0.7), Expr(0.8.2)
+   Nil (0.4), None (0.8.1)
+   Symbol(0.7)
+
+
+PREDEFINED TYPES # These types are optimized as part of the lang
+   Int, Int16, Int32, Int64
+   UInt, UInt16, UInt32, UInt64
+   Float16(0.8.2), Float/Float32 (0.4), Float64/Double (0.6.1)
+   Bool (0.4)
+   Str (0.4), String (0.6.1), Str (0.8.1)
+   Char
+   Byte
+   SByte
+   Comp, Comp128
+   Quat, Quat256
+   Num (0.4) # redefined in 0.8.1 # (combines the features of BigInt, BigFloat)
+   Ratio
+
+
+NUMERIC LITERALS
+   8
+   64u64
+   -255i16
+   4089b
+   1024sb
+   512f
+   0d
+   123.0
+   123.4
+   123.4f
+   123.4
+   1.234e-2
+   1.234e-2f
+   .1 # 0.1
+   1. # 1.0
+
+
+LOGICAL vs BITWISE OPERATORS
+   ! & |
+   ~ .& .|
+
+
+KEYWORDS
+   stick (0.4) sticky  (0.6.1)
+   # pub (0.4) public (0.6.1) pub
+   priv (0.4) private (0.6.1) priv
+   pro (0.4) protected (0.6.1) prot
+   pack (0.4) package (0.6.1) pack
+   pass (0.7.5)
+   class (0.4)
+   rt (0.7.2)
+   # def (Rev 0.5.2)
+   let (Rev 0.5.2)
+   get (Rev 0.5.2)
+   set (Rev 0.5.2)
+   as (0.8)
+   if
+   else
+   elsif
+   while  (0.6.1)
+   eval (Rev 0.5.2) match (0.8.1)
+   for
+   do
+   until (0.6.1)
+   next (0.6.1)
+   break
+   label (0.7.0)
+   # fixed
+   thru (0.8)
+   in(0.7.2)
+   skip(0.8)
+   ensure (0.8)
+   try
+   except
+   self
+   mut (0.8)
+   nan (0.8)
+   nil
+
+
+OPERATORS
+   +
+   -
+   *
+   /
+   // # for ratios
+   ^
+   %
+   --
+   ++
+   =
+   +=
+   -=
+   *=
+   /=
+   //=
+   ^=
+   %=
+   ==
+   !=
+   ===
+   !===
+   !
+   >
+   <
+   >=
+   <=
+   &
+   |
+   ~
+   .|
+   .&
+   >>
+   <<
+-   '
+   .=
+
+
+SYNTACTIC SYMBOLS
+   |
+   *
+   ~
+   @
+   .
+   :
+
+---------------! NOTES !------------------------
+VARIABLE BINDING
+- Variables can only be bound to a type once.
+- Unlike Julia or Python, a variable can't be associated with more than one concrete type through out its life time
+   pat := nil
+   pat = 25
+   pat = "Hello" # error! pat already bound to Int32
+
+
+CONDITIONALS
+- value
+- nil or not
+- true or false
+
+
+ITERABLES
+- Coroutines
+- Range
+- Array objects
+- Table objects
+- Iterable SubClasses
+- String
+- Enums
+
+
+SUBJECT OF OPERATIONS
+# is signified by '_'
+- Stack
+- Match
+- Properties
+
+
+AUTOMATIC REFERENCE COUNTING
+- there can only be one strong ref to an object
+   type Skeleton:
+      bones List<own Bone> # bones contain a list of strong Refs to Bone objects
+   ..
+   type Bone:
+      skel Skeleton
+   ..
+
+
+DECLARATIVE PLUTO ".deplu" #27/06/16
+   person:[
+      name : "Nypro"
+      fat : false
+      tall : true
+      hobby : 'programming'
+      single : _ # underscore as a value signifies empty
+      children : [2, 3, 4, 6]
+      coord : [x : 5]
+      coords : [x : 1, y : 2, z : 3]
+      gamesLiked : name, releaseDate, hard [
+         ["Crysis", 2007, _],
+         ["Unreal Tournament", 1999, true],
+         ["Portal 2", 2011, true],
+      ]
+   ]
+
+
+DUCK TYPING EXAMPLES
+   c := nil
+   a := 25
+   b := [1, 2, 3, 4, 5] # array
+   c = [1, 2, 3 | 4, 5, 6] # multi dimen array
+   d := ['Hello', 25, 1.3f, 'Hi'] # table
+   getArea(length, breadth):
+      length * breadth
+   ..
+   length : 10
+   breadth : 25
+   rectangleArea : getArea(length, breadth)
+
+
+NESTED ASSIGNMENT
+- Pluto does not support nested assignments.
+   tip := 5
+   tap := (tip *= 5)
+
+
+NIL VARIABLES
+- access to nil variables should be caught at compile time. NilErr
+- dunno how this is going to be achieved tho.
+   x := nil
+   print(x) # raises NilErr
+   print(x?? "Error! x is nil")
+
+
+PASS TABLE
+#=
+   Types                              |   Passed Around By
+   ----------------------------------------------------------
+   Built-in Ind Types /  Value Types  |   val
+   Arr Types                          |   ref
+   Func Types                         |   ref
+   Custom Types                       |   ref
+=#
+
+
+COMPILER WARNINGS
+- when assigning to variables in other modules
+
+
+COMPILATION
+- '_' is compiled as a placeholder. This will be replaced at run time by a subject of operation
+- some symbolic classes are evaluated at compile-time, e.g Func

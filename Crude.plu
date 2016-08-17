@@ -1,0 +1,126 @@
+# 12/08/16
+import json
+type ProjectSession:
+  # ...
+  # jsons
+  headerjson := JsonObj
+  projectJson := JsonObj
+  historyJson := JsonObj
+  sessionJson := JsonObj
+  groupsJson := JsonObj
+  modelsJson := JsonObj
+  meshesJson := JsonObj
+  # ...
+..
+createNewProject(a := NewProjDialog):
+  hash := .baseSession.getHash(1)
+
+  # HEADER JSON
+  .projSession.headerJson = .baseSession.defaultHeaderJson
+  .projSession.headerJson["hash"] = hash
+
+  # PROJECT JSON
+  .projSession.projectJson = .baseSession.defaultProjectJson
+  .projSession.projectJson["properties"] = .projSession.headerJson
+  .projSession.projectJson["name"] = .projName
+  .projSession.projectJson["projectDir"] = .projDir
+  foldersArr := .projSession.projectJson["folders"]
+  folderObj := JsonObj
+  folderObj["name"] = "Versions"
+  folderObj["dir"] = .projPath
+  folderObj["extra"] = Json.Null
+  foldersArr.append(folderObj)
+  .projSession.projectJson["folders"] = foldersArr
+
+  # HISTORY JSON
+  .projSession.historyJson = .baseSession.defaultHistoryJson
+  .projSession.historyJson["properties"] = .projSession.headerJson
+  .projSession.historyJson["projectPath"] = .projPath
+  logArr := .projSession.historyJson["log"]
+  logObj := JsonObj
+  logObj["index"] = 1
+  logObj["active"] = "active"
+  logObj["date"] = .baseSession.getDate()
+  logObj["type"] = "project"
+  logObj["action"] = "create"
+  detailsObj := JsonObj
+  detailsObj["name"] = .projName
+  detailsObj["dir"] = .projDir
+  logObj["details"] = detailsObj
+  logObj["extra"] = Json.Null
+  logArr.append(logObj)
+  .projSession.historyJson["log"] = logArr
+
+
+  # SESSION JSON
+  .projSession.sessionJson = .baseSession.defaultSessionJson
+  .projSession.sessionJson["properties"] = .projSession.headerJson
+  .projSession.sessionJson["projectPath"] = .projPath
+
+  # GROUPS JSON
+  .projSession.groupsJson = .baseSession.defaultGroupsJson
+  .projSession.groupsJson["properties"] = .projSession.headerJson
+  .projSession.groupsJson["projectPath"] = .projPath
+
+  # MODELS JSON
+  .projSession.modelsJson = .baseSession.defaultModelsJson
+  .projSession.modelsJson["properties"] = .projSession.headerJson
+  .projSession.modelsJson["projectPath"] = .projPath
+
+
+  # MESHES JSON
+  .projSession.meshesJson = .baseSession.defaultMeshesJson
+  .projSession.meshesJson["properties"] = .projSession.headerJson
+  .projSession.meshesJson["projectPath"] = .projPath
+
+  # WRITING JSONS TO FILES
+
+  #
+  projectFile := File(projPath)
+  if(!projectFile.open(File.WriteOnly)):
+    raise FileNotFoundErr("Can't create FileErr")
+  ..
+  projectJsonDoc := .projSession.projectJson
+  projectFile.write(projectJsonDoc.toJson())
+
+  #
+  historyFile := File(projPath)
+  if(!historyFile.open(File.WriteOnly)):
+    raise FileNotFoundErr("Can't create FileErr")
+  ..
+  historyJsonDoc := .projSession.historyJson
+  historyFile.write(historyJsonDoc.toJson())
+
+  #
+  sessionFile := File(projPath)
+  if(!sessionFile.open(File.WriteOnly)):
+    raise FileNotFoundErr("Can't create FileErr")
+  ..
+  sessionJsonDoc := .projSession.sessionJson
+  sessionFile.write(sessionJsonDoc.toJson())
+
+  #
+  groupsFile := File(projPath)
+  if(!groupsFile.open(File.WriteOnly)):
+    raise FileNotFoundErr("Can't create FileErr")
+  ..
+  groupsJsonDoc := .projSession.groupsJson
+  groupsFile.write(groupsJsonDoc.toJson())
+
+  #
+  modelsFile := File(projPath)
+  if(!modelsFile.open(File.WriteOnly)):
+    raise FileNotFoundErr("Can't create FileErr")
+  ..
+  modelsJsonDoc := .projSession.modelsJson
+  modelsFile.write(modelsJsonDoc.toJson())
+
+  #
+  meshesFile := File(projPath)
+  if(!meshesFile.open(File.WriteOnly)):
+    raise FileNotFoundErr("Can't create FileErr")
+  ..
+  meshesJsonDoc := .projSession.meshesJson
+  meshesFile.write(meshesJsonDoc.toJson())
+
+..

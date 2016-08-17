@@ -102,7 +102,7 @@ MULTIPLE ASSIGNMENT
 NUMERIC FORMATTING
   x := 1_000_000
   y := 1_999.99
-  
+
 
 CPP
   str := cxx" void main() {printf("Hello");}"
@@ -516,7 +516,7 @@ VARIADIC PARAMETERS
   a := add(1, 2, 3, 4, 5, 6)
 
 
-MUTATIVE FUNCTIONS
+MUTATIVE METHODS
   add(x, y): a + b
   swap(x, y)!: x, y = y, x # use exclamtion mark for functions that can change values
 
@@ -530,7 +530,7 @@ UNOVERLOADABLE METHODS
   ::T:: add(args := T[]) T
 
 
-PASSING FUNCTION AS ARGUMENT
+PASSING METHODS AS ARGUMENT
   addThree(a, b, c := nil, myFunc := Func[:Int Int > Int]) Int :
     rt myFunc(a, b) + c
   ..
@@ -585,10 +585,6 @@ METHOD OBJECTS
   add3 := Func[:Int Int Int > Int]
 
 
-MULTIPLE DISPATCH (??)
-
-
-
 CLOSURES
   outer():
     a := 6
@@ -608,7 +604,7 @@ CLOSURES
   tip := Func[:Int Int > Int]
 
 
-ANONYMOUS CLASSES
+ANONYMOUS TYPES
   keyListener(e := Event): e.printText()
   keyListener(
     Event:
@@ -694,7 +690,7 @@ EVENTS
   buttonPressed += addNewEvent
 
 
-CLASS DEFINITION
+TYPE DEFINITION
   type Car:
     name, model := Str
     (name := Str):  # Constructor
@@ -867,6 +863,24 @@ STICKY LOCAL VARIABLES
   ..
 
 
+TYPE EXTENSION
+  type Person:
+    name := Str
+    age := Int
+  ..
+  main():
+    someone := Person
+    someone.name = "Nypro"
+    someone.age = 24
+    listln(someone.getDetails())
+  ..
+  Person::getDetails():
+    rt [.name, .age]
+  ..
+
+MULTIPLE DISPATCH (??)
+
+
 HOLD VARIABLES IN LOOPS
   for x thru 1...50:
     hold x := 1
@@ -939,7 +953,7 @@ UNINHERITABLE CLASS
 
 
 GENERICS
-  ::T [Str|Int], U::
+  <T[Str|Int], U>
   type DataManager:
     T dataID
     U dataX
@@ -964,7 +978,7 @@ ENUMS
     elsif day == SUNDAY: print('today is [day]') # today is SUNDAY
   ..
 
-  enum RealNum: decimal := /\d|\d+\.\d+/; scientific := /\d\.\d+e[\-\+*]\d/
+  enum RealNum: decimal := re"\d|\d+\.\d+"; scientific := re"\d\.\d+e[\-\+*]\d"
   checkNum(rn := RealNum): # checkNum[:123.4e10]
     if rn == decimal: print('[rn] is decimal')
     elsif rn == scientific: print('[rn] is scientific')
@@ -1563,3 +1577,10 @@ NESTED ASSIGNMENT
 NIL VARIABLES
 - access to nil variables should be caught at compile time.
 - dunno how this is going to be achieved tho.
+
+MULTIPLE DISPATCH
+# 11/08/16
+After seeing what Julia is capable of.
+I think I want Pluto too, to have proper multiple dispatch
+And that translates to detaching functions from type's boundary
+This will be implemented in 2016.0.8.2
