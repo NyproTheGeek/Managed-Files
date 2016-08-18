@@ -158,7 +158,7 @@ repository:
       }
       # CATEGORIES
       {
-        match: '\\b(?:type|enum|pipe|let|mut|mod|as)\\b',
+        match: '\\b(?:type|def|enum|pipe|let|mut|mod|as)\\b',
         name: 'storage.type.pluto'
       }
       # CLASSES

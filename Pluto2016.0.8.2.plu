@@ -5,6 +5,7 @@ Major Change:
    Restructuring for Multiple Dispatch
    Import is now module-based instead than type-based because of the new multiple Dispatch
    a type's method may be defined outside the type's file
+   Added def to function declaration #18/08/16
 =#
 
 PLUTO's DESIGN PHILOSOPHY
@@ -54,8 +55,8 @@ VARIABLE DECLARATION & INITIALIZATION
    n := getCar('Camaro')
    o := add(2, 4)
    p := List<Car>(3) # generics
-   add (a, b, c := UInt) Int
-   add (a := 1, b := 2, c := UInt(3)) UInt
+   def add (a, b, c := UInt) Int
+   def add (a := 1, b := 2, c := UInt(3)) UInt
 
 
 VARIABLES AND REFERENCES
@@ -69,13 +70,13 @@ VARIABLES AND REFERENCES
    pot := read pat # pot references object but cannot assign to it
    let pit := val put
 
-   subtract(let ref a, let ref b, ref c):
+   def subtract(let ref a, let ref b, ref c):
       c = a - b
       rt ref c
    dean := val subtract(x, y) # gets a copy
    cop := subtract(x, y) # gets a ref
 
-   add(ref a, ref b):
+   def add(ref a, ref b):
       rt val a + b
    alm := ref add(val x, val y) # warning, return a val to a ref
 
@@ -354,7 +355,7 @@ CONDITION LIST
 TERNARY OPERATOR
    # single expression ternary operator
    myVar1 := (myBool == true)? 5 | 6
-   divide(num, denom): rt (denom == 0)? nan | num / denom
+   def divide(num, denom): rt (denom == 0)? nan | num / denom
    myBool := (myName == "Nypro")? # this ternary operator returns true or false
 
 
@@ -413,11 +414,11 @@ NIL CONDITION
 
 
 ONE-LINE BLOCK
-   addTwo(a, b := Int) Int:
+   def addTwo(a, b :== Int) Int:
       print (a + b)
       rt a + b
    ..
-   addThree(a, b, c := Int) Int: print (a + b + c) ; rt a + b + c
+   def addThree(a, b, c :== Int) Int: print (a + b + c) ; rt a + b + c
    if x == y
    if x == y : print(x)
    if x == y : print(x) | else print(y)
@@ -465,16 +466,16 @@ SKIPPING BLOCKS
 
 
 FUNCTION DEFINITION
-   add(a := Int, b := Int) Int:
+   def add(a := Int, b := Int) Int:
       rt a + b
    ..
 
 RETURNING A VALUE
-   add(a := Int, b := Int) Int:
+   def add(a := Int, b := Int) Int:
       rt a + b
    ..
    # the last expression in a method is automatically returned if it is returnable
-   add(a, b): a + b
+   def add(a, b): a + b
 
 
 GLOBAL FUNCTIONS
@@ -486,27 +487,26 @@ GLOBAL FUNCTIONS
 
 
 LIST DECLARATION IN METHOD PARAMETER
-   add(a, b := nil): rt a + b # a and b are nil
-   add(a, b): a + b  # or better
-
-   add(a, b := Int): rt a + b # a and b are Int
-   add(a := nil, b := Int): rt a + b # a is nil, b is Int
-   add4(a, b := nil, c, d := Int) Int: # a and b are nil, c and d are Int
+   def add(a, b): a + b # params without types are nil by default unlike normal variables
+   def add(a, b := Int): rt a + b # a is nil, b is Int
+   def add(a, b :== Int): rt a + b # both a and b are Int, :== is left associative
+   def add(a := nil, b :== Int): a + b # a is nil, b is Int
+   def add4(a, b := nil, c, d :== Int) Int: # a and b are nil, c and d are Int
       rt a + b + c + d
    ..
 
 
 CONSTANT PARAMETER
    # guarantees that the parameter won't be changed
-   add(let a, let b): c := a + b ; rt c
+   def add(let a, let b): c := a + b ; rt c
    # or
-   let add(a, b): c := a + b ; rt c
+   def let add(a, b): c := a + b ; rt c
    # not just the params, local vars are also constant by default
 
 
 ARGUMENT NAMING
-   addPerson(name = 'Aditya', age = 28)
-   sum(a, b := 1, c := 0):
+   def addPerson(name = 'Aditya', age = 28)
+   def sum(a, b := 1, c := 0):
       rt a + b + c
    ..
    # arg naming can be used to skip optional args
@@ -514,22 +514,22 @@ ARGUMENT NAMING
 
 
 COMPOUND METHODS
-   getValue():
+   def getValue():
       sticky x := 1, y := Int(2)
-      ():
+      def ():
          rt x + y
       ..
-      (a := Int):
+      def (a := Int):
          rt x + y + a
       ..
-      (a, b := Int):
+      def (a, b :== Int):
          rt x + y + a + b
       ..
    ..
 
 
 VARIADIC PARAMETERS
-   sum(first := Int, others := Int []):
+   def sum(first := Int, others := Int []):
       tmp := first + arr
       for x thru arr:
          tmp += x
@@ -537,10 +537,10 @@ VARIADIC PARAMETERS
       rt tmp
    ..
    # or better
-   sum(first := Int, others := Int []): rt first + others
+   def sum(first := Int, others := Int []): rt first + others
    lion := sum(1, 2, 3, 4, 5, 6)
 
-   addEven(first := Int, others := Int []):
+   def addEven(first := Int, others := Int []):
       sum := first._move
       sum += (x thru others):: x => (x == _even)? # idiomatic pluto :)
       sum
@@ -549,14 +549,14 @@ VARIADIC PARAMETERS
    jean := addEven(0, dean)
    joan := addEven(0, [1, 2, 3, 4, 5])
    jane := addEven(0, 1, 2, 3, 4, 5)
-   add(a := 3 []): rt sum(a) # conflicts with the function below
-   add(a, b, c): rt a + b + c # conflicts with the function above
+   def add(a := 3 []): rt sum(a) # conflicts with the function below
+   def add(a, b, c): rt a + b + c # conflicts with the function above
 
 
 
 MUTATIVE FUNCTIONS
-   add(x, y): a + b
-   swap!(ref x, ref y): x, y = y, x # use exclamtion mark for functions that can change values
+   def add(x, y): a + b
+   <T> def swap!(ref x, ref y :== T): x, y = y, x # use exclamtion mark for functions that can change values
 
    tip := add(2, 3)
    top := add(4, 5)
@@ -564,12 +564,12 @@ MUTATIVE FUNCTIONS
 
 
 UNOVERLOADABLE FUNCTIONS
-   add(args := [])
-   <T> add(args := [] T) T
+   def add(args := [])
+   <T> def add(args := [] T) T
 
 
 RETURNING AN ARRAY
-   addThree (a, b, c := Int) 3 Int []:
+   def addThree (a, b, c :== Int) 3 Int []:
       arr := [a + b, a + c, b + c]
       arr
    ..
@@ -577,14 +577,14 @@ RETURNING AN ARRAY
    x, y, z:= addThree(p, q, r)
    w:= addThree(p, q, r)[1] + z
 
-   addSubTwo(a, b := Int) Int []:
+   def addSubTwo(a, b :== Int) Int []:
       arr := [a + b, a - b]
       arr
    ..
 
 
 RETURNING A TABLE
-   getDetails(u := User):
+   def getDetails(u := User):
       rt name, age [.name, .age ]
    ..
    x := getUser()
@@ -592,16 +592,16 @@ RETURNING A TABLE
 
 RETURNING VARIABLES
    # check for pass table in notes
-   getReadOnly() []:
+   def getReadOnly() []:
       rt read myList # unmodifiable after it has been returned
    ..
-   getVal():
+   def getVal():
       rt val myList
    ..
-   getRef():
+   def getRef():
       rt ref myList
    ..
-   getOwnership() [,]:
+   def getOwnership() [,]:
       rt array._move
    ..
    pat := val getVal() # redundant
@@ -620,16 +620,16 @@ FUNCTION OBJECTS
 
 
 CLOSURES
-   outer():
+   def outer():
       a := 6
-      rt (b := Int) : a + b # a closure can access variables in outer scope
+      rt def (b := Int) : a + b # a closure can access variables in outer scope
    ..
    add := outer
    # nameless closures (except those returned by a function or another closure) are executed at the
    # point they are declared
    # named closures on the other hand are not executed until they are called
-   add (x, y := Int):
-      (): rt x + y
+   def add (x, y :== Int):
+      def (): rt x + y
    ..
    sum := Func
    sum := add
@@ -637,7 +637,7 @@ CLOSURES
 
 
 PASSING FUNCTIONS AS ARGUMENT / ANONYMOUS FUNCTIONS
-   addThree(a, b, c := nil, myFunc := Func{Int Int}):
+   def addThree(a, b, c, myFunc := Func{Int Int}):
       rt myFunc(a, b) + c
    ..
    addThree(1, 2, 3, (a, b): a * b)
@@ -650,7 +650,7 @@ ANONYMOUS TYPES
    keyListener(e := Event): e.printText()
    keyListener(
       Event:
-         printText():
+         def printText():
             print ('Hello, World')
          ..
       ..)
@@ -660,31 +660,31 @@ LAMBDAS
    keyListener(e := Event): e.printText()
    keyListener(
       Event:
-         printText():
+         def printText():
             print ('Hello, ')
          ..
       ..)
-   keyListener((): print("World")) # lambda
+   keyListener(def (): print("World")) # lambda
    keyListener(rt print("World")) # shortened lambda using 'rt'
-   myList.fold(0, (a, b): a + b)
+   myList.fold(0, def (a, b): a + b)
    myList.fold(0, rt a + b) # shortened lambda, rt must be included
 
 
 COROUTINES
    # New Proposed Coroutine with Concurrency. Thanks to Go 03/08/16
    # Concurrent Coroutine
-   pinger(pipe p := String):
+   def pinger(pipe p := String):
       loop:
          p <- "ping"
 
-   printer(n := Int):
+   def printer(n := Int):
       loop:
          msg := <- p
       print(msg)
       time.sleep(time.second * 1)
    ..
 
-   main():
+   def main():
       pipe p := String # pipe creation
       run pinger(p) # run pinger concurrently
       run printer(p) # run printer concurrently
@@ -697,7 +697,7 @@ COROUTINES
    doSth(to p := String) # can only recieve thru the channel
 
   # Sequential Coroutine using sticky variables
-   addUp(a, b):
+   def addUp(a, b):
       sticky x
       if x == _init:
          rt x += b
@@ -733,20 +733,20 @@ TYPE DEFINITION
 SELF REFERENCE
    type Car:
       name, model := Str
-      (name := Str):
+      def (name := Str):
          .name = name # the self can be ommitted leaving the dot and the field
       ..
-      (.name, .model)
+      def (.name, .model)
    ..
    # this is also applicable to methods where its is the type of the first parameter
-   getDetails(car := Car): rt [.name, .model]
-   hasModel(car := Car, model := Str): rt (.model == model)?
+   def getDetails(car := Car): rt [.name, .model]
+   def hasModel(car := Car, model := Str): rt (.model == model)?
 
 
 USING A FUNCTION AS METHOD
-   show(a := Person): print(.name)
+   def show(a := Person): print(.name)
    nigel := Person("Nigel Nicargua")
-   show(nigel)
+   def show(nigel)
    nigel.show() # using show funtion as a method since Person is the first argument
    +(a := MyNum, b := Int): rt .value + b
    duke := MyNum(25)
@@ -757,9 +757,9 @@ USING A FUNCTION AS METHOD
 DESTRUCTORS
    type Car:
       name, model := Str
-      (.name)
-      (.name, .model)
-      (!) : # Destructor implicitly contains a first parameter of type Car
+      def (.name)
+      def (.name, .model)
+      def (!) : # Destructor implicitly contains a first parameter of type Car
          print('Object Deleted!')
    ..
 
@@ -773,10 +773,10 @@ MODIFIERS IN CLASS
 - proj(ect), prod(uction), prog(ram) clashes with prot(ected)
 
 MODIFIERS CAN BE ON CLASSES AND METHODS Took
-   priv addPerson() # is accessible only within the module
-   pass getNumber() # is accessible within the module and to associated types
-   priv type Company # is accessible only within the module
-   prod createSession() # is accessible only to production unit
+   def priv addPerson() # is accessible only within the module
+   def pass getNumber() # is accessible within the module and to associated types
+   type priv Company # is accessible only within the module
+   def prod createSession() # is accessible only to production unit
 
 
 PACKAGE ACCESS LEVEL
@@ -813,17 +813,17 @@ MODIFIERS IN LIST DECLARATION
 
 
 PROPERTIES / GETTERS SETTERS
-   myVar1 := set(a, b, c := Int): _ = a * b * c | get(): rt _
+   myVar1 := def set(a, b, c :== Int): _ = a * b * c | def get(): rt _
    myVar1 = (1, 2, 3)
    myVar2 :=
-      set(a, b := Int): _ = a * b * c
-      get(): rt _
+      def set(a, b :== Int): _ = a * b * c
+      def get(): rt _
    myVar2 = (1, 2)
-   myVar3 := set(a := Int): _ = a | get(): rt _
+   myVar3 := def set(a := Int): _ = a | def get(): rt _
    myVar3 = 1
-   myVar4 := set(a := Int) | get()
+   myVar4 := def set(a := Int) | get()
    myVar3 = 2
-   tip := get(): rt myVar3
+   tip := def get(): rt myVar3
 
 
 TYPE CHECKING
@@ -860,10 +860,10 @@ METHOD CHAINING
    type Math:
       value := Float
    ..
-   add(a := Math, b, c := Float) Float:
+   def add(a := Math, b, c :== Float) Float:
       a.value = b + c
    ..
-   subtract(a := Math, b, c := Float) Float:
+   def subtract(a := Math, b, c :== Float) Float:
       a.value = b - c
    ..
    m := Math
@@ -872,9 +872,9 @@ METHOD CHAINING
 
 
 STICKY TYPES
-   sticky type TempConv
-   convToFahr(a := TempConv, celsius := Float) Float
-   convToCelsius(a := TempConv, fahr := Float) Float
+   type sticky TempConv
+   def convToFahr(a := TempConv, celsius := Float) Float
+   def convToCelsius(a := TempConv, fahr := Float) Float
 
 
 STICKY TYPES MEMBER
@@ -882,15 +882,15 @@ STICKY TYPES MEMBER
       name := Str
       age := Int
       sticky let race := 'Mongoloid'
-      (.name, .age)
+      def (.name, .age)
    ..
-   sticky getRace(a := Person): .race
+   def sticky getRace(a := Person): .race
 
 
 STICKY CONSTRUCTOR
-   sticky type MyClass:
+   type sticky MyClass:
       x, y := Int
-      (): # they can't have parameters. They only initialise class fields at first use
+      def (): # they can't have parameters. They only initialise class fields at first use
          .x = 2
          .y = 3
       ..
@@ -901,7 +901,7 @@ STICKY LOCAL VARIABLES
   # sticky local variables are promoted to fields implicitly but can only be accessed in their
   # parent method.
   # I like sticky local variables because it brings variables closer to where they are needed
-   add(a := Int) Int:
+   def add(a := Int) Int:
       sticky sum := a # this variable will maintain its state whenever the function is called
       rt sum += a
    ..
@@ -917,14 +917,14 @@ HOLD VARIABLES IN LOOPS
 
 INHERITANCE, COVARIANCE AND CONTRAVARIANCE
    type Person: name := String; age := Int; (.name, .age)
-   showDetails(person := Person): print("name: [.name], .age: [.age]")
+   def showDetails(person := Person): print("name: [.name], .age: [.age]")
 
    type Employee [Person]: job := String ; (.name, .age, .job)# Employee now inherits Person's field and associated methods
-   changeName(emp := Employee, name := Str): .name = name
-   changeName(emp := Employee, age := Str): .age = age
-   changejob(emp := Employee, job := Str): .job = job
+   def changeName(emp := Employee, name := Str): .name = name
+   def changeName(emp := Employee, age := Str): .age = age
+   def changejob(emp := Employee, job := Str): .job = job
 
-   main():
+   def main():
       jide := Employee('Jide Abass', 28, 'Clerk')
       # Covariance
       showDetails(jide) # prints "name: Jide Abass, age: 28"
@@ -939,25 +939,25 @@ INHERITANCE, COVARIANCE AND CONTRAVARIANCE
 
 INHERITANCE # Not Finalized!
    type Animal
-   move(a := Animal)
+   def move(a := Animal)
 
    type Bird [Animal]
-   move(a := Bird): print("Soar!") # overides move method for Animal, a super method
-   fly()
+   def move(a := Bird): print("Soar!") # overides move method for Animal, a super method
+   def fly()
 
    type Horse [Animal]
-   move(a := Horse): print("Gallop!") # overides move method for Animal, a super method
-   gallop()
+   def move(a := Horse): print("Gallop!") # overides move method for Animal, a super method
+   def gallop()
 
    type Pegasus [Bird, Horse] # inherits Bird and Horse classes
-   move(a := Pegasus): print("Soar and Gallop!") # overides move method because of CONFLICT in  Bird and Horse
+   def move(a := Pegasus): print("Soar and Gallop!") # overides move method because of CONFLICT in  Bird and Horse
 
    eagle := Bird()
    horse := Horse()
    pegasus := Pegasus()
-   move(eagle) # "Soar!"
-   move(horse) # "Gallop!"
-   move(pegasus) # "Soar and Gallop!"
+   def move(eagle) # "Soar!"
+   def move(horse) # "Gallop!"
+   def move(pegasus) # "Soar and Gallop!"
    animals := Animal[Bird(), Horse(), Pegasus()]
    animals[1].move() # "Soar!"
    animals[2].move() # "Gallop!"
@@ -967,29 +967,29 @@ INHERITANCE # Not Finalized!
 SUPER METHODS AND SUB METHODS
    type Listener
    type ButtonListener [Listener]
-   respond(a := Listener) # this is a super method to the more specific method below
-   respond(a := ButtonListener): rt # this is a sub method to the method above
+   def respond(a := Listener) # this is a super method to the more specific method below
+   def respond(a := ButtonListener): rt # this is a sub method to the method above
 
 
 VIRTUAL METHODS
-   respond(a := Listener) # a method without a body is implicitly virtual and cannot be called
-   respond(a := ButtonListener) # error, a virtual super method can't be overriden by a virtual sub method
+   def respond(a := Listener) # a method without a body is implicitly virtual and cannot be called
+   def respond(a := ButtonListener) # error, a virtual super method can't be overriden by a virtual sub method
 
 
 OVERRIDING METHODS
 Pluto does not, currently, have an override keyword. Methods are overriden implicitly
 This might cause some unexpected problems. Important super methods could be overiden without knowing
 I'm going to look into the problem later
-   play(a := Player): .start()
-   play(a := DigitalPlayer): .startAt(0) # this play overrides its super method implicitly
+   def play(a := Player): .start()
+   def play(a := DigitalPlayer): .startAt(0) # this play overrides its super method implicitly
 
 
 
 ABSTRACT TYPES
-   abs type Player # cannot be instantiated
-   play(a := Player)
-   rewind(a := Player)
-   fastForward(a := Player)
+   type abs Player # cannot be instantiated
+   def play(a := Player)
+   def rewind(a := Player)
+   def fastForward(a := Player)
 
    type DigitalPlayer [Player]
 
@@ -1007,14 +1007,14 @@ DOWNCASTING ! Needs review
 
 
 CONSTANT CLASS
-   let type MyClass:
+   type let MyClass:
       x := 'is immutable'
       mut y := 'is mutable'
    ..
 
 
 UNINHERITABLE CLASS
-   solo type MyClass:
+   type solo MyClass:
       x := 'Class Cannot Be Inherited'
    ..
 
@@ -1028,14 +1028,14 @@ GENERICS
    ..
    object DataManager<Str, Car>
 
-   <T[Integer]>type Ratio # means Integer and its subtypes
+   <T[Integer]> type Ratio # means Integer and its subtypes
    chan : Ratio(3//2) # uses Integer
    chen : Ratio<UInt>(6//4)  # uses subtype UInt
 
    myMovies := List<own Movie>
    favoriteMovie := ref Movie
 
-   <T>add(a, b, c := T): a + b + c
+   <T> def add(a, b, c := T): a + b + c
    add<Int>(1, 2, 3)
    add(1f, 2f, 3f)
    add(2, 3, 4f) # error, mismatched types
@@ -1045,7 +1045,7 @@ ENUMS
    # can have the same name with a class in the same file
    # enums only have one unoverloadable constructor with a Symbol object param
    enum Days: MONDAY; TUESDAY; WEDNESDAY; THURSDAY; FRIDAY; SATURDAY; SUNDAY # elemental enum
-   todayIs(day := Days): # todayIs{SUNDAY}
+   def todayIs(day := Days): # todayIs{SUNDAY}
       if day == MONDAY: print('today [day]') # today is MONDAY
       elsif day == TUESDAY: print('today is [day]') # today is TUESDAY
       elsif day == WEDNESDAY: print('today is [day]') # today is WEDNESDAY
@@ -1056,7 +1056,7 @@ ENUMS
    ..
 
    enum RealNum: decimal := re"\d|\d+\.\d+"; scientific := re"\d\.\d+e[\-\+*]\d" # case enum
-   checkNum(rn := RealNum): # checkNum{123.4e10}
+   def checkNum(rn := RealNum): # checkNum{123.4e10}
       if rn == decimal: print('[rn.toStr()] is decimal')
       elsif rn == scientific: print('[rn.toStr()] is scientific')
    ..
@@ -1078,9 +1078,9 @@ REGEX
 PATTERN MATCHING
    type User; type Account; type PayPal [Account]; type Bitcoin [Account]
 
-   test (name, acc): (name === Str & acc === Account)?
-   pypl(acc): (acc === PayPal)? acc | nil
-   btc(acc): (acc === Bitcoin)? acc | nil
+   def test (name, acc): (name === Str & acc === Account)?
+   def pypl(acc): (acc === PayPal)? acc | nil
+   def btc(acc): (acc === Bitcoin)? acc | nil
 
    mary := User
 
@@ -1177,7 +1177,7 @@ OPERATOR OVERLOADING
 
 
 TRY & ASSOCIATES
-   main():
+   def main():
       ensure:
          file.close()
       ..
@@ -1305,24 +1305,23 @@ REFLECTION
    # dynmically determining which class to use
    @if (stage := "runtime", condition := "Main.useOldClass == true"): # ????
     type Class:
-      value := set(x Str): value = x | get(): rt value
-      (.value)
+      value := def set(x Str): _ = x | def get(): rt _
+      def (.value)
     ..
    @else
     type Class:
-      str := set(x Str): str = x | get(): rt str
-      num := set(x Float64): num = x | get(): rt num
-      (.str)
-      (.num)
+      str := def set(x Str): _ = x | def get(): _
+      num := def set(x Float64): _ = x | def get(): _
+      def (.str)
+      def (.num)
     ..
    @endif
 
 MACROS
-   @macro greeting(name := AStr):
-      print("Hello, [name]")
+   @macro subtract(a, b):
+      a - b
    ..
-
-   @greeting("Tunde")
+   dune := @subtract(50, rune)
 
 
 COMPLEX, QUATERNION DECLARATION
@@ -1497,6 +1496,7 @@ KEYWORDS
    mut (0.8)
    nan (0.8)
    nil
+   def (0.8.2)
 
 
 OPERATORS
@@ -1642,6 +1642,10 @@ PASS TABLE
    Func Types                         |   ref
    Custom Types                       |   ref
 =#
+
+
+VARIABLE VS PARAMETER
+Variable declaration is nothing like parameter declaration
 
 
 COMPILER WARNINGS

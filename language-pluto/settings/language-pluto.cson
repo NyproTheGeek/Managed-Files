@@ -2,8 +2,8 @@
   'editor':
     'autoIndentOnPaste': false
     'softTabs': true
-    'tabLength': 2
+    'tabLength': 4
     # 'foldEndPattern': '^\\s*"""\\s*$'
     'commentStart': '# '
-    'increaseIndentPattern': ':\\s*$'
+    'increaseIndentPattern': ':\\s*$|:\\=\\s*$'
     'decreaseIndentPattern': '^\\s*(elsif|else|catch|ensure)\\b.*:|\\.\\.' # while
