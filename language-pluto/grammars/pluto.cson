@@ -148,7 +148,7 @@ repository:
       }
       # CONTROL FLOW
       {
-        match: '\\b(?:for|if|else|elsif|rt|while|match|case|until|do|loop|label|block|try|except|ensure|raise|next|break|skip|step|yield|take|run|import)\\b',
+        match: '\\b(?:for|if|else|elsif|rt|while|repeat|match|case|until|do|loop|label|block|try|except|ensure|raise|next|break|skip|step|yield|take|run|import)\\b',
         name: 'keyword.control.pluto'
       }
       # MODIFIERS
