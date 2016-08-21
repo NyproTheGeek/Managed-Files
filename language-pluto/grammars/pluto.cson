@@ -138,7 +138,7 @@ repository:
       }
       # TYPES
       {
-        match: '\\b(?:AStr|Str|Char|Byte|SByte|Num|Int|Int32|Int64|Int16|UInt|UInt32|UInt64|UInt16|IFit|UIFit|Float|Double|Float16|Float32|Float64|Comp|Comp128|Quat|Quat256|Bool|Any|Func|Arr|Tab|None)\\b',
+        match: '\\b(?:AStr|Str|Char|Byte|SByte|Num|Int|Int32|Int64|Int16|UInt|UInt32|UInt64|UInt16|IFit|UIFit|Float|Double|Float16|Float32|Float64|Comp|Comp128|Quat|Quat256|Bool|Any|Func|Array|Dict|Indie|None)\\b',
         name: 'support.type.pluto'
       }
       # LANG VARIABLES
@@ -148,7 +148,7 @@ repository:
       }
       # CONTROL FLOW
       {
-        match: '\\b(?:for|if|else|elsif|rt|while|repeat|match|case|until|do|loop|label|block|try|except|ensure|raise|next|break|skip|step|yield|take|run|import)\\b',
+        match: '\\b(?:for|if|else|elsif|rt|while|repeat|match|case|until|do|use|loop|label|block|try|except|ensure|raise|next|break|skip|step|yield|take|run|import)\\b',
         name: 'keyword.control.pluto'
       }
       # MODIFIERS
@@ -205,7 +205,7 @@ repository:
         # name: "variable.language.pluto"
         # I seriously don't know what is wrong with the above regex, but it is the solution to the problem
         # I'm having with the method below.
-        match: "(?:[A-za-z_][A-za-z_0-9]*|\\)|\"|\')?\\.([A-za-z_][A-za-z_0-9]*)\\b"
+        match: "(?:[A-za-z_][A-za-z_0-9]*|\\)|\"|\')?\\.((?:\\[[A-za-z_][A-za-z_0-9]*\\])|[A-za-z_][A-za-z_0-9]*)\\b"
         captures:
           "1":
             name: "variable.language.pluto"

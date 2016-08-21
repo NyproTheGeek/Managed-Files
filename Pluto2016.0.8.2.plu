@@ -2,11 +2,13 @@ Revised 11/08/16
 # 2016.0.8.2
 #=
 Major Change:
-   Restructuring for Multiple Dispatch
-   Import is now module-based instead than type-based because of the new multiple Dispatch
-   A type's method may be defined outside the type's file
-   Added def to function declaration #18/08/16
-   Changing assignment operator back to good ol' way, binding to nil-and-one-other-type is still enforced 19/08/16
+    Restructuring for Multiple Dispatch
+    Import is now module-based instead than type-based because of the new multiple Dispatch
+    A type's method may be defined outside the type's file
+    Added def to function declaration #18/08/16
+    Changing assignment operator back to good ol' way, binding to nil-and-one-other-type is still enforced 19/08/16
+    The block punstuation is now $, it helps resolve some ambiguity in statements like repeat play() | while state == "Play" | x == y ? y | z
+        repeat: play() $ while state == "Play" | x == y ? y $ z
 =#
 
 PLUTO's DESIGN PHILOSOPHY
@@ -47,17 +49,28 @@ DOCUMENTATION
 
 
 VARIABLE DECLARATION & INITIALIZATION
-   x ; x = Car('Camaro')
-   y = 12f
-   z = 'Hello'
-   a = Car('Camaro')
-   b = Car('Camaro').setDate(2014) # ok
-   c = Car ; c = ('Camaro') # comma is used to separate two statements
-   n = getCar('Camaro')
-   o = add(2, 4)
-   p = List<Car>(3) # generics
-   def add (a, b, c := UInt) Int
-   def add (a = 1, b = 2, c = UInt(3)) UInt
+    x ; x = Car('Camaro')
+    y = 12f
+    z = 'Hello'
+    a = Car('Camaro')
+    b = Car('Camaro').setDate(2014) # ok
+    c = Car ; c = ('Camaro') # comma is used to separate two statements
+    n = getCar('Camaro')
+    o = add(2, 4)
+    p = List<Car>(3) # generics
+    def add (a b c = UInt) Int
+    def add (a = 1, b = 2, c = UInt(3)) UInt
+
+
+SPECIFYING TYPES
+    # type specification in declaration refers to what types a variable can be bind to appart from None
+    # variables are generally bound to two types None and any other one type
+    # however type specification can extend the number of types a variable can be bound to
+    # p = None & ?
+    p = Person # Person and Person's subtypes
+    p =: Person # Person
+    p <: Person # Person's subtypes
+    p >: Person # Person's supertypes
 
 
 VARIABLES AND REFERENCES
@@ -71,13 +84,13 @@ VARIABLES AND REFERENCES
    pot = read pat # pot references object but cannot assign to it
    let pit = val put
 
-   def subtract(let a, let b, let c := ref):
+   def subtract(let a let b let c = ref):
       c = a - b
       rt ref c
    dean = val subtract(x, y) # gets a copy
    cop = subtract(x, y) # gets a ref
 
-   def add(a, b := ref):
+   def add(a b = ref):
       rt val a + b
    alm = ref add(val x, val y) # warning, return a val to a ref
 
@@ -106,7 +119,7 @@ MUTABLE VARIABLE DECLARATION
 
 
 MULTIPLE ASSIGNMENT
-   a, b, c = array[2:4]
+   a, b, c = arr[2:4]
    x, y = y, x
    a, b, c, d = [1:4]
 
@@ -125,12 +138,15 @@ ARRAYS / LIST
    tin = 3 Car [('Camaro'), ('Mustang'), ('Maserrati')]
    let ted = [1, 2, 3, 4, 5]
    top = ted
-   go = Car[('Camaro'), ('Mustang')] # redundancy
+   go = Car[]
+   go[1] = Car("Camaro")
+   go[2:] = [('Mustang'), ('Maserrati')] # starts filling from index 2
 
-   pot = Arr
+   pot = Array
    # or better
    pot = []
-   pit = Arr{Int, 3} # an Int array with the size of three
+
+   pit = Array{Int, 3} # an Int array with the size of three
    # or better
    pit = 3 Int []
 
@@ -143,7 +159,7 @@ ARRAYS / LIST
    net = getArray() # error, array not exposed, so '[]' must be used
    list(go) # list elements row-wise
    list(go[_col]) # list elements col-wise
-   dean = Arr
+   dean = Array
    dean = [10, 8, 6 ,4, 2]
 
 
@@ -201,6 +217,12 @@ RAGGED ARRAY # is untidy !! Needs review
    arr = [1, 0, +4] ; arr = [1, 1, +5] ; arr = [1, 2, +6]
 
 
+ACCESSING ARRAYS
+    list = Person[("Dave", 25), ("Tony", 45), ("Spencer", 18)]
+    names = list.[name] # returns a list of name fields in the list
+    ages = list.[age] # returns a list of age fields in the list
+
+
 ARRAY OBJECT OPERATIONS
    arr1 == arr2
    arr1 < arr2
@@ -208,12 +230,16 @@ ARRAY OBJECT OPERATIONS
 
 
 MATRIX-VECTOR OPERATIONS # column major order
-   mX = [,] Mat.identity(4, 4)
-   mY = [1, 1, 1, 0]
-   mZ = [,] mX / mY
-   mP = [,] [2, 4, 3 | 3, 1, 5] * [3, 10 | 4, 2 | 1, 7]
-   mRows, mCols = m.size()
-   mQ = [,] u’ # z is assigned transpose of matrix u
+    mP = 2x2 [2, 4, 3 | 3, 1, 5] * [3, 10 | 4, 2 | 1, 7]
+    mX = Mat.identity(2, 2)
+    mY = 4x2 Int [
+        1, 1, 1, 0 |
+        0, 1, 1, 1 |
+    ]
+
+    mZ = mX / mY
+    mRows, mCols = m.size()
+    mQ = mX’ # z is assigned transpose of matrix u
 
 
 STRING TYPE
@@ -262,9 +288,9 @@ VERBATIM STRING
    """Use \t for tab and \n for newline"""
 
 CONTINUE ON NEXT line
-   men = length == 0 ? 25 | 0
+   men = length == 0 ? 25 $ 0
    mune = length == 1 ? \
-      25 | 0
+      25 $ 0
    meter = \
       getMeter()
 
@@ -317,14 +343,14 @@ REPEAT WHILE LOOP
    while myBool == true
 
 
-UNTIL LOOP # useful because you know the terminating condition
+UNTIL LOOP # useful because you know the terminating condition but I might remove it tho (??)
    until myBool == true:
       print("Hello ")
    ..
 
 
 REPEAT UNTIL LOOP
-   do: print ("Hello ") | until myBool
+   repeat: print ("Hello ") $ until myBool
 
 
 CONDITION LIST
@@ -355,9 +381,9 @@ CONDITION LIST
 
 CONDITIONAL MULTIPLEX OPERATOR
    # single expression ternary operator
-   myVar1 = myBool == true ? 5 | 6
-   def divide(num, denom): rt denom == 0 ? nan | num / denom
-   salary = (workYears > 5 ? 10_000 | 1_000) * rank # when conditional multiplex operator appears within an expression it must be bracketed
+   myVar1 = myBool == true ? 5 $ 6
+   def divide(num, denom): rt denom == 0 ? nan $ num / denom
+   salary = (workYears > 5 ? 10_000 $ 1_000) * rank # when conditional multiplex operator appears within an expression it must be bracketed
 
 
 RANGE
@@ -365,25 +391,25 @@ RANGE
    for x thru [1:(20 - 1)]: print(x)
 
 
-THRU & RANGE MULTIPLEX OPERATOR
-   list([2:4])
+THRU
    for x thru [1:20 - 1)]: print(x)
-   y = x thru [1:30] :: x # this range multiplex operator a list of 1 to 30
+   y = for x thru [1:30]: x # a for comprehension that returns a list of 1 to 30
    # same as
    y = [1:30]
-   arr = (x thru [2:7] :: x) * 3 # when range multiplex operator appears within an expression it must be bracketed
-   # same as
-   arr = (x thru [2:7] :: x * 3)
-   # same as
-   arr = [1:30] * 3
 
 
 WHERE
-   arr = x thru [1:30] :: x * 3 => x % 2 == 0
+   if p.age == 20 => p.name == "Allen": p # not really useful here
+   # same as
+   if p.age == 20 & p.name == "Allen": p
+
+   for item thru library ==> item.title.startsWith("The"):
+       hold x = 0 ; print(x++)
 
 
-COMPREHENSION LIST
-   arr = x thru [1:30] :: x * 3 => x % 2 == 0
+FOR COMPREHENSION
+   list = for x thru [1:30] => x % 2 == 0: x * 3
+   for b thru books, a thru btitle] => a.startsWith("The"): x
 
 
 THRU/STEP
@@ -400,7 +426,7 @@ IN
 
 
 NOT IN
-   arr = x thru [1:30] :: x * 3 => x not in [2:5]
+   arr = for x thru [1:30] => x not in [2:5]: x * 3
 
 
 NIL CONDITION
@@ -411,10 +437,10 @@ NIL CONDITION
    ..
    if let name = getChars() => name.characters.count in [4:15]:
       print ('hello')
-   if x = getStr(): print(x) | else : print('x is nil')
-   someone = person.getData().getAge() ? _ | printErr('someone is no one') # problematic if subject of op is a bool object
+   if x = getStr(): print(x) $ else : print('x is nil')
+   someone = person.getData().getAge() ? _ $ printErr('someone is no one') # problematic if subject of op is a bool object
    # better
-   someone = person.getData().getAge() == nil ? _ | printerr('someone is no one')
+   someone = person.getData().getAge() == nil ? _ $ printerr('someone is no one')
    # better still
    someone = person.getData().getAge() ?? printerr('someone is no one')
 
@@ -424,37 +450,33 @@ NIL CONDITION
 
 
 ONE-LINE BLOCK
-   def addTwo(a, b :=  Int) Int:
+   def addTwo(a b = Int) Int:
       print (a + b)
       rt a + b
    ..
-   def addThree(a, b, c :=  Int) Int: print (a + b + c) ; rt a + b + c
+   def addThree(a b c =  Int) Int: print (a + b + c) ; rt a + b + c
    if x == y
    if x == y : print(x)
-   if x == y : print(x) | else print(y)
+   if x == y : print(x) $ else : print(y)
+   if state == "Play": play() $ if state == "Stop": stop()
 
 
-UNNAMED BLOCK
-   block:
-      m = a + b
-      n = m + a + b
+NAMELESS BLOCK
+   def doSth():
+       x, y, z = 1, 2, 3
+       use x, y: # can only access x znd y
+           print("[x] : [y]")
    ..
-   # or
-   do:
-      m = a + b
-      n = m + a + b
+   def doSth():
+       x, y, z = 1, 2, 3
+       use: # cannot access variabes from outer scope
+           print("[x] : [y]") # error!
    ..
-   # note that if do block immediately follows a function call
-   # it will be interpreted as a anoymous fucntion
-
-
-EXCLUSIVE BLOCK
-   do x, y: # can only use x and y from the outer scope
-      m = a + b
-      n = m + a + b
+   def doSth():
+       x, y, z = 1, 2, 3
+       def(): # can only access any variable from outer scopes
+           print("[x] : [y]") # error!
    ..
-   # note that if do block immediately follows a function call
-   # it will be interpreted as a anonymous fucntion
 
 
 LABELS
@@ -518,8 +540,8 @@ GLOBAL FUNCTIONS
 LIST DECLARATION IN METHOD PARAMETER
    def add(a, b): a + b # params without types are nil by default unlike normal variables
    def add(a, b = Int): rt a + b # a is nil, b is Int
-   def add(a, b :=  Int): rt a + b # both a and b are Int, :=  is left associative
-   def add4(a, b := nil, c, d := Int) Int: # a and b are nil, c and d are Int
+   def add(a b =  Int): rt a + b # both a and b are Int, = is left associative here
+   def add4(a b, c d = Int) Int: # a and b are nil, c and d are Int
       rt a + b + c + d
    ..
 
@@ -550,7 +572,7 @@ COMPOUND METHODS
       def (a = Int):
          rt x + y + a
       ..
-      def (a, b :=  Int):
+          def (a b =  Int):
          rt x + y + a + b
       ..
    ..
@@ -568,11 +590,6 @@ VARIADIC PARAMETERS
    def sum(first = Int, others = Int []): rt first + others
    lion = sum(1, 2, 3, 4, 5, 6)
 
-   def addEven(first = Int, others = Int []):
-      sum = first._move
-      sum += x thru others :: x => x == _even # idiomatic pluto :)
-      sum
-   ..
    dean = [1, 2, 3, 4, 5]
    jean = addEven(0, dean)
    joan = addEven(0, [1, 2, 3, 4, 5])
@@ -584,7 +601,7 @@ VARIADIC PARAMETERS
 
 MUTATIVE FUNCTIONS
    def add(x, y): a + b
-   <T> def swap!(x, y := ref  T): x, y = y, x # use exclamtion mark for functions that can change values
+   <T> def swap!(x y = ref  T): x, y = y, x # use exclamtion mark for functions that can change values
 
    tip = add(2, 3)
    top = add(4, 5)
@@ -593,11 +610,11 @@ MUTATIVE FUNCTIONS
 
 UNOVERLOADABLE FUNCTIONS
    def add(args = [])
-   <T> def add(args = [] T) T
+   def add<T>(args = [] T) T
 
 
 RETURNING AN ARRAY
-   def addThree (a, b, c :=  Int) 3 Int []:
+   def addThree (a b c =  Int) 3 Int []:
       arr = [a + b, a + c, b + c]
       arr
    ..
@@ -605,7 +622,7 @@ RETURNING AN ARRAY
    x, y, z= addThree(p, q, r)
    w= addThree(p, q, r)[1] + z
 
-   def addSubTwo(a, b :=  Int) Int []:
+   def addSubTwo(a b =  Int) Int []:
       arr = [a + b, a - b]
       arr
    ..
@@ -645,6 +662,7 @@ RETURNING VARIABLES
 FUNCTION OBJECTS
    add2 = add
    add3 = Func{Int Int Int : Int}
+   def solve(a, b, c = Func{Int Int : Int}): c(a, b)
 
 
 CLOSURES
@@ -656,7 +674,7 @@ CLOSURES
    # nameless closures (except those returned by a function or another closure) are executed at the
    # point they are declared
    # named closures on the other hand are not executed until they are called
-   def add (x, y :=  Int):
+   def add (x y =  Int):
       def (): rt x + y
    ..
    sum = Func
@@ -664,7 +682,7 @@ CLOSURES
    tip = Func{Int Int > Bool}
 
 
-PASSING FUNCTIONS AS ARGUMENT / ANONYMOUS FUNCTIONS
+FUNCTION ARGUMENTS
    def addThree(a, b, c, myFunc = Func{Int Int}):
       rt myFunc(a, b) + c
    ..
@@ -674,7 +692,6 @@ PASSING FUNCTIONS AS ARGUMENT / ANONYMOUS FUNCTIONS
 
    def add(a, b): a + b
    addThree(1, 2, 3, add) # passing and already-declared function
-
 
 
 ANONYMOUS TYPES
@@ -697,8 +714,19 @@ LAMBDAS
       ..)
    keyListener(def (): print("World")) # lambda
    keyListener(rt print("World")) # shortened lambda using 'rt'
-   myList.fold(0, def (a, b): a + b)
-   myList.fold(0, rt a + b) # shortened lambda, rt must be included
+   arr.filter(def (a): pivot > a) # anonymous functions
+   arr.filter() do a: pivot > a # function argument
+   arr.filter(rt pivot > _) # lambda
+
+
+MATCH FUNCTION
+    match check30DayMonth(month = Month):
+       case _.value == 4 : print("This is April, a 30-day Month!")
+       case _.value == 6 : print("This is June, a 30-day Month!")
+       case _.value == 9 : print("This is September, a 30-day Month!")
+       case _.value == 11 : print("This is November, a 30-day Month!")
+       print("Not a 30-day Month!")
+    ..
 
 
 COROUTINES
@@ -770,13 +798,37 @@ TYPE DEFINITION
    ..
 
 
+CONSTRUCTOR
+    type Person:
+        name = Str
+        age = Int
+        def (name = Str, age = Int):
+            .name = name
+            .age = age
+        ..
+    ..
+    # A constructor without body initialises the fields with the corresponding parameter
+    type Person:
+        name = Str
+        age = Int
+        def (name, age) # which means there is no such thing as virtual constructors
+    ..
+
+
+CONSTRUCTOR CLASSES
+    # Constructor classes have only one constructor and an optional set of parameters that are also the only fields of the class
+    type Person (name, age)
+    dave = Person("Dave", 45)
+    dave.age = "David"
+
+
 SELF REFERENCE
    type Car:
       name, model = Str
       def (name = Str):
          .name = name # the self can be ommitted leaving the dot and the field
       ..
-      def (.name, .model)
+      def (name, model)
    ..
    # this is also applicable to methods where its is the type of the first parameter
    def getDetails(car = Car): rt [.name, .model]
@@ -784,21 +836,23 @@ SELF REFERENCE
 
 
 USING A FUNCTION AS METHOD
-   def show(a = Person): print(.name)
+   def show(p = Person): print("name: [.name], age: [.age]")
    nigel = Person("Nigel Nicargua")
-   def show(nigel)
-   nigel.show() # using show funtion as a method since Person is the first argument
-   def +(a = MyNum, b = Int): rt .value + b
-   duke = MyNum(25)
-   deck = +(duke, 20)
-   duck = duke + 20
+   show(nigel)
+   nigel.show() # using show funtion like a method since Person is the first argument
+
+   # if a method directly follows its type, then its first parameter can be skipped with a comma
+   type Person (name, age)
+   def getName(,): .name
+   def setName(, name = Str): .name = name
+
 
 
 DESTRUCTORS
    type Car:
       name, model = Str
-      def (.name)
-      def (.name, .model)
+      def (name)
+      def (name, model)
       def (!) : # Destructor implicitly contains a first parameter of type Car
          print('Object Deleted!')
    ..
@@ -811,6 +865,7 @@ MODIFIERS IN CLASS
    pass a = true # synon with protected
    prod let x = 5f # synon with internal
 - proj(ect), prod(uction), prog(ram) clashes with prot(ected)
+
 
 MODIFIERS CAN BE ON CLASSES AND METHODS Took
    def priv addPerson() # is accessible only within the module
@@ -853,15 +908,15 @@ MODIFIERS IN LIST DECLARATION
 
 
 PROPERTIES / GETTERS SETTERS
-   myVar1 = def set(a, b, c :=  Int): _ = a * b * c | def get(): rt _
+   myVar1 = def set(a b c =  Int): _ = a * b * c $ def get(): rt _
    myVar1 = (1, 2, 3)
-   myVar2 :=
-      def set(a, b :=  Int): _ = a * b * c
+   myVar2 =
+      def set(a b =  Int): _ = a * b * c
       def get(): rt _
    myVar2 = (1, 2)
-   myVar3 = def set(a = Int): _ = a | def get(): rt _
+   myVar3 = def set(a = Int): _ = a $ def get(): rt _
    myVar3 = 1
-   myVar4 = def set(a = Int) | get()
+   myVar4 = def set(a = Int) $ get()
    myVar3 = 2
    tip = def get(): rt myVar3
 
@@ -876,8 +931,7 @@ TYPE CHECKING
    if myCar == Car._super :
       print('Type is a super-class of Car')
    ..
-   <T[Vehicle._sub]>
-   type Transportation :
+   type Transportation<T[Vehicle._sub]>:
       myVehicle1 = T
       myVehicle2 = T
    ..
@@ -900,10 +954,10 @@ METHOD CHAINING
    type Math:
       value = Float
    ..
-   def add(a = Math, b, c :=  Float) Float:
+   def add(a = Math, b c =  Float) Float:
       a.value = b + c
    ..
-   def subtract(a = Math, b, c :=  Float) Float:
+   def subtract(a = Math, b c =  Float) Float:
       a.value = b - c
    ..
    m = Math
@@ -922,7 +976,7 @@ STICKY TYPES MEMBER
       name = Str
       age = Int
       sticky let race = 'Mongoloid'
-      def (.name, .age)
+      def (name, age)
    ..
    def sticky getRace(a = Person): .race
 
@@ -955,28 +1009,6 @@ HOLD VARIABLES IN LOOPS
    ..
 
 
-INHERITANCE, COVARIANCE AND CONTRAVARIANCE
-   type Person: name = String; age = Int; (.name, .age)
-   def showDetails(person = Person): print("name: [.name], .age: [.age]")
-
-   type Employee [Person]: job = String ; (.name, .age, .job)# Employee now inherits Person's field and associated methods
-   def changeName(emp = Employee, name = Str): .name = name
-   def changeName(emp = Employee, age = Str): .age = age
-   def changejob(emp = Employee, job = Str): .job = job
-
-   def main():
-      jide = Employee('Jide Abass', 28, 'Clerk')
-      # Covariance
-      showDetails(jide) # prints "name: Jide Abass, age: 28"
-      okoro = Person("Okoro Johnson", 37)
-      # Contravariance
-      okoro.changeJob("Manager") # error at .job
-      okoro.changeName("Okoro Nwabuike") # ok, contravariance successful
-      # Covariance
-      library = MediaItem [Movie("Zack Snyder's Sucker Punch"), Song("Lazy - Bruno Mars"), Song("Radioactive - Imagine Dragons"), Movie("Zack Snyder's 300")]
-   ..
-
-
 INHERITANCE # Not Finalized!
    type Animal
    def move(a = Animal)
@@ -1004,11 +1036,61 @@ INHERITANCE # Not Finalized!
    animals[3].move() # "Soar and Gallop!"
 
 
+COVARIANCE
+    # Pluto supports covariance, it is however not contravariant
+    type Person (name = Str, age = Int)
+    def showDetails(,): print("name: [.name], .age: [.age]")
+    type Engineer (type = Str) [Person]
+    type Artist (type = Str) [Person]
+
+    person = Person("Peter", 16)
+    engineer = Engineer("Civil Engineer")
+    artist = Artist("Painting Artist")
+    # covariance in assignment
+    person = Person("Matthew", 25) # home type
+    person = engineer # guest type
+    person = artist # guest type
+    # covariance in argument passing
+    showDetails(person)
+    showDetails(engineer)
+    showDetails(artist)
+    # covariance in container types
+    arr = Person[]
+    arr[+1] = [person, artist, engineer]
+
+    library = MediaItem [Movie("Zack Snyder's Sucker Punch"), Song("Lazy - Bruno Mars"), Song("Radioactive - Imagine Dragons"), Movie("Zack Snyder's 300")]
+    for x thru library:
+        print(x.title)
+
+
 SUPER METHODS AND SUB METHODS
    type Listener
    type ButtonListener [Listener]
    def respond(a = Listener) # this is a super method to the more specific method below
    def respond(a = ButtonListener): rt # this is a sub method to the method above
+
+
+CALLING SUPER
+    type Person:
+        name = Str
+        age = Int
+        def (name, age)
+    ..
+    type Artist [Person]:
+        kind = Str
+        def priv (job)
+        def (name, age, kind):
+            super(name, age) # calls the parent constructor to in
+            self(kind)
+        ..
+    ..
+    # or
+    type Artist [Person]:
+        type = Str
+        def ((name, age) , kind)
+    ..
+    # or better
+    type Artist ((name, age) , kind) [Person]
 
 
 VIRTUAL METHODS
@@ -1023,6 +1105,11 @@ I'm going to look into the problem later
    def play(a = Player): .start()
    def play(a = DigitalPlayer): .startAt(0) # this play overrides its super method implicitly
 
+
+COVARIANT OVERRIDE
+    # You can override an inherited method using by replacing the original agruments with their subtypes
+    eat(a = Herbivore, b = Plant)
+    eat(a = Cow, b = Grass) # valid override
 
 
 ABSTRACT TYPES
@@ -1060,75 +1147,80 @@ UNINHERITABLE CLASS
 
 
 GENERICS
-   <T[Str|Int], U>
-   type DataManager:
-       T dataID
-       U dataX
-       U dataY
-   ..
-   object DataManager<Str, Car>
+    <T[Integer]> # Integer and subtypes
+    <T[::Integer]> # Integer exactly
+    <T[<:Integer]> # Integer subtypes
+    <T[>:Integer]> # Integer supertypes
+    <T[Str|Int]> # Str and subtypes or Int and subtypes
 
-   <T[Integer]> type Ratio # means Integer and its subtypes
-   chan : Ratio(3//2) # uses Integer
-   chen : Ratio<UInt>(6//4)  # uses subtype UInt
+    type DataManager<T[Str|Int], U>:
+        T dataID
+        U dataX
+        U dataY
+    ..
+    object DataManager<Str, Car>
 
-   myMovies = List<own Movie>
-   favoriteMovie = ref Movie
+    type Ratio <T[<:Integer]>
+    chan : Ratio(3//2) # uses Integer
+    chen : Ratio<UInt>(6//4)  # uses subtype UInt
 
-   <T> def add(a, b, c = T): a + b + c
-   add<Int>(1, 2, 3)
-   add(1f, 2f, 3f)
-   add(2, 3, 4f) # error, mismatched types
+    myMovies = List<own Movie>
+    favoriteMovie = ref Movie
+
+    def add<T>(a b c = T): a + b + c
+    add<Int>(1, 2, 3)
+    add(1f, 2f, 3f)
+    add(2, 3, 4f) # error, mismatched types
 
 
 ENUMS
-   # can have the same name with a class in the same file
-   # enums only have one unoverloadable constructor with a Symbol object param
-   enum Days: MONDAY; TUESDAY; WEDNESDAY; THURSDAY; FRIDAY; SATURDAY; SUNDAY # elemental enum
-   def todayIs(day = Days): # todayIs{SUNDAY}
-      if day == MONDAY: print('today [day]') # today is MONDAY
-      elsif day == TUESDAY: print('today is [day]') # today is TUESDAY
-      elsif day == WEDNESDAY: print('today is [day]') # today is WEDNESDAY
-      elsif day == THURSDAY: print('today is [day]') # today is THURSDAY
-      elsif day == FRIDAY: print('today is [day]') # today is FRIDAY
-      elsif day == SATURDAY: print('today is [day]') # today is SATURDAY
-      elsif day == SUNDAY: print('today is [day]') # today is SUNDAY
-   ..
+    # enum is an abstract type that contains ONLY its subtypes.
+    # its subtypes are all constructor types and only extend the enum
+    # lso an enum object expects a subtype as value
+    enum Friends: Deji, Tosin, Tola # Deji, Tosin and Tola are parameterless conctructor types
+    match whichFriend(f = Friend):
+        case Deji : print("This is Deji")
+        case Tosin : print("This is Tosin")
+        case Tola : print("This is Tola")
+    ..
 
-   enum RealNum: decimal = re"\d|\d+\.\d+"; scientific = re"\d\.\d+e[\-\+*]\d" # case enum
-   def checkNum(rn = RealNum): # checkNum{123.4e10}
-      if rn == decimal: print('[rn.toStr()] is decimal')
-      elsif rn == scientific: print('[rn.toStr()] is scientific')
-   ..
+    enum Number: IntegerNumber(i <: Integer), RealNumber(r <: Real) # IntegerNumber and RealNumber are constructor types
 
-   # accessing an elemental enum's element
-   sym = Days[1] # SUNDAY is returned as a symbol
-
-   # iterating thru enum
-   for x thru Days:
-      print(x)
-   ..
-
-
-REGEX
-   x = Regex("\d+")
-   x = re"\d+"
+    # You can access an enum subtype using the access operator
+    sym = Friends[1]
+    # Iterating thru enum
+    for x thru Friends:
+        print(x)
+    ..
 
 
 PATTERN MATCHING
-   type User; type Account; type PayPal [Account]; type Bitcoin [Account]
+    # EXAMPLE: How to compute a tree-like expression
+    type abs Tree
+    type Leaf<T>(val = T) [Tree]
+    type Node (l = Leaf, r = Tree) [Tree]
+    match sum(t = Tree):
+        case a == Leaf: a.val
+        case a == Node: sum(a.l) + sum(a.r)
+    ..
+    x = Node(Leaf<Int>(1), Node(Leaf<Int>(2), Leaf<Int>(3)))
+    y = sum(x)
+    # or better
+    enum Tree<T>: Leaf(val = T), Node(l = Leaf, r = Tree)
+    match sum(t = Tree):
+        case Leaf: a.val
+        case Node: sum(a.l) + sum(a.r)
+    ..
+    # you can use this verbose version
+    x = Tree<Int>.Node(Tree<Int>.Leaf(1), Tree<Int>.Node(Tree<Int>.Leaf(2), Tree<Int>.Leaf(3)))
+    # or better
+    x = Tree<Int>(_.Node(_.Leaf(1), _.Node(_.Leaf(2), _.Leaf(3))))
+    y = sum(x)
 
-   def test (name, acc): name === Str & acc === Account
-   def pypl(acc): acc === PayPal ? acc | nil
-   def btc(acc): acc === Bitcoin  acc | nil
 
-   mary = User
-
-   match mary :
-      case test (mary.name, pypl (mary.account)): print ('[mary.name]: [mary.account]') # covariance in case matching
-      case test (mary.name, btc (mary.account)): print ('[mary.name]: [mary.account]') # _ represent the value passed into eval block
-   ..
-
+REGEX
+    x = Regex("\d+")
+    x = re"\d+"
 
 
 EXPLICIT TYPE CASTING
@@ -1296,7 +1388,7 @@ HINTS
    @deprecated:
       msg: "MediaPlayer class should be used instead"
    @stub
-   @if (platform: "Mac"): print("This is a Machintosh Computer") | @endif
+   @if (platform: "Mac"): print("This is a Machintosh Computer") $ @endif
    #------------------------------------
    @compiler # evaluated at compile-time
    @linker # evaluated at link-time
@@ -1324,11 +1416,15 @@ NON-STANDARD STRING LITERAL HINT
 METAVARS CONTEXT SPECIFIC ENVIRONMENT
    arr[_last] = 20
    if(x == _even)
-   match camaro:
-      case _.make == mustang.make: print("Make: [_.make]")
+   match check30DayMonth(month = Month):
+      case _.value == 4 : print("This is April, a 30-day Month!")
+      case _.value == 6 : print("This is June, a 30-day Month!")
+      case _.value == 9 : print("This is September, a 30-day Month!")
+      case _.value == 11 : print("This is November, a 30-day Month!")
+      print("Not a 30-day Month!")
    ..
    sum = add(a, b) >>> add(_, x)
-   tip = def set(a = Int): _ = 25 | def get(): rt _
+   tip = def set(a = Int): _ = 25 $ def get(): rt _
 
 
 LIST OF METAVARS
@@ -1345,15 +1441,15 @@ REFLECTION
    # dynmically determining which class to use
    @if (stage = "runtime", condition = "Main.useOldClass == true"): # ????
     type Class:
-      value = def set(x Str): _ = x | def get(): rt _
-      def (.value)
+      value = def set(x Str): _ = x $ def get(): rt _
+      def (value)
     ..
    @else
     type Class:
-      str = def set(x Str): _ = x | def get(): _
-      num = def set(x Float64): _ = x | def get(): _
-      def (.str)
-      def (.num)
+      str = def set(x Str): _ = x $ def get(): _
+      num = def set(x Float64): _ = x $ def get(): _
+      def (str)
+      def (num)
     ..
    @endif
 
@@ -1380,10 +1476,13 @@ MATHEMATICAL EXPRESSION
 
 SYMBOL, EXPR, HOMOICONICITY & OTHER SYMBOLIC CLASSES
    # Symbol
+   # delimited by spaces and commas
+   # interpolated using "[]"
+   # can alo be nested {x, {y, b}}
    buck = {1}
-   back = {1 2 3} # Symbol stores an array of string delimited by spaces
-   beak = {"hello " [name]} # quotes allows spaces to be stored # interpolation is allowed as well
-   bean = {hello {hi {halo}}} # can store nested words as well
+   back = {1 2 3}
+   beak = {"hello ", [name]}
+   bean = {hello {hi {halo}}}
    # Functions
    foo = Func{Int Int : Bool}
    # Expressions
@@ -1460,8 +1559,8 @@ CLASSES OF OBJECTS
    Obj (0.7), Any (0.8)
    Func (0.7)
    Var (0.7)
-   Arr (0.7)
-   Tab (0.7)
+   Array (0.7)
+   Dict (0.7)
    Exp (0.7), Expr(0.8.2)
    Nil (0.4), None (0.8.1)
    Symbol(0.7)
@@ -1514,7 +1613,7 @@ KEYWORDS
    pass (0.7.5)
    class (0.4)
    rt (0.7.2)
-   # def (Rev 0.5.2)
+   def (Rev 0.5.2), def (0.8.2) # reintroduced
    let (Rev 0.5.2)
    get (Rev 0.5.2)
    set (Rev 0.5.2)
@@ -1530,6 +1629,7 @@ KEYWORDS
    next (0.6.1)
    break
    label (0.7.0)
+   use (0.5.2), use (0.8.2) # reintroduced
    # fixed
    thru (0.8)
    in(0.7.2)
@@ -1541,7 +1641,7 @@ KEYWORDS
    mut (0.8)
    nan (0.8)
    nil
-   def (0.8.2)
+
 
 
 OPERATORS
@@ -1583,7 +1683,7 @@ OPERATORS
 
 
 SYNTACTIC SYMBOLS
-   |
+   |, $ (0.8.2)
    *
    ~
    @
@@ -1603,6 +1703,7 @@ CONDITIONALS
 - Value
 - nil or not
 - True or false
+- Type (===)
 
 
 ITERABLES
@@ -1684,7 +1785,7 @@ PASS TABLE
    Types                              |   Passed Around By
    ----------------------------------------------------------
    Built-in Ind Types /  Value Types  |   val
-   Arr Types                          |   ref
+   Array Types                          |   ref
    Func Types                         |   ref
    Custom Types                       |   ref
 =#
@@ -1696,6 +1797,10 @@ VARIABLE VS PARAMETER
 
 COMPILER WARNINGS
 - When assigning to variables in other modules
+- Pluto only warns when about imported naming ambiguities when the names are accessed
+
+
+RUNTIME WARNINGS
 
 
 COMPILATION
