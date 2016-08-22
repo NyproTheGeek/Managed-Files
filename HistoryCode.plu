@@ -1,0 +1,131 @@
+# 22/08/16
+# 0.7.0 # 0.6.0
+    _ i = Car("Camaro")
+    Car i = Car("Camaro") # the ambiguity I really detested
+    Car g [2] ; g[:] = ("Camaro"), ("Mustang")
+    _ g = Car [2] ("Camaro"), ("Mustang")
+
+    _ a! = b # type
+    Car c* = b # reference
+    Int d = c
+
+    print("[name] buys a [amount] dollar shirt") # I redesigned interpolation
+
+# 0.5.0 # 0.4.0
+    add(Num a, Num b):
+        ret a + b
+    addThree(Int a, Int b, Int c):
+        [0] = a + b
+        [1] = a + c
+        [2] = b + c
+        ret []
+    m = addThree(1, 2, 3)[0]
+    exp myExpression = (5 + (x / 10)) # expression variable
+    getSum(): # I though overloaded functions can be made more shorter and even made to share variable
+        Num x, y
+        ():
+            ret x + y
+        (Num a):
+            ret  + y + a
+
+    stick class TempConverter:
+         Num value
+
+    class Animal: # I scrapped parent class and went for class multiple inheritance although
+    # I didn't know how I would solve the asssociated problems. But I wanted MI so bad
+        move()
+    class Bird: Animal
+        move()
+    class Horse: Animal
+        @override # I went for annotation-type override
+        move()
+    class Pegasus: Bird, Horse
+        @override
+        move()
+
+    del myDelegate = Str(Str, Int)
+    del clos = (): ret x + y # my primitive design of closures
+
+    a = Car("Camaro") # I started preferring types being on the other side of the assignment
+    Car b ; b = Car("Camaro") # but still chose the old one for declaration without construct
+    age = "\(name)'s age is \(2016 - 1995)" # interpolation, inspired by Swift
+    arr = Str[4]
+
+    :T:U[Str, Int]
+    class List:
+        T data
+        U id
+    literal Day: # this was my enum, I wanted to ome up with sth new :/
+        value = "monday", "tuesday"
+
+    Car getCar(Str model, Str make):
+        ret myList[model]
+    addThree(Int a, Int b, Int c):
+        _ x, y, z
+        x = a + b
+        y = a + c
+        z = b + c
+        ret x, y, z
+    m = addThree(1, 2, 3)[0]
+
+    Del myDelegate = String (String a, String b)
+
+    Int subtract(a, b Int): # I started preferring list declaration
+        ret a - b
+    Int add(a, b):
+        ret a + b
+
+    aditya = Employer "Manager"
+    _ x, y, z # I got rid of var
+
+    parent Person # My mind wasn't made up on MI yet
+    class Artist : Person
+
+
+# 0.3.0
+    class Person
+        var name
+        Int age
+        cons(String name):
+            this.name = name
+            this.age = age
+    class Artist: extends Person
+        var kind
+    class Employee:
+        public T name
+        public T job
+
+    func show(var a) # dynamic variable
+        print(a)
+    show("Hello")
+    show 25 # infix call
+
+    Number add(Number a, Number b):
+        return a + b
+    add(5, 6)
+    add(10, 23)
+    if (x > y):
+        x = add(x, y)
+    while(x == 20):
+        println("Hello!")
+
+    Del myDelegate (String(String, Number)) # delegates
+    String, Number id
+    Num x = 0
+
+
+# 0.2.0
+    class Main:
+        def main(String args[]):
+            println("Hello, World!")
+    class User:
+        public String name
+        public List orders
+
+
+# 0.1.0
+    var salary = 5000
+    var dave = Person("David", 25)
+    Person matt ("Matthew", 56), dale ("Dale", 30), brent("Brent", 14)
+    func add(a, b):
+        return a + b

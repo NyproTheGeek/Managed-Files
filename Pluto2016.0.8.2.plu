@@ -49,15 +49,20 @@ DOCUMENTATION
 
 
 VARIABLE DECLARATION & INITIALIZATION
-    x ; x = Car('Camaro')
-    y = 12f
-    z = 'Hello'
-    a = Car('Camaro')
-    b = Car('Camaro').setDate(2014) # ok
-    c = Car ; c = ('Camaro') # comma is used to separate two statements
-    n = getCar('Camaro')
-    o = add(2, 4)
-    p = List<Car>(3) # generics
+    # Unlike Python, Pluto requires explicit variable declaration before usage
+    mut x # is a mutable
+    let y # is a constant
+    def add(a, b): rt a + b # function parameters are implicitly mutable
+    def swap!(mut a, mut b): a, b = b, a # error! mut should not be specified in their declaration
+    mut e ; e = Car('Camaro')
+    mut y = 12f
+    mut z = 'Hello'
+    mut a = Car('Camaro')
+    mut b = Car('Camaro').setDate(2014) # ok
+    mut c = Car ; c = ('Camaro') # comma is used to separate two statements
+    mut n = getCar('Camaro')
+    mut o = add(2, 4)
+    mut p = List<Car>(3) # generics
     def add (a b c = UInt) Int
     def add (a = 1, b = 2, c = UInt(3)) UInt
 
@@ -67,42 +72,42 @@ SPECIFYING TYPES
     # variables are generally bound to two types None and any other one type
     # however type specification can extend the number of types a variable can be bound to
     # p = None & ?
-    p = Person # Person and Person's subtypes
-    p =: Person # Person
-    p <: Person # Person's subtypes
-    p >: Person # Person's supertypes
+    mut p = Person # Person and Person's subtypes
+    mut p =: Person # Person
+    mut p <: Person # Person's subtypes
+    mut p >: Person # Person's supertypes
 
 
 VARIABLES AND REFERENCES
    # see pass table below
-   pet = own getObject() # pet now holds a sole strong ref to the object returned
-   pet = iso getObject() # pet exclusively owns the object returned
+   mut pet = own getObject() # pet now holds a sole strong ref to the object returned
+   mut pet = iso getObject() # pet exclusively owns the object returned
    # some ops pass by val or ref implicitly
    # but you can explicitly specify
-   put = val pet # assigned by value
-   pat = own move(put) # ownership moved from put to pat, put is now nil
-   pot = read pat # pot references object but cannot assign to it
+   mut put = val pet # assigned by value
+   let pat = own move(put) # ownership moved from put to pat, put is now nil
+   mut pot = read pat # pot references object but cannot assign to it
    let pit = val put
 
    def subtract(let a let b let c = ref):
       c = a - b
       rt ref c
-   dean = val subtract(x, y) # gets a copy
-   cop = subtract(x, y) # gets a ref
+   mut dean = val subtract(x, y) # gets a copy
+   let cop = subtract(x, y) # gets a ref
 
    def add(a b = ref):
       rt val a + b
-   alm = ref add(val x, val y) # warning, return a val to a ref
+   let alm = ref add(val x, val y) # warning, return a val to a ref
 
    swap!(val a, val b)
 
 
 OPTIONAL TYPE DECLARATION
-   myNumber = Str|Int
+   mut myNumber = Str|Int
    # every varaible is optional implicitly to None and one other type
-   myNumber = '01000999'
+   mut myNumber = '01000999'
    # might change the below behavior in the future
-   myNumber = 23 # error! variable already bound to String
+   mut myNumber = 23 # error! variable already bound to String
 
 
 CONSTANT VARIABLE DECLARATION
@@ -110,73 +115,65 @@ CONSTANT VARIABLE DECLARATION
    let y = Car('Camaro')
 
 
-MUTABLE VARIABLE DECLARATION
-- When immutable is set on all variables, default variables become constants by default.
-   x = 25 # x is immutable
-   x = 52 # error!
-   mut y = 52 # y is mutable
-   y = 25 # ok
-
-
 MULTIPLE ASSIGNMENT
-   a, b, c = arr[2:4]
-   x, y = y, x
-   a, b, c, d = [1:4]
+   mut a, b, c = arr[2:4]
+   mut x, y = y, x
+   let a, b, c, d = [1:4]
 
 
 NUMERIC FORMATTING
-   x = 1_000_000
-   y = 1_999.99
+   mut x = 1_000_000
+   let y = 1_999.99
 
 
 ARRAYS / LIST
    # major diff between lists and arrays is that, the type and size of an array are
    # inferrable at compile time, this allows for arrays to be stored like traditional array
-   fin = Car[('Camaro'), ('Mustang')]
-   gin = 3 Car[]
-   gin = [('Camaro'), ('Mustang'), ('Maserrati')]
-   tin = 3 Car [('Camaro'), ('Mustang'), ('Maserrati')]
+   mut fin = Car[('Camaro'), ('Mustang')]
+   mut gin = 3 Car[]
+   mut gin = [('Camaro'), ('Mustang'), ('Maserrati')]
+   mut tin = 3 Car [('Camaro'), ('Mustang'), ('Maserrati')]
    let ted = [1, 2, 3, 4, 5]
-   top = ted
-   go = Car[]
-   go[1] = Car("Camaro")
-   go[2:] = [('Mustang'), ('Maserrati')] # starts filling from index 2
+   mut top = ted
+   mut go = Car[]
+   mut go[1] = Car("Camaro")
+   mut go[2:] = [('Mustang'), ('Maserrati')] # starts filling from index 2
 
-   pot = Array
+   mut pot = Array
    # or better
-   pot = []
+   mut pot = []
 
-   pit = Array{Int, 3} # an Int array with the size of three
+   mut pit = Array{Int, 3} # an Int array with the size of three
    # or better
-   pit = 3 Int []
+   mut pit = 3 Int []
 
-   pet = [5] # this is an array with one element, 5
-   put = 5 [] # you have to specify a type in order specify a size
-   pat = 4 [1, 2, 3, 4]
+   mut pet = [5] # this is an array with one element, 5
+   let put = 5 [] # you have to specify a type in order specify a size
+   let pat = 4 [1, 2, 3, 4]
 
-   pat.foldleft(0, def (a, b): rt a + b) # (((0 + 1) + 2) + 3) + 4 = 10
-   mat = getArray()
-   net = getArray() # error, array not exposed, so '[]' must be used
+   let pat.foldleft(0, def (a, b): rt a + b) # (((0 + 1) + 2) + 3) + 4 = 10
+   mut mat = getArray()
+   mut net = getArray() # error, array not exposed, so '[]' must be used
    list(go) # list elements row-wise
    list(go[_col]) # list elements col-wise
-   dean = Array
-   dean = [10, 8, 6 ,4, 2]
+   mut dean = Array
+   mut dean = [10, 8, 6 ,4, 2]
 
 
 DICTIONARIES / TUPLES
-   fin = ['Tola', 1.2, 50, 'Tola']
-   dict = [
+   mut fin = ['Tola', 1.2, 50, 'Tola']
+   mut dict = [
       'Peter Parker'   : 'Spider-man'     , 20 |
       'Steve Rogers'   : 'Captain America', 32 |
       'Tchaka Tchalla' : 'Black Panther'  , 29
    ]
-   candidate = index, name [
+   let candidate = index, name [
       1 : 'Aditya' |
       2 : 'Nypro'
    ]
    list(candidate.index) # 1, 2
-   aditya = Str Int Int ["Aditya Singh", 19, 6.2]
-   aditya = name, age, height Str Int Int ["Aditya Singh", 19, 6.2]
+   let aditya = Str Int Int ["Aditya Singh", 19, 6.2]
+   let aditya = name, age, height Str Int Int ["Aditya Singh", 19, 6.2]
 
 
 ARRAY SLICING
@@ -190,37 +187,38 @@ ARRAY SLICING
 
 
 MULTIDIMENSIONAL ARRAY
-   arr = [2, 2] [1, 2 | 3, 4]
-   arr = [2, 2, 2] Int [1, 2 | 2, 3 || 4, 5 | 6, 7]
-   arr = [,] [1, 2 | 3, 4]
-   list(arr [:])
-   list(arr[2, ]) # list columns in row 2
-   list(arr[, 2]) # list rows in col 2
-   arr = [1, 2] # vcat
-   # 1 2
-   arr = [1, 2 | 3, 4] # vhcat
-   # 1 2
-   # 3 4
-   arr = [1 2] # hcat
-   # 1
-   # 2
-   arr = [1 2 | 3 4] # hvcat
-   # 1 3
-   # 2 4
+    mut arr = [,]
+    mut arr = [2, 2] [1, 2 | 3, 4]
+    let arr = [2, 2, 2] Int [1, 2 | 2, 3 || 4, 5 | 6, 7]
+    mut arr = [1, 2 | 3, 4]
+    list(arr [:])
+    list(arr[2, ]) # list columns in row 2
+    list(arr[, 2]) # list rows in col 2
+    mut arr = [1, 2] # vcat
+    # 1 2
+    mut arr = [1, 2 | 3, 4] # vhcat
+    # 1 2
+    # 3 4
+    mut arr = [1 2] # hcat
+    # 1
+    # 2
+    mut arr = [1 2 | 3 4] # hvcat
+    # 1 3
+    # 2 4
 
 
 RAGGED ARRAY # is untidy !! Needs review
-   arr = [2, ]
-   arr = [0, +2]
-   arr = [1, +3]
-   arr = [0, 0, +3] ; arr = [0, 1, +3]
-   arr = [1, 0, +4] ; arr = [1, 1, +5] ; arr = [1, 2, +6]
+   mut arr = [2, ]
+   mut arr = [0, +2]
+   mut arr = [1, +3]
+   mut arr = [0, 0, +3] ; arr = [0, 1, +3]
+   mut arr = [1, 0, +4] ; arr = [1, 1, +5] ; arr = [1, 2, +6]
 
 
 ACCESSING ARRAYS
     list = Person[("Dave", 25), ("Tony", 45), ("Spencer", 18)]
-    names = list.[name] # returns a list of name fields in the list
-    ages = list.[age] # returns a list of age fields in the list
+    mut names = list.[name] # returns a list of name fields in the list
+    mut ages = list.[age] # returns a list of age fields in the list
 
 
 ARRAY OBJECT OPERATIONS
@@ -230,31 +228,31 @@ ARRAY OBJECT OPERATIONS
 
 
 MATRIX-VECTOR OPERATIONS # column major order
-    mP = 2x2 [2, 4, 3 | 3, 1, 5] * [3, 10 | 4, 2 | 1, 7]
-    mX = Mat.identity(2, 2)
-    mY = 4x2 Int [
+    mut mP = 2x2 [2, 4, 3 | 3, 1, 5] * [3, 10 | 4, 2 | 1, 7]
+    mut mX = Mat.identity(2, 2)
+    mut mY = 4x2 Int [
         1, 1, 1, 0 |
         0, 1, 1, 1 |
     ]
 
-    mZ = mX / mY
-    mRows, mCols = m.size()
-    mQ = mX’ # z is assigned transpose of matrix u
+    let mZ = mX / mY
+    mut mRows, mCols = m.size()
+    let mQ = mX’ # z is assigned transpose of matrix u
 
 
 STRING TYPE
-   myStr1 = "Hello"
-   myStr2 = Str('Hi')
-   str = AStr("This is an ascii string") # ASCII string
-   myStr3 = 'Halo'
-   str2 = Str
+   mut myStr1 = "Hello"
+   mut myStr2 = Str('Hi')
+   mut str = AStr("This is an ascii string") # ASCII string
+   mut myStr3 = 'Halo'
+   mut str2 = Str
 
 
 STRING INTERPOLATION
-   name = 'Pluto'
-   time = 2015
-   tap = '[name] is a language started in [time]'
-   tin = 'Hello #= Beautiful =# World'
+   mut name = 'Pluto'
+   mut time = 2015
+   mut tap = '[name] is a language started in [time]'
+   mut tin = 'Hello #= Beautiful =# World'
    print("This is a number: ", 4)
 
 
@@ -267,9 +265,9 @@ STRING OPERATIONS
 
 
 NON-STANDARD STRING LITERAL
-   byteArr = ba"87004" # 8, 7, 0, 0, 4 repesent the actual byte to be placed in memory
-   byteArr = bv"data\xff" # converts the values d, a, t, a, \xff into binary that fits in a byte
-   myRegex = re"^(\w+)$"
+   let byteArr = ba"87004" # 8, 7, 0, 0, 4 repesent the actual byte to be placed in memory
+   mut byteArr = bv"data\xff" # converts the values d, a, t, a, \xff into binary that fits in a byte
+   mut myRegex = re"^(\w+)$"
 
 
 ESCAPE SEQUENCE
@@ -278,7 +276,7 @@ ESCAPE SEQUENCE
 
 
 MULTILINE STRINGS
-   cap =
+   let cap =
    "Hello "
    "World"
 
@@ -287,33 +285,35 @@ VERBATIM STRING
    '''Use \t for tab and \n for newline'''
    """Use \t for tab and \n for newline"""
 
+
 CONTINUE ON NEXT line
-   men = length == 0 ? 25 $ 0
-   mune = length == 1 ? \
-      25 $ 0
-   meter = \
-      getMeter()
+    let men = length == 0 ? 25 $ 0
+    let mune = length == 1 ? \
+        25 $ 0
+    let meter = \
+        getMeter()
 
 
 IF SATEMENT
-   if myMoney == 1_000_000:
-      print("Yay! I'm rich!")
-   ..
-   if x == 3 : print('Hello') ..
-   if x == 1 :
-      print(x)
-   elsif x == 2 :
-      print(x)
-   else :
-      print('invalid value')
-   ..
-   if x : # if x does not equal nil or false
-      print('x has been assigned to')
-   ..
+    if myMoney == 1_000_000:
+        print("Yay! I'm rich!")
+    ..
+    if x == 3 : print('Hello') ..
+    if x == 1 :
+        print(x)
+    elsif x == 2 :
+        print(x)
+    else :
+        print('invalid value')
+    ..
+    if x : # if x does not equal nil or false
+        print('x has been assigned to')
+    ..
+
 
 
 FOR LOOP
-   for i thru [1:10]:
+   for i thru [1:10]: # a for variabe is always mutable
       if  i % 2 == 0 :
          print('[i] is an even number')
       else :
@@ -381,21 +381,21 @@ CONDITION LIST
 
 CONDITIONAL MULTIPLEX OPERATOR
    # single expression ternary operator
-   myVar1 = myBool == true ? 5 $ 6
+   mut myVar1 = myBool == true ? 5 $ 6
    def divide(num, denom): rt denom == 0 ? nan $ num / denom
    salary = (workYears > 5 ? 10_000 $ 1_000) * rank # when conditional multiplex operator appears within an expression it must be bracketed
 
 
 RANGE
-   x, y, z = [1:3]
+   let x, y, z = [1:3]
    for x thru [1:(20 - 1)]: print(x)
 
 
 THRU
    for x thru [1:20 - 1)]: print(x)
-   y = for x thru [1:30]: x # a for comprehension that returns a list of 1 to 30
+   mut y = for x thru [1:30]: x # a for comprehension that returns a list of 1 to 30
    # same as
-   y = [1:30]
+   mut y = [1:30]
 
 
 WHERE
@@ -404,7 +404,7 @@ WHERE
    if p.age == 20 & p.name == "Allen": p
 
    for item thru library ==> item.title.startsWith("The"):
-       hold x = 0 ; print(x++)
+       mut hold x = 0 ; print(x++)
 
 
 FOR COMPREHENSION
@@ -419,34 +419,33 @@ THRU/STEP
 
 
 IN
-   x = 3
+   mut x = 3
    if x in [1:10]:
       print(x)
    ..
 
 
 NOT IN
-   arr = for x thru [1:30] => x not in [2:5]: x * 3
+   mut arr = for x thru [1:30] => x not in [2:5]: x * 3
 
 
 NIL CONDITION
-   if let data = getValue() : # x is available only in the if branch
-      print(data)
-   else:
-      print('can\'t get value')
-   ..
+   if mySalary = getSalary(): buyNewHouse() $ else: borrow() # if variables are implicitly mutable
+   if let mySalary = getSalary(), let myAllowance = getAllowance(): party()
+   # if any of the if variables is nil, the if block will be skipped
+   # unless there is an else block
    if let name = getChars() => name.characters.count in [4:15]:
       print ('hello')
    if x = getStr(): print(x) $ else : print('x is nil')
-   someone = person.getData().getAge() ? _ $ printErr('someone is no one') # problematic if subject of op is a bool object
+   mut someone = person.getData().getAge() ? _ $ printErr('someone is no one') # problematic if subject of op is a bool object
    # better
-   someone = person.getData().getAge() == nil ? _ $ printerr('someone is no one')
+   mut someone = person.getData().getAge() == nil ? _ $ printerr('someone is no one')
    # better still
-   someone = person.getData().getAge() ?? printerr('someone is no one')
+   mut someone = person.getData().getAge() ?? printerr('someone is no one')
 
-   penny = purse.change() ?? 0 # expression returns 0 if purse.change() returns nil
-   myName = me.name ?? "Unknown"
-   pay = (jobHours ?? 0) * 50 # when nil operator appears within an expression it must be bracketed
+   mut penny = purse.change() ?? 0 # expression returns 0 if purse.change() returns nil
+   mut myName = me.name ?? "Unknown"
+   mut pay = (jobHours ?? 0) * 50 # when nil operator appears within an expression it must be bracketed
 
 
 ONE-LINE BLOCK
@@ -463,17 +462,17 @@ ONE-LINE BLOCK
 
 NAMELESS BLOCK
    def doSth():
-       x, y, z = 1, 2, 3
+       mut x, y, z = 1, 2, 3
        use x, y: # can only access x znd y
            print("[x] : [y]")
    ..
    def doSth():
-       x, y, z = 1, 2, 3
+       mut x, y, z = 1, 2, 3
        use: # cannot access variabes from outer scope
            print("[x] : [y]") # error!
    ..
    def doSth():
-       x, y, z = 1, 2, 3
+       mut x, y, z = 1, 2, 3
        def(): # can only access any variable from outer scopes
            print("[x] : [y]") # error!
    ..
@@ -509,29 +508,29 @@ RETURNING A VALUE
 
 EXPRESSION LANGUAGE
 # Pluto is an epression, the last expression in a block is always returned
-    myBool = myName == "Nypro"
+    let myBool = myName == "Nypro"
     def add(a, b): rt a + b
     # or
     def add(a, b): a + b
     # sometimes rt is needed to return an evaluation immediately
     # to prevent execution spilling back into parent block when not needed
     def hypot(x, y):
-        x = abs(x)
-        y = abs(y)
+        let x = abs(x)
+        let y = abs(y)
         if x > y:
-            r = y/x
+            let r = y/x
             rt x * sqrt(1 + r + r)
         ..
         if y == o:
             rt zero(x)
-        r = x/y
+        let r = x/y
         y * sqrt(1 + r + r)
     ..
 
 
 GLOBAL FUNCTIONS
    # Pluto contains a lot of helpful global methods
-   str = "Hello"
+   mut str = "Hello"
    length(str)
    typeMin(25)
    typeOf(Int)
@@ -550,7 +549,7 @@ CONSTANT PARAMETER
    # guarantees that the parameter won't be changed
    def add(let a, let b): c = a + b ; rt c
    # or
-   def let add(a, b): c = a + b ; rt c
+   def let add(mut a, mut b): c = a + b ; rt c
    # not just the params, local vars are also constant by default
 
 
@@ -565,7 +564,7 @@ ARGUMENT NAMING
 
 COMPOUND METHODS
    def getValue():
-      sticky x = 1, y = Int(2)
+      mut sticky x = 1, y = Int(2)
       def ():
          rt x + y
       ..
@@ -588,12 +587,12 @@ VARIADIC PARAMETERS
    ..
    # or better
    def sum(first = Int, others = Int []): rt first + others
-   lion = sum(1, 2, 3, 4, 5, 6)
+   mut lion = sum(1, 2, 3, 4, 5, 6)
 
-   dean = [1, 2, 3, 4, 5]
-   jean = addEven(0, dean)
-   joan = addEven(0, [1, 2, 3, 4, 5])
-   jane = addEven(0, 1, 2, 3, 4, 5)
+   mut dean = [1, 2, 3, 4, 5]
+   let jean = sum(0, dean)
+   mut joan = sum(0, [1, 2, 3, 4, 5])
+   mut jane = sum(0, 1, 2, 3, 4, 5)
    def add(a = 3 []): rt sum(a) # conflicts with the function below
    def add(a, b, c): rt a + b + c # conflicts with the function above
 
@@ -603,8 +602,8 @@ MUTATIVE FUNCTIONS
    def add(x, y): a + b
    <T> def swap!(x y = ref  T): x, y = y, x # use exclamtion mark for functions that can change values
 
-   tip = add(2, 3)
-   top = add(4, 5)
+   mut tip = add(2, 3)
+   mut top = add(4, 5)
    swap!(tip, top)
 
 
@@ -615,7 +614,7 @@ UNOVERLOADABLE FUNCTIONS
 
 RETURNING AN ARRAY
    def addThree (a b c =  Int) 3 Int []:
-      arr = [a + b, a + c, b + c]
+      mut arr = [a + b, a + c, b + c]
       arr
    ..
    p, q, r= 1, 2, 3
@@ -623,7 +622,7 @@ RETURNING AN ARRAY
    w= addThree(p, q, r)[1] + z
 
    def addSubTwo(a b =  Int) Int []:
-      arr = [a + b, a - b]
+      let arr = [a + b, a - b]
       arr
    ..
 
@@ -632,7 +631,7 @@ RETURNING A TABLE
    def getDetails(u = User):
       rt name, age [.name, .age ]
    ..
-   x = getUser()
+   mut x = getUser()
 
 
 RETURNING VARIABLES
@@ -649,19 +648,19 @@ RETURNING VARIABLES
    def getOwnership() [,]:
       rt array._move
    ..
-   pat = val getVal() # redundant
-   put = ref getRef() # redundant
-   pit = read getReadOnly() # redundant
-   cup = ref getVal() # returned value is moved
-   cap = val getRef() # returned reference is copied
-   cep = own getRef() # error, already has reference
-   cip = iso getRef() # error, already has reference
-   hola = read getVal() # returned value is moved, but cannot write
+   mut pat = val getVal() # redundant
+   mut put = ref getRef() # redundant
+   mut pit = read getReadOnly() # redundant
+   let cup = ref getVal() # returned value is moved
+   let cap = val getRef() # returned reference is copied
+   mut cep = own getRef() # error, already has reference
+   mut cip = iso getRef() # error, already has reference
+   mut hola = read getVal() # returned value is moved, but cannot write
 
 
 FUNCTION OBJECTS
-   add2 = add
-   add3 = Func{Int Int Int : Int}
+   mut add2 = add
+   mut add3 = Func{Int Int Int : Int}
    def solve(a, b, c = Func{Int Int : Int}): c(a, b)
 
 
@@ -670,16 +669,16 @@ CLOSURES
       a = 6
       rt def (b = Int) : a + b # a closure can access variables in outer scope
    ..
-   add = outer
+   mut add = outer
    # nameless closures (except those returned by a function or another closure) are executed at the
    # point they are declared
    # named closures on the other hand are not executed until they are called
    def add (x y =  Int):
       def (): rt x + y
    ..
-   sum = Func
-   sum = add
-   tip = Func{Int Int > Bool}
+   mut sum = Func
+   mut sum = add
+   mut tip = Func{Int Int > Bool}
 
 
 FUNCTION ARGUMENTS
@@ -739,7 +738,7 @@ COROUTINES
 
    def printer(n = Int):
       loop:
-         msg = <- p
+         mut msg = <- p
       print(msg)
       time.sleep(time.second * 1)
    ..
@@ -747,7 +746,7 @@ COROUTINES
       pipe p = String # pipe creation
       run pinger(p) # run pinger concurrently
       run printer(p) # run printer concurrently
-      input = String
+      mut input = String
       scanln(input)
    ..
    doSth(from p = String) # can only send thru the channel
@@ -766,7 +765,7 @@ COROUTINES
 
     # Simuated sequential co-routine using sticky variables
     def addUp(a, b):
-        sticky x
+        mut sticky x
         if x == _init:
             rt x += b
         else:
@@ -778,16 +777,16 @@ COROUTINES
 
 
 EVENTS
-   mathOps = Event{Float Float : Float}
-   mathOps += add, subtract, divide
-   mathOps -= divide
-   buttonPressed = Event(createProject)
-   buttonPressed += addNewEvent
+   mut mathOps = Event{Float Float : Float}
+   mut mathOps += add, subtract, divide
+   mut mathOps -= divide
+   mut buttonPressed = Event(createProject)
+   mut buttonPressed += addNewEvent
 
 
 TYPE DEFINITION
    type Car:
-      name, model = Str
+      mut name, model = Str
       def (name = Str):  # Constructor implicitly contains a first parameter of type Car
          self.name = name
       ..
@@ -800,8 +799,8 @@ TYPE DEFINITION
 
 CONSTRUCTOR
     type Person:
-        name = Str
-        age = Int
+        mut name = Str
+        mut age = Int
         def (name = Str, age = Int):
             .name = name
             .age = age
@@ -809,8 +808,8 @@ CONSTRUCTOR
     ..
     # A constructor without body initialises the fields with the corresponding parameter
     type Person:
-        name = Str
-        age = Int
+        mut name = Str
+        mut age = Int
         def (name, age) # which means there is no such thing as virtual constructors
     ..
 
@@ -818,13 +817,13 @@ CONSTRUCTOR
 CONSTRUCTOR CLASSES
     # Constructor classes have only one constructor and an optional set of parameters that are also the only fields of the class
     type Person (name, age)
-    dave = Person("Dave", 45)
-    dave.age = "David"
+    mut dave = Person("Dave", 45)
+    mut dave.age = "David"
 
 
 SELF REFERENCE
    type Car:
-      name, model = Str
+      mut name, model = Str
       def (name = Str):
          .name = name # the self can be ommitted leaving the dot and the field
       ..
@@ -837,9 +836,9 @@ SELF REFERENCE
 
 USING A FUNCTION AS METHOD
    def show(p = Person): print("name: [.name], age: [.age]")
-   nigel = Person("Nigel Nicargua")
+   mut nigel = Person("Nigel Nicargua")
    show(nigel)
-   nigel.show() # using show funtion like a method since Person is the first argument
+   mut nigel.show() # using show funtion like a method since Person is the first argument
 
    # if a method directly follows its type, then its first parameter can be skipped with a comma
    type Person (name, age)
@@ -850,7 +849,7 @@ USING A FUNCTION AS METHOD
 
 DESTRUCTORS
    type Car:
-      name, model = Str
+      mut name, model = Str
       def (name)
       def (name, model)
       def (!) : # Destructor implicitly contains a first parameter of type Car
@@ -860,10 +859,10 @@ DESTRUCTORS
 
 MODIFIERS IN CLASS
 - No public modifer, members are all public by default
-   priv a = 10
-   pack b = 'HELLO'
-   pass a = true # synon with protected
-   prod let x = 5f # synon with internal
+   mut priv a = 10
+   let pack b = 'HELLO'
+   mut pass a = true # synon with protected
+   let prod let x = 5f # synon with internal
 - proj(ect), prod(uction), prog(ram) clashes with prot(ected)
 
 
@@ -874,9 +873,9 @@ MODIFIERS CAN BE ON CLASSES AND METHODS Took
    def prod createSession() # is accessible only to production unit
 
 
-PACKAGE ACCESS LEVEL
-   pack< date = Date
-   pack>> isbn = Long
+PACKAGE ACCESS LEVEL # Will Remove this, it looks dangerous!!!
+   mut pack< date = Date
+   mut pack>> isbn = Long
 
 
 READ-ONLY WRITE-ONLY ACCESS
@@ -887,38 +886,37 @@ READ-ONLY WRITE-ONLY ACCESS
 MODIFIER BLOCK
    # modifier block is the only block in Pluto that may not be indented
    mod priv let :
-   x = 4.5f
-   y = 2.5f
-   z = 0.0f
+   mut x = 4.5f
+   mut y = 2.5f
+   mut z = 0.0f
    ..
    # you can also chain modifier blocks together
    mod priv let:
-   x = 4.5f
-   y = 2.5f
-   z = 0.0f
+   mut x = 4.5f
+   mut y = 2.5f
+   mut z = 0.0f
    mod pass:
-   name= getName()
-   age= getAge()
+   mut name = getName()
+   mut age = getAge()
    ..
-   mod :
 
 
 MODIFIERS IN LIST DECLARATION
-  priv let i, j = Int
+  mut priv let i, j = Int
 
 
 PROPERTIES / GETTERS SETTERS
-   myVar1 = def set(a b c =  Int): _ = a * b * c $ def get(): rt _
-   myVar1 = (1, 2, 3)
-   myVar2 =
-      def set(a b =  Int): _ = a * b * c
-      def get(): rt _
-   myVar2 = (1, 2)
-   myVar3 = def set(a = Int): _ = a $ def get(): rt _
-   myVar3 = 1
-   myVar4 = def set(a = Int) $ get()
-   myVar3 = 2
-   tip = def get(): rt myVar3
+    mut myVar1 = def set(a b c =  Int): _ = a * b * c $ def get(): rt _
+    myVar1 = (1, 2, 3)
+    mut myVar2 =
+        def set(a b =  Int): _ = a * b * c
+        def get(): rt _
+    myVar2 = (1, 2)
+    mut myVar3 = def set(a = Int): _ = a $ def get(): rt _
+    myVar3 = 1
+    mut myVar4 = def set(a = Int) $ get()
+    myVar3 = 2
+    mut tip = def get(): rt myVar3
 
 
 TYPE CHECKING
@@ -952,7 +950,7 @@ TYPE ALIAS
 METHOD CHAINING
 - Method chaining is automatic, no need to return self
    type Math:
-      value = Float
+      mut value = Float
    ..
    def add(a = Math, b c =  Float) Float:
       a.value = b + c
@@ -960,9 +958,9 @@ METHOD CHAINING
    def subtract(a = Math, b c =  Float) Float:
       a.value = b - c
    ..
-   m = Math
+   mut m = Math
    m.add(1, 2).subtract(3, 4)
-   n = "This is the first string".&"This is another string".reverse().toUpper()
+   mut n = "This is the first string".&"This is another string".reverse().toUpper()
 
 
 STICKY TYPES
@@ -973,8 +971,8 @@ STICKY TYPES
 
 STICKY TYPES MEMBER
    type Person:
-      name = Str
-      age = Int
+      mut name = Str
+      mut age = Int
       sticky let race = 'Mongoloid'
       def (name, age)
    ..
@@ -983,7 +981,7 @@ STICKY TYPES MEMBER
 
 STICKY CONSTRUCTOR
    type sticky MyClass:
-      x, y = Int
+      mut x, y = Int
       def (): # they can't have parameters. They only initialise class fields at first use
          .x = 2
          .y = 3
@@ -1024,13 +1022,13 @@ INHERITANCE # Not Finalized!
    type Pegasus [Bird, Horse] # inherits Bird and Horse classes
    def move(a = Pegasus): print("Soar and Gallop!") # overides move method because of CONFLICT in  Bird and Horse
 
-   eagle = Bird()
-   horse = Horse()
-   pegasus = Pegasus()
+   mut eagle = Bird()
+   mut horse = Horse()
+   mut pegasus = Pegasus()
    def move(eagle) # "Soar!"
    def move(horse) # "Gallop!"
    def move(pegasus) # "Soar and Gallop!"
-   animals = Animal[Bird(), Horse(), Pegasus()]
+   mut animals = Animal[Bird(), Horse(), Pegasus()]
    animals[1].move() # "Soar!"
    animals[2].move() # "Gallop!"
    animals[3].move() # "Soar and Gallop!"
@@ -1043,22 +1041,22 @@ COVARIANCE
     type Engineer (type = Str) [Person]
     type Artist (type = Str) [Person]
 
-    person = Person("Peter", 16)
-    engineer = Engineer("Civil Engineer")
-    artist = Artist("Painting Artist")
+    mut person = Person("Peter", 16)
+    mut engineer = Engineer("Civil Engineer")
+    mut artist = Artist("Painting Artist")
     # covariance in assignment
-    person = Person("Matthew", 25) # home type
-    person = engineer # guest type
-    person = artist # guest type
+    mut person = Person("Matthew", 25) # home type
+    mut person = engineer # guest type
+    mut person = artist # guest type
     # covariance in argument passing
     showDetails(person)
     showDetails(engineer)
     showDetails(artist)
     # covariance in container types
-    arr = Person[]
-    arr[+1] = [person, artist, engineer]
+    mut arr = Person[]
+    mut arr[1:] = [person, artist, engineer]
 
-    library = MediaItem [Movie("Zack Snyder's Sucker Punch"), Song("Lazy - Bruno Mars"), Song("Radioactive - Imagine Dragons"), Movie("Zack Snyder's 300")]
+    mut library = MediaItem [Movie("Zack Snyder's Sucker Punch"), Song("Lazy - Bruno Mars"), Song("Radioactive - Imagine Dragons"), Movie("Zack Snyder's 300")]
     for x thru library:
         print(x.title)
 
@@ -1072,12 +1070,12 @@ SUPER METHODS AND SUB METHODS
 
 CALLING SUPER
     type Person:
-        name = Str
-        age = Int
+        mut name = Str
+        mut age = Int
         def (name, age)
     ..
     type Artist [Person]:
-        kind = Str
+        mut kind = Str
         def priv (job)
         def (name, age, kind):
             super(name, age) # calls the parent constructor to in
@@ -1086,7 +1084,7 @@ CALLING SUPER
     ..
     # or
     type Artist [Person]:
-        type = Str
+        mut kind = Str
         def ((name, age) , kind)
     ..
     # or better
@@ -1158,14 +1156,14 @@ GENERICS
         U dataX
         U dataY
     ..
-    object DataManager<Str, Car>
+    mut object DataManager<Str, Car>
 
     type Ratio <T[<:Integer]>
-    chan : Ratio(3//2) # uses Integer
-    chen : Ratio<UInt>(6//4)  # uses subtype UInt
+    mut chan = Ratio(3//2) # uses Integer
+    mut chen = Ratio<UInt>(6//4)  # uses subtype UInt
 
-    myMovies = List<own Movie>
-    favoriteMovie = ref Movie
+    let myMovies = List<own Movie>
+    let favoriteMovie = ref Movie
 
     def add<T>(a b c = T): a + b + c
     add<Int>(1, 2, 3)
@@ -1187,7 +1185,7 @@ ENUMS
     enum Number: IntegerNumber(i <: Integer), RealNumber(r <: Real) # IntegerNumber and RealNumber are constructor types
 
     # You can access an enum subtype using the access operator
-    sym = Friends[1]
+    mut sym = Friends[1]
     # Iterating thru enum
     for x thru Friends:
         print(x)
@@ -1203,8 +1201,8 @@ PATTERN MATCHING
         case a == Leaf: a.val
         case a == Node: sum(a.l) + sum(a.r)
     ..
-    x = Node(Leaf<Int>(1), Node(Leaf<Int>(2), Leaf<Int>(3)))
-    y = sum(x)
+    mut x = Node(Leaf<Int>(1), Node(Leaf<Int>(2), Leaf<Int>(3)))
+    mut y = sum(x)
     # or better
     enum Tree<T>: Leaf(val = T), Node(l = Leaf, r = Tree)
     match sum(t = Tree):
@@ -1212,32 +1210,32 @@ PATTERN MATCHING
         case Node: sum(a.l) + sum(a.r)
     ..
     # you can use this verbose version
-    x = Tree<Int>.Node(Tree<Int>.Leaf(1), Tree<Int>.Node(Tree<Int>.Leaf(2), Tree<Int>.Leaf(3)))
+    mut x = Tree<Int>.Node(Tree<Int>.Leaf(1), Tree<Int>.Node(Tree<Int>.Leaf(2), Tree<Int>.Leaf(3)))
     # or better
-    x = Tree<Int>(_.Node(_.Leaf(1), _.Node(_.Leaf(2), _.Leaf(3))))
-    y = sum(x)
+    mut x = Tree<Int>(_.Node(_.Leaf(1), _.Node(_.Leaf(2), _.Leaf(3))))
+    mut y = sum(x)
 
 
 REGEX
-    x = Regex("\d+")
-    x = re"\d+"
+    mut x = Regex("\d+")
+    mut x = re"\d+"
 
 
 EXPLICIT TYPE CASTING
-   x = Int(5)
-   y = Byte(6)
+   mut x = Int(5)
+   mut y = Byte(6)
    let z = y + Int(y)
 
 
 STACK EXPRESSION
-   a = add (x, y) >>> subtract(_, z) # tmp represent the value passed from preceding method
-   a = subtract(_, z) <<< add (x, y) # same as above
+   let a = add (x, y) >>> subtract(_, z) # tmp represent the value passed from preceding method
+   let a = subtract(_, z) <<< add (x, y) # same as above
 
 
 MOVE SEMANTICS
 - Move feature is automated in Pluto in any place where it is possible.
 - But you can still explicitly specify it.
-   y = getPerson('Californio')._move
+   let y = getPerson('Californio')._move
 
 
 CONCURRENCY
@@ -1314,7 +1312,7 @@ TRY & ASSOCIATES
          file.close()
       ..
       print("I'm about to open a text file and print its first 500 characters")
-      file = File("C:/Users/Hello/hello.txt")
+      mut file = File("C:/Users/Hello/hello.txt")
       try file.open().print([1:500])
       except(fnfe = FileNotFoundErr, ioobe = IndexOutOfBoundErr):
          if fnfe: printErr('Can\'t find file!')
