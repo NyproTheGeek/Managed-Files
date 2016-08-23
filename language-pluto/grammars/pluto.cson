@@ -7,425 +7,429 @@
 
 # add folds and stuffs
 fileTypes: [
-  "plu", "pluto"
+    "plu", "pluto"
 ]
 foldingStartMarker: ":"
 foldingStopMarker: "\\.\\."
 name: "Pluto"
 patterns: [
-  {
-    include: '#non_pluto'
-  }
-  {
-    include: '#annotations'
-  }
-  {
-    include: "#brackets"
-  }
-  {
-    include: "#comments"
-  }
-  {
-    include: "#keywords"
-  }
-  {
-    include: "#function_calls"
-  }
-  {
-    include: "#dot_members"
-  }
-  {
-    include: "#numbers"
-  }
-  {
-    include: "#cpp_symbol"
-  }
-  {
-    include: "#strings"
-  }
-  {
-    include: "#math_expressions"
-  }
-  {
-    include: "#operators"
-  }
+    {
+        include: '#non_pluto'
+    }
+    {
+        include: '#annotations'
+    }
+    {
+        include: "#brackets"
+    }
+    {
+        include: "#comments"
+    }
+    {
+        include: "#numbers"
+    }
+    {
+        include: "#keywords"
+    }
+    {
+        include: "#function_calls"
+    }
+    {
+        include: "#dot_members"
+    }
+    {
+        include: "#cpp_symbol"
+    }
+    {
+        include: "#strings"
+    }
+    {
+        include: "#math_expressions"
+    }
+    {
+        include: "#operators"
+    }
 ]
 repository:
-  non_pluto:
-    patterns:[
-      {
-        begin: "^(?:[A-Z\\-]|\\-[ A-Za-z\\-])"
-        beginCaptures:
-          "0":
-            name: "punctuation.definition.comment.begin.pluto"
-        end: "$"
-        endCaptures:
-          "0":
-            name: "punctuation.definition.comment.end.pluto"
-        name: "comment.double-dash.pluto"
-      }
-    ]
-  annotations:
-    patterns:[
-      {
-        begin: "\\@(?:[A-za-z_][A-za-z_0-9]*)\\s*\\:\\s*\\["
-        end: "\\]"
-        name: 'support.function.macro.pluto'
-        patterns: [
-          {
-            include: '#nest_block'
-          }
+    non_pluto:
+        patterns:[
+            {
+                begin: "^(?:[A-Z\\-]|\\-[ A-Za-z\\-])"
+                beginCaptures:
+                    "0":
+                        name: "punctuation.definition.comment.begin.pluto"
+                end: "$"
+                endCaptures:
+                    "0":
+                        name: "punctuation.definition.comment.end.pluto"
+                name: "comment.double-dash.pluto"
+            }
         ]
-      }
-      {
-        match: "\\@(?:[A-za-z_][A-za-z_0-9]*)"
-        name: 'support.function.macro.pluto'
-      }
-    ]
-  nest_block:
-    patterns: [
-      {
-        begin: '\\['
-        end: '\\]'
-        name: 'support.function.macro.pluto'
-        patterns: [
-          {
-            include: '#nest_block'
-          }
+    annotations:
+        patterns:[
+            {
+                begin: "\\@(?:[A-za-z_][A-za-z_0-9]*)\\s*\\:\\s*\\["
+                end: "\\]"
+                name: 'support.function.macro.pluto'
+                patterns: [
+                    {
+                        include: '#nest_block'
+                    }
+                ]
+            }
+            {
+                match: "\\@(?:[A-za-z_][A-za-z_0-9]*)"
+                name: 'support.function.macro.pluto'
+            }
         ]
-      }
-    ]
-  brackets:
-    patterns: [
-      {
-        match: "(?:\\(|\\)|\\[|\\]|,)(?!('|(?:\\.'))*\\.?')"
-        name: "meta.bracket.pluto"
-      }
-    ]
-  comments:
-    patterns: [
-      {
-        begin: "#="
-        beginCaptures:
-          "0":
-            name: "punctuation.definition.comment.begin.pluto"
-        end: "=#"
-        endCaptures:
-          "0":
-            name: "punctuation.definition.comment.end.pluto"
-        name: "comment.block.pluto"
-      }
-      {
-        begin: "#"
-        beginCaptures:
-          "0":
-            name: "punctuation.definition.comment.pluto"
-        end: "$"
-        name: "comment.line.pluto"
-      }
-    ]
-  keywords:
-    patterns: [
-      # CONSTANTS
-      {
-        match: '\\b(?:true|false|nil)\\b',
-        name: 'constant.language.pluto'
-      }
-      # META VAIABLES
-      {
-        match: '\\b(?:_[A-Za-z0-9]*)\\b',
-        name: 'variable.other.pluto'
-      }
-      # TYPES
-      {
-        match: '\\b(?:AStr|Str|Char|Byte|SByte|Num|Int|Int32|Int64|Int16|UInt|UInt32|UInt64|UInt16|IFit|UIFit|Float|Double|Float16|Float32|Float64|Comp|Comp128|Quat|Quat256|Bool|Any|Func|Array|Dict|Indie|None)\\b',
-        name: 'support.type.pluto'
-      }
-      # LANG VARIABLES
-      {
-        match: '\\b(?:self|super|sub)\\b',
-        name: 'variable.language.pluto'
-      }
-      # CONTROL FLOW
-      {
-        match: '\\b(?:for|if|else|elsif|rt|while|repeat|match|case|until|do|use|loop|label|block|try|except|ensure|raise|next|break|skip|step|yield|take|run|import)\\b',
-        name: 'keyword.control.pluto'
-      }
-      # MODIFIERS
-      {
-        match: '\\b(?:sticky|abs|solo|const|priv|pack|pass|prod|prot|rpriv|rpack|rpass|rprod|rpub|wpriv|wpack|wpass|wprod|wprot|wpub|hold|nan|lock|iso|val|ref|own|to|from)\\b',
-        name: 'storage.modifier.pluto'
-      }
-      # CATEGORIES
-      {
-        match: '\\b(?:type|def|enum|pipe|let|mut|mod|as)\\b',
-        name: 'storage.type.pluto'
-      }
-      # CLASSES
-      {
-        match: '\\b(?:[A-Z][_A-Za-z0-9]*)\\b',
-        name: 'support.class.pluto'
-      }
-      # FUNCTIONS
-      {
-        match: '\\b(?:set|get|print|printx|printErr|scan|list|listx|show|showx)\\b',
-        name: 'support.function.pluto'
-      }
-      # OTHERS
-      {
-        match: '\\b(?:and|or|thru|in|not\\s+in)\\b'
-        name: 'keyword.control.pluto'
-      }
-    ]
-  function_calls:
-    patterns: [
-      {
-        begin: "([[:alpha:]_][[:word:]!]*)\\s*(?:\\<(?:[A-za-z_][A-za-z_0-9]*,*)+\\>)?({(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*})?\\("
-        beginCaptures:
-          "1":
-            name: "entity.name.function.pluto"
-          "2":
-            name: "keyword.operator.pluto"
-        end: "\\)(('|(\\.'))*\\.?')?"
-        endCaptures:
-          "1":
-            name: "keyword.operator.transposed-func.pluto"
+    nest_block:
         patterns: [
-          {
-            include: "$self"
-          }
+            {
+                begin: '\\['
+                end: '\\]'
+                name: 'support.function.macro.pluto'
+                patterns: [
+                    {
+                        include: '#nest_block'
+                    }
+                ]
+            }
         ]
-      }
-    ]
-  dot_members:
-    patterns: [
-      # OTHERS
-      {
-        # match: "(?<=[A-za-z_][A-za-z_0-9]*|\\)|\"|\')\\.([A-za-z_][A-za-z_0-9]*)"
-        # name: "variable.language.pluto"
-        # I seriously don't know what is wrong with the above regex, but it is the solution to the problem
-        # I'm having with the method below.
-        match: "(?:[A-za-z_][A-za-z_0-9]*|\\)|\"|\')?\\.((?:\\[[A-za-z_][A-za-z_0-9]*\\])|[A-za-z_][A-za-z_0-9]*)\\b"
-        captures:
-          "1":
-            name: "variable.language.pluto"
-      }
-      # FOR NUMBERS
-      {
-        match: "\\b(?:[+-]?(?:[0-9]_?)+\\.(?:[0-9]_?)+(?:e[+-](?:[0-9]_?)+)?[a-z]*|[+-]?\\.?(?:[0-9]_?)+[a-z]*[0-9]*|[+-]?(?:[0-9]_?)+\\.?[a-z]*[0-9]*|[\\+\\-]*0x(?:[0-9A-Fa-f]_?)+|[\\+\\-]*0o(?:[0-8]_?)+|[\\+\\-]*0b(?:[01]_?)+)\\.([A-za-z_][A-za-z_0-9]*)\\b"
-        captures:
-          "1" :
-            name: "variable.language.pluto"
-      }
-    ]
-  numbers:
-    patterns: [
-      # REAL NUMBERS
-      {
-        match:
-          "\\b(?:[+-]?([0-9]_?)+\\.([0-9]_?)+(e[+-]([0-9]_?)+)?[a-z]*|[+-]?\\.?([0-9]_?)+[a-z]*[0-9]*|[+-]?([0-9]_?)+\\.?[a-z]*[0-9]*)\\b"
-        name: "constant.numeric.pluto"
-      }
-      # OTHER NUMBERS
-      {
-        match: "\\b(?:[\\+\\-]*0x([0-9A-Fa-f]_?)+|[\\+\\-]*0o([0-8]_?)+|[\\+\\-]*0b([01]_?)+)\\b"
-        name: "constant.numeric.pluto"
-      }
-    ]
-  operators:
-    patterns: [
-      #PUNCTUATIONS
-      {
-        match: '(?:,|;|::|\\.\\.\\.|\\.\\.|:)',
-        name: 'keyword.operator.pluto'
-      }
-      # UNARY OPERATORS
-      {
-        match: '(?:-|\\+|\\?|′|\\=|\\\\|/|\\*|\\%|\\^|:=)'
-        name: 'keyword.operator.pluto'
-      }
-      # BINARY OPERATORS
-      {
-        match: '(?:--|\\+\\+|\\+=|-=|\\*=|%=|\\^=|/=|//=)'
-        name: 'keyword.operator.pluto'
-      }
-      # CONDITIONAL OPERATORS
-      {
-        match: '(?:\\||>|<|>=|<=|!=|\\&)'
-        name: 'keyword.operator.pluto'
-      }
-      # BITWISE OPERATORS
-      {
-        match: '(?:\\~|\\.\\||\\.\\&|\\.\\^)'
-        name: 'keyword.operator.pluto'
-      }
-      # SHIFT OPERATORS
-      {
-        match: '(?:>>|<<|>>=|<<=)'
-        name: 'keyword.operator.pluto'
-      }
-      # OTHER OPERATORS
-      {
-        match: '(?:>>>|<<<|->|<-)'
-        name: 'keyword.operator.pluto'
-      }
-    ]
-  cpp_symbol:
-    patterns:[
-      {
-        begin: "(cpp)(\\[:)"
-        beginCaptures:
-          "1":
-            name: 'variable.interpolation.pluto'
-          "2":
-            name: 'variable.interpolation.pluto'
-        end: "\\]"
-        endCaptures:
-          "0":
-            name: 'variable.interpolation.pluto'
-        name: 'embed.cxx.pluto'
-        contentName: 'source.cpp'
+    brackets:
         patterns: [
-          {
-            include: 'source.cpp'
-          }
+            {
+                match: "(?:\\(|\\)|\\[|\\]|,)(?!('|(?:\\.'))*\\.?')"
+                name: "meta.bracket.pluto"
+            }
         ]
-      }
-    ]
-  strings:
-    patterns: [
-      # SINGLE-LINE SINGLE-QUOTE STRING
-      {
-        begin: "([A-Za-z0-9_]*)(')"
-        beginCaptures:
-          "1":
-            name: "support.function.macro.pluto"
-          "2":
-            name: "punctuation.definition.string.begin.pluto"
-        end: "'"
-        endCaptures:
-          "0":
-            name: "punctuation.definition.string.end.pluto"
-        name: "string.quoted.single.pluto"
+    comments:
         patterns: [
-          {
-            include: "#string_escaped_chars"
-          }
-          {
-            include: "#string_interpolate"
-          }
-          {
-            include: "#comments"
-          }
+            {
+                begin: "#="
+                beginCaptures:
+                    "0":
+                        name: "punctuation.definition.comment.begin.pluto"
+                end: "=#"
+                endCaptures:
+                    "0":
+                        name: "punctuation.definition.comment.end.pluto"
+                name: "comment.block.pluto"
+            }
+            {
+                begin: "#"
+                beginCaptures:
+                    "0":
+                        name: "punctuation.definition.comment.pluto"
+                end: "$"
+                name: "comment.line.pluto"
+            }
         ]
-      }
-      # SINGLE-LINE DOUBLE-QUOTE STRING
-      {
-        begin: '([A-Za-z0-9_]*)(")'
-        beginCaptures:
-          "1":
-            name: "support.function.macro.pluto"
-          "2":
-            name: "punctuation.definition.string.begin.pluto"
-        end: '"'
-        endCaptures:
-          "0":
-            name: "punctuation.definition.string.end.pluto"
-        name: "string.quoted.double.pluto"
+    numbers:
         patterns: [
-          {
-            include: "#string_escaped_chars"
-          }
-          {
-            include: "#string_interpolate"
-          }
-          {
-            include: "#comments"
-          }
+            # REAL NUMBERS
+            {
+                match: "\\b(?:[+-]?(?:[0-9]_?)*\\.(?:[0-9]_?)+(?:e[+-](?:[0-9]?)+)?[df]?|[+-]?(?:[0-9]_?)+[a-z]*[0-9]*)\\b"
+                name: "constant.numeric.pluto"
+            }
+            # OTHER NUMBERS
+            {
+                match: "\\b(?:[\\+\\-]*0x([0-9A-Fa-f]_?)+|[\\+\\-]*0o([0-8]_?)+|[\\+\\-]*0b([01]_?)+)\\b"
+                name: "constant.numeric.pluto"
+            }
+            # ARRAY SIZE SPECIFIER, e,g. let y = 2x2 [1 2 | 3 4]
+            {
+                match: "\\b[0-9](?:x[0-9])*\\b"
+                name: "constant.numeric.pluto"
+            }
         ]
-      }
-      # VERBATIM SINGLE-QUOTE STRING
-      {
-        begin: "([A-Za-z0-9_]*)(''')"
-        beginCaptures:
-          "1":
-            name: "support.function.macro.pluto"
-          "2":
-            name: "punctuation.definition.string.multiline.begin.pluto"
-        end: "'''"
-        endCaptures:
-          "0":
-            name: "punctuation.definition.string.multiline.end.pluto"
-        name: "string.quoted.triple.single.pluto"
+    keywords:
         patterns: [
-          {
-            include: "#string_escaped_chars"
-          }
-          {
-            include: "#string_interpolate"
-          }
-          {
-            include: "#comments"
-          }
+            # CONSTANTS
+            {
+                match: '\\b(?:true|false|nil)\\b',
+                name: 'constant.language.pluto'
+            }
+            # META VAIABLES
+            {
+                match: '\\b(?:_[A-Za-z0-9]*)\\b',
+                name: 'variable.other.pluto'
+            }
+            # TYPES
+            {
+                match: '\\b(?:AStr|Str|Char|Byte|SByte|Num|Int|Int32|Int64|Int16|UInt|UInt32|UInt64|UInt16|IFit|UIFit|Float|Double|Float16|Float32|Float64|Comp|Comp128|Quat|Quat256|Bool|Any|Func|Array|Dict|Indie|None)\\b',
+                name: 'support.type.pluto'
+            }
+            # LANG VARIABLES
+            {
+                match: '\\b(?:self|super|sub)\\b',
+                name: 'variable.language.pluto'
+            }
+            # CONTROL FLOW
+            {
+                match: '\\b(?:for|if|else|elsif|rt|while|repeat|match|case|until|do|use|loop|label|block|try|except|ensure|raise|next|break|skip|step|yield|take|run|import)\\b',
+                name: 'keyword.control.pluto'
+            }
+            # MODIFIERS
+            {
+                match: '\\b(?:sticky|abs|solo|const|priv|pack|pass|prod|prot|rpriv|rpack|rpass|rprod|rpub|wpriv|wpack|wpass|wprod|wprot|wpub|hold|nan|lock|iso|val|ref|own|move|read|to|from)\\b',
+                name: 'storage.modifier.pluto'
+            }
+            # CATEGORIES
+            {
+                match: '\\b(?:type|def|enum|pipe|let|mut|mod|as)\\b',
+                name: 'storage.type.pluto'
+            }
+            # CLASSES
+            {
+                match: '\\b(?:[A-Z][_A-Za-z0-9]*)\\b',
+                name: 'support.class.pluto'
+            }
+            # FUNCTIONS
+            {
+                match: '\\b(?:set|get|print|printx|printErr|scan|list|listx|show|showx)\\b',
+                name: 'support.function.pluto'
+            }
+            # OTHERS
+            {
+                match: '\\b(?:and|or|thru|in|not\\s+in)\\b'
+                name: 'keyword.control.pluto'
+            }
         ]
-      }
-      # VERBATIM DOUBLE-QUOTE STRING
-      {
-        begin: '([A-Za-z0-9_]*)(""")'
-        beginCaptures:
-          "1":
-            name: "support.function.macro.pluto"
-          "2":
-            name: "punctuation.definition.string.multiline.begin.pluto"
-        end: '"""'
-        endCaptures:
-          "0":
-            name: "punctuation.definition.string.multiline.end.pluto"
-        name: "string.quoted.triple.double.pluto"
+    function_calls:
         patterns: [
-          {
-            include: "#string_escaped_chars"
-          }
-          {
-            include: "#string_interpolate"
-          }
-          {
-            include: "#comment"
-          }
-          {
-            include: "#comments"
-          }
+            {
+                begin: "([[:alpha:]_][[:word:]!]*)\\s*(?:\\<(?:[A-za-z_][A-za-z_0-9]*,*)+\\>)?({(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*})?\\("
+                beginCaptures:
+                    "1":
+                        name: "entity.name.function.pluto"
+                    "2":
+                        name: "keyword.operator.pluto"
+                end: "\\)(('|(\\.'))*\\.?')?"
+                endCaptures:
+                    "1":
+                        name: "keyword.operator.transposed-func.pluto"
+                patterns: [
+                    {
+                        include: "$self"
+                    }
+                ]
+            }
         ]
-      }
-    ]
-  string_escaped_chars:
-    patterns: [
-      {
-        match: "\\.(\\[|t|n|\"|\'|#)|\\\\(\\[|\\t|\\n|\"|\'|#|\\.|\\\\)"
-        name: "constant.character.escape.julia"
-      }
-    ]
-  string_interpolate:
-    patterns: [
-      {
-        begin: '\\[',
-        end: '\\]',
-        name: 'variable.interpolation.pluto'
-      }
-    ]
-  nest_parens_and_self:
-    patterns: [
-      {
-        begin: '\\('
-        end: '\\)'
+    dot_members:
         patterns: [
-          {
-            include: '#nest_parens_and_self'
-          }
+            # OTHERS
+            {
+                # match: "(?<=[A-za-z_][A-za-z_0-9]*|\\)|\"|\')\\.([A-za-z_][A-za-z_0-9]*)"
+                # name: "variable.language.pluto"
+                # I seriously don't know what is wrong with the above regex, but it is the solution to the problem
+                # I'm having with the method below.
+                match: "(?:[A-za-z_][A-za-z_0-9]*|\\)|\"|\')?\\.([A-za-z_][A-za-z_0-9]*)\\b"
+                captures:
+                    "1":
+                        name: "variable.language.pluto"
+            }
+            # FOR NUMBERS
+            {
+                match: "\\b(?:[+-]?(?:[0-9]_?)*\\.(?:[0-9]_?)+(?:e[+-](?:[0-9]?)+)?[df]?|[+-]?(?:[0-9]_?)+[a-z]*[0-9]*)\\.([A-za-z_][A-za-z_0-9]*)\\b"
+                captures:
+                    "1" :
+                        name: "variable.language.pluto"
+            }
         ]
-      }
-      {
-        include: '$self'
-      }
-    ]
+    operators:
+        patterns: [
+                #PUNCTUATIONS
+                {
+                    match: '(?:,|;|::|\\.\\.\\.|\\.\\.|:)',
+                    name: 'keyword.operator.pluto'
+                }
+                # UNARY OPERATORS
+                {
+                    match: '(?:-|\\+|\\?|′|\\=|\\\\|/|\\*|\\%|\\^|:=)'
+                    name: 'keyword.operator.pluto'
+                }
+                # BINARY OPERATORS
+                {
+                    match: '(?:--|\\+\\+|\\+=|-=|\\*=|%=|\\^=|/=|//=)'
+                    name: 'keyword.operator.pluto'
+                }
+                # CONDITIONAL OPERATORS
+                {
+                    match: '(?:\\||>|<|>=|<=|!=|\\&)'
+                    name: 'keyword.operator.pluto'
+                }
+                # BITWISE OPERATORS
+                {
+                    match: '(?:\\~|\\.\\||\\.\\&|\\.\\^)'
+                    name: 'keyword.operator.pluto'
+                }
+                # SHIFT OPERATORS
+                {
+                    match: '(?:>>|<<|>>=|<<=)'
+                    name: 'keyword.operator.pluto'
+                }
+                # OTHER OPERATORS
+                {
+                    match: '(?:>>>|<<<|->|<-)'
+                    name: 'keyword.operator.pluto'
+                }
+            ]
+    cpp_symbol:
+        patterns:[
+            {
+                begin: "(cpp)(\\{)"
+                beginCaptures:
+                    "1":
+                        name: 'variable.interpolation.pluto'
+                    "2":
+                        name: 'variable.interpolation.pluto'
+                end: "\\}"
+                endCaptures:
+                    "0":
+                        name: 'variable.interpolation.pluto'
+                name: 'embed.cxx.pluto'
+                contentName: 'source.cpp'
+                patterns: [
+                    {
+                        include: 'source.cpp'
+                    }
+                ]
+            }
+        ]
+    strings:
+        patterns: [
+            # SINGLE-LINE SINGLE-QUOTE STRING
+            {
+                begin: "([A-Za-z0-9_]*)(')"
+                beginCaptures:
+                    "1":
+                        name: "support.function.macro.pluto"
+                    "2":
+                        name: "punctuation.definition.string.begin.pluto"
+                end: "'"
+                endCaptures:
+                    "0":
+                        name: "punctuation.definition.string.end.pluto"
+                name: "string.quoted.single.pluto"
+                patterns: [
+                    {
+                        include: "#string_escaped_chars"
+                    }
+                    {
+                        include: "#string_interpolate"
+                    }
+                    {
+                        include: "#comments"
+                    }
+                ]
+            }
+            # SINGLE-LINE DOUBLE-QUOTE STRING
+            {
+                begin: '([A-Za-z0-9_]*)(")'
+                beginCaptures:
+                    "1":
+                        name: "support.function.macro.pluto"
+                    "2":
+                        name: "punctuation.definition.string.begin.pluto"
+                end: '"'
+                endCaptures:
+                    "0":
+                        name: "punctuation.definition.string.end.pluto"
+                name: "string.quoted.double.pluto"
+                patterns: [
+                    {
+                        include: "#string_escaped_chars"
+                    }
+                    {
+                        include: "#string_interpolate"
+                    }
+                    {
+                        include: "#comments"
+                    }
+                ]
+            }
+            # VERBATIM SINGLE-QUOTE STRING
+            {
+                begin: "([A-Za-z0-9_]*)(''')"
+                beginCaptures:
+                    "1":
+                        name: "support.function.macro.pluto"
+                    "2":
+                        name: "punctuation.definition.string.multiline.begin.pluto"
+                end: "'''"
+                endCaptures:
+                    "0":
+                        name: "punctuation.definition.string.multiline.end.pluto"
+                name: "string.quoted.triple.single.pluto"
+                patterns: [
+                    {
+                        include: "#string_escaped_chars"
+                    }
+                    {
+                        include: "#string_interpolate"
+                    }
+                    {
+                        include: "#comments"
+                    }
+                ]
+            }
+            # VERBATIM DOUBLE-QUOTE STRING
+            {
+                begin: '([A-Za-z0-9_]*)(""")'
+                beginCaptures:
+                    "1":
+                        name: "support.function.macro.pluto"
+                    "2":
+                        name: "punctuation.definition.string.multiline.begin.pluto"
+                end: '"""'
+                endCaptures:
+                    "0":
+                        name: "punctuation.definition.string.multiline.end.pluto"
+                name: "string.quoted.triple.double.pluto"
+                patterns: [
+                    {
+                        include: "#string_escaped_chars"
+                    }
+                    {
+                        include: "#string_interpolate"
+                    }
+                    {
+                        include: "#comment"
+                    }
+                    {
+                        include: "#comments"
+                    }
+                ]
+            }
+        ]
+    string_escaped_chars:
+        patterns: [
+            {
+                match: "\\.(\\[|t|n|\"|\'|#)|\\\\(\\[|\\t|\\n|\"|\'|#|\\.|\\\\)"
+                name: "constant.character.escape.julia"
+            }
+            ]
+    string_interpolate:
+        patterns: [
+            {
+                begin: '\\[',
+                end: '\\]',
+                name: 'variable.interpolation.pluto'
+            }
+        ]
+    nest_parens_and_self:
+        patterns: [
+            {
+                begin: '\\('
+                end: '\\)'
+                patterns: [
+                    {
+                    include: '#nest_parens_and_self'
+                    }
+                ]
+            }
+            {
+                include: '$self'
+            }
+        ]
 scopeName: "source.pluto"

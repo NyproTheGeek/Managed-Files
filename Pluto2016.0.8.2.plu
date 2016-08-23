@@ -3,12 +3,13 @@ Revised 11/08/16
 #=
 Major Change:
     Restructuring for Multiple Dispatch
-    Import is now module-based instead than type-based because of the new multiple Dispatch
+    Import is now module-based, rather than being type-based, due to the introduction of multiple dispatch
     A type's method may be defined outside the type's file
     Added def to function declaration #18/08/16
     Changing assignment operator back to good ol' way, binding to nil-and-one-other-type is still enforced 19/08/16
     The block punstuation is now $, it helps resolve some ambiguity in statements like repeat play() | while state == "Play" | x == y ? y | z
         repeat: play() $ while state == "Play" | x == y ? y $ z
+    Added mut for mutable variable declaration; solves some scoping issues
 =#
 
 PLUTO's DESIGN PHILOSOPHY
@@ -20,15 +21,9 @@ PLUTO's DESIGN PHILOSOPHY
 - make it lightweight
 
 DESCRIPTION
-Pluto is a flexible language that is both be compiled and interpreted.
-It can used either as dynamically typed or a statically typed language. As a result it unifies rapid prototyping and fast performance into one cohesive syntax.
-
-PLUTO WORLD
-- PlutoSphere (advanced IDE)
-- The REPL
-- The AOT and JIT Compilers
-- Static and Dynamic Analysis.
-- AI
+Pluto is a compiled/interpreted language that supports optional typing without sacrificing performance as a result.
+Pluto is completely object-oriented and procedural at the same time. This is in part achieved by closely associating types with multiple dispatch in functions.
+Some of Pluto's features include list comprehenshion, generics, closure, lambdas, mutiple dispatch
 
 
 --! THE EXAMPLES BELOW ARE MOSTLY STATICALLY TYPED !--
@@ -54,12 +49,11 @@ VARIABLE DECLARATION & INITIALIZATION
     let y # is a constant
     def add(a, b): rt a + b # function parameters are implicitly mutable
     def swap!(mut a, mut b): a, b = b, a # error! mut should not be specified in their declaration
-    mut e ; e = Car('Camaro')
+    mut e ; e = Car('Camaro') # semi-colon is used to separate two statements
     mut y = 12f
     mut z = 'Hello'
     mut a = Car('Camaro')
     mut b = Car('Camaro').setDate(2014) # ok
-    mut c = Car ; c = ('Camaro') # comma is used to separate two statements
     mut n = getCar('Camaro')
     mut o = add(2, 4)
     mut p = List<Car>(3) # generics
@@ -79,34 +73,39 @@ SPECIFYING TYPES
 
 
 VARIABLES AND REFERENCES
-   # see pass table below
-   mut pet = own getObject() # pet now holds a sole strong ref to the object returned
-   mut pet = iso getObject() # pet exclusively owns the object returned
-   # some ops pass by val or ref implicitly
-   # but you can explicitly specify
-   mut put = val pet # assigned by value
-   let pat = own move(put) # ownership moved from put to pat, put is now nil
-   mut pot = read pat # pot references object but cannot assign to it
-   let pit = val put
+    # Value types such as Int, FLoat, et. are passed around by value, reference and container types are passed
+    # aroud by reference
+    # see pass table below
+    mut pet = own getObject() # pet now holds a sole strong ref to the object returned
+    mut pet = iso getObject() # pet exclusively exclusively refers to the object returned (if it is a value object)
+    mut put = val pet # assigned by value
+    let pat = move put # ownership moved from put to pat, put is now nil
+    let pen = own move pat
+    mut pot = read pat # pot references object but cannot assign to it
+    # side effect of read:
+    # if later in the future a variable is changed to read, it will lead to having to change code that have assigned to it, which can be a lot. :'(
+    let pit = val put
 
-   def subtract(let a let b let c = ref):
-      c = a - b
-      rt ref c
-   mut dean = val subtract(x, y) # gets a copy
-   let cop = subtract(x, y) # gets a ref
+    def subtract(let a let b let c = ref):
+        c = a - b
+        rt ref c
+    ..
+    mut dean = val subtract(x, y) # gets a copy
+    let cop = subtract(x, y) # gets a ref
 
-   def add(a b = ref):
-      rt val a + b
-   let alm = ref add(val x, val y) # warning, return a val to a ref
+    def add(a b = ref):
+        rt val a + b
+    let alm = ref add(val x, val y) # warning, return a val to a ref
 
-   swap!(val a, val b)
+    swap!(val a, val b)
 
 
 OPTIONAL TYPE DECLARATION
    mut myNumber = Str|Int
-   # every varaible is optional implicitly to None and one other type
+   # every varaible is optional implicitly to None and one other type (and its subtypes)
+   # however this behavior is changeable using other assignment operators like =:, <:, etc.
    mut myNumber = '01000999'
-   # might change the below behavior in the future
+   # might change the behavior below in the future
    mut myNumber = 23 # error! variable already bound to String
 
 
@@ -121,23 +120,31 @@ MULTIPLE ASSIGNMENT
    let a, b, c, d = [1:4]
 
 
-NUMERIC FORMATTING
-   mut x = 1_000_000
-   let y = 1_999.99
+NUMERIC LITERALS
+    mut d = 2 # Int
+    let r = 2.5 # Double
+    let e = 2f # Float
+    let m = 3d # Double
+    let y = 4_567.32f # Float
+    mut x = 1_000_000 # Int
+    let y = 1_999.99 # Double
+    mut v = 12_000_i32 # Int32
+    mut w = 145_ui18 # UInt16
+    mut z = .1 # Double
+    mut p = .2e-2f # Float
 
 
-ARRAYS / LIST
+ARRAYS / LISTS
    # major diff between lists and arrays is that, the type and size of an array are
    # inferrable at compile time, this allows for arrays to be stored like traditional array
    mut fin = Car[('Camaro'), ('Mustang')]
-   mut gin = 3 Car[]
-   mut gin = [('Camaro'), ('Mustang'), ('Maserrati')]
-   mut tin = 3 Car [('Camaro'), ('Mustang'), ('Maserrati')]
+   mut gin = 3 Car[] ; mut gin = Car[('Camaro'), ('Mustang'), ('Maserrati')]
+   mut tin = 3 [Car('Camaro'), Car('Mustang'), Car('Maserrati')]
    let ted = [1, 2, 3, 4, 5]
    mut top = ted
-   mut go = Car[]
+   mut go = 5 Vehicle[Car("Camaro"), SuperBike("Ducati Multistrada"), Plane("Boeing 747")] # covariance in container
    mut go[1] = Car("Camaro")
-   mut go[2:] = [('Mustang'), ('Maserrati')] # starts filling from index 2
+   mut go[2:] = Car[('Mustang'), ('Maserrati')] # starts filling from index 2
 
    mut pot = Array
    # or better
@@ -148,7 +155,7 @@ ARRAYS / LIST
    mut pit = 3 Int []
 
    mut pet = [5] # this is an array with one element, 5
-   let put = 5 [] # you have to specify a type in order specify a size
+   let put = 5 []
    let pat = 4 [1, 2, 3, 4]
 
    let pat.foldleft(0, def (a, b): rt a + b) # (((0 + 1) + 2) + 3) + 4 = 10
@@ -161,19 +168,21 @@ ARRAYS / LIST
 
 
 DICTIONARIES / TUPLES
-   mut fin = ['Tola', 1.2, 50, 'Tola']
-   mut dict = [
-      'Peter Parker'   : 'Spider-man'     , 20 |
-      'Steve Rogers'   : 'Captain America', 32 |
-      'Tchaka Tchalla' : 'Black Panther'  , 29
-   ]
-   let candidate = index, name [
-      1 : 'Aditya' |
-      2 : 'Nypro'
-   ]
-   list(candidate.index) # 1, 2
-   let aditya = Str Int Int ["Aditya Singh", 19, 6.2]
-   let aditya = name, age, height Str Int Int ["Aditya Singh", 19, 6.2]
+    # the major diff between dict and tuple is that
+    # tuples are not key based and don't have colon after their "key" element
+    mut tup = ['Tola', 1.2, 50, 'Tola']
+    mut dict = [
+        'Peter Parker'   : 'Spider-man'     , 20 |
+        'Steve Rogers'   : 'Captain America', 32 |
+        'Tchaka Tchalla' : 'Black Panther'  , 29
+    ]
+    let candidate = index, name [
+        1 : 'Aditya' |
+        2 : 'Nypro'
+    ]
+    list(candidate.index) # 1, 2
+    let aditya = Str Int Int ["Aditya Singh": 19, 6.2]
+    let aditya = (name, age, height) Str Int Int ["Aditya Singh", 19, 6.2]
 
 
 ARRAY SLICING
@@ -181,15 +190,15 @@ ARRAY SLICING
    print(arr[1:3]) # first index to the third
    print(arr[:5]) # first index to the 5th index
    print(arr[3:_last]) # 3rd index to the last
-   print(arr[-3:]) # from the 3rd index but backwards
+   print(arr[-3:]) # from the 3rd index starting from the back
    newArr = arr[:] # all elements
    list(arr[_last:]) # list from behind
 
 
 MULTIDIMENSIONAL ARRAY
     mut arr = [,]
-    mut arr = [2, 2] [1, 2 | 3, 4]
-    let arr = [2, 2, 2] Int [1, 2 | 2, 3 || 4, 5 | 6, 7]
+    mut arr = 2x2 [1, 2 | 3, 4]
+    let arr = 2x2x2 Int [1, 2 | 2, 3 || 4, 5 | 6, 7]
     mut arr = [1, 2 | 3, 4]
     list(arr [:])
     list(arr[2, ]) # list columns in row 2
@@ -207,24 +216,16 @@ MULTIDIMENSIONAL ARRAY
     # 2 4
 
 
-RAGGED ARRAY # is untidy !! Needs review
-   mut arr = [2, ]
-   mut arr = [0, +2]
-   mut arr = [1, +3]
-   mut arr = [0, 0, +3] ; arr = [0, 1, +3]
-   mut arr = [1, 0, +4] ; arr = [1, 1, +5] ; arr = [1, 2, +6]
-
-
 ACCESSING ARRAYS
     list = Person[("Dave", 25), ("Tony", 45), ("Spencer", 18)]
     mut names = list.[name] # returns a list of name fields in the list
     mut ages = list.[age] # returns a list of age fields in the list
 
 
-ARRAY OBJECT OPERATIONS
-   arr1 == arr2
-   arr1 < arr2
-   arr3 = arr1 / 2
+ARRAY OBJECT ARITHMETIC AND COMPARISON OPERATIONS
+    # Operations are element-wise
+    if arr1 == arr2: list(arr1)
+    let arr3 = arr1 / arr2
 
 
 MATRIX-VECTOR OPERATIONS # column major order
@@ -251,8 +252,8 @@ STRING TYPE
 STRING INTERPOLATION
    mut name = 'Pluto'
    mut time = 2015
-   mut tap = '[name] is a language started in [time]'
-   mut tin = 'Hello #= Beautiful =# World'
+   mut msg = '[name] is a language started in [time]'
+   mut hello = 'Hello #= Beautiful =# World'
    print("This is a number: ", 4)
 
 
@@ -286,7 +287,7 @@ VERBATIM STRING
    """Use \t for tab and \n for newline"""
 
 
-CONTINUE ON NEXT line
+CONTINUATION ON NEXT LINE
     let men = length == 0 ? 25 $ 0
     let mune = length == 1 ? \
         25 $ 0
@@ -379,11 +380,11 @@ CONDITION LIST
    ..
 
 
-CONDITIONAL MULTIPLEX OPERATOR
-   # single expression ternary operator
+CONDITIONAL TERNARY OPERATOR
    mut myVar1 = myBool == true ? 5 $ 6
    def divide(num, denom): rt denom == 0 ? nan $ num / denom
-   salary = (workYears > 5 ? 10_000 $ 1_000) * rank # when conditional multiplex operator appears within an expression it must be bracketed
+   salary = (workYears > 5 ? 10_000 $ 1_000) * rank # when conditional ternary expression appears
+   # within another expression, it must be bracketed
 
 
 RANGE
@@ -393,8 +394,7 @@ RANGE
 
 THRU
    for x thru [1:20 - 1)]: print(x)
-   mut y = for x thru [1:30]: x # a for comprehension that returns a list of 1 to 30
-   # same as
+   mut y = for x thru [1:30]: x # a for comprehension that returns a list of 1 to 30 same as
    mut y = [1:30]
 
 
@@ -429,19 +429,19 @@ NOT IN
    mut arr = for x thru [1:30] => x not in [2:5]: x * 3
 
 
-NIL CONDITION
+NIL CONDITION AND OPERATOR
    if mySalary = getSalary(): buyNewHouse() $ else: borrow() # if variables are implicitly mutable
    if let mySalary = getSalary(), let myAllowance = getAllowance(): party()
    # if any of the if variables is nil, the if block will be skipped
    # unless there is an else block
    if let name = getChars() => name.characters.count in [4:15]:
-      print ('hello')
-   if x = getStr(): print(x) $ else : print('x is nil')
-   mut someone = person.getData().getAge() ? _ $ printErr('someone is no one') # problematic if subject of op is a bool object
+      print('hello')
+   if x = getStr(): print(x) $ else: print('x is nil')
+   mut someone = person.getAge() ? _ $ printErr('someone is no one') # problematic if subject of op is a bool object
    # better
-   mut someone = person.getData().getAge() == nil ? _ $ printerr('someone is no one')
+   mut someone = person.getAge() == nil ? _ $ printerr('someone is no one')
    # better still
-   mut someone = person.getData().getAge() ?? printerr('someone is no one')
+   mut someone = person.getAge() ?? printerr('someone is no one')
 
    mut penny = purse.change() ?? 0 # expression returns 0 if purse.change() returns nil
    mut myName = me.name ?? "Unknown"
@@ -506,8 +506,8 @@ RETURNING A VALUE
    ..
 
 
-EXPRESSION LANGUAGE
-# Pluto is an epression, the last expression in a block is always returned
+EXPRESSION
+    # Pluto is an epression-based language. If an exprssion evaluates to something, it is returned
     let myBool = myName == "Nypro"
     def add(a, b): rt a + b
     # or
@@ -529,7 +529,7 @@ EXPRESSION LANGUAGE
 
 
 GLOBAL FUNCTIONS
-   # Pluto contains a lot of helpful global methods
+   # Pluto comes with some helpful global methods
    mut str = "Hello"
    length(str)
    typeMin(25)
@@ -537,10 +537,10 @@ GLOBAL FUNCTIONS
 
 
 LIST DECLARATION IN METHOD PARAMETER
-   def add(a, b): a + b # params without types are nil by default unlike normal variables
-   def add(a, b = Int): rt a + b # a is nil, b is Int
+   def add(a, b): a + b # parameters a and b are dynamic, their types are known at run-time or inferred at compile-time.
+   def add(a, b = Int): rt a + b # a is dynamic, b is Int
    def add(a b =  Int): rt a + b # both a and b are Int, = is left associative here
-   def add4(a b, c d = Int) Int: # a and b are nil, c and d are Int
+   def add4(a b, c d = Int) Int: # a and b are dynamic, c and d are Int
       rt a + b + c + d
    ..
 
@@ -550,7 +550,7 @@ CONSTANT PARAMETER
    def add(let a, let b): c = a + b ; rt c
    # or
    def let add(mut a, mut b): c = a + b ; rt c
-   # not just the params, local vars are also constant by default
+   # with this, not just the params, but the local vars are also constant by default
 
 
 ARGUMENT NAMING
@@ -579,7 +579,7 @@ COMPOUND METHODS
 
 VARIADIC PARAMETERS
    def sum(first = Int, others = Int []):
-      tmp = first + arr
+      mut tmp = first + arr
       for x thru arr:
          tmp += x
       ..
@@ -600,8 +600,8 @@ VARIADIC PARAMETERS
 
 MUTATIVE FUNCTIONS
    def add(x, y): a + b
-   <T> def swap!(x y = ref  T): x, y = y, x # use exclamtion mark for functions that can change values
-
+   <T> def swap!(x y = ref  T): x, y = y, x # use exclamtion mark for functions
+   # that can mutate objects passed to them
    mut tip = add(2, 3)
    mut top = add(4, 5)
    swap!(tip, top)
@@ -666,7 +666,7 @@ FUNCTION OBJECTS
 
 CLOSURES
    def outer():
-      a = 6
+      mut a = 6
       rt def (b = Int) : a + b # a closure can access variables in outer scope
    ..
    mut add = outer
@@ -763,7 +763,7 @@ COROUTINES
     coroutine.reset() # resets the coroutine
     list(coroutine()) # [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
-    # Simuated sequential co-routine using sticky variables
+    # Simulated sequential co-routine using sticky variables
     def addUp(a, b):
         mut sticky x
         if x == _init:
@@ -816,9 +816,10 @@ CONSTRUCTOR
 
 CONSTRUCTOR CLASSES
     # Constructor classes have only one constructor and an optional set of parameters that are also the only fields of the class
+    # These fields are mutable by default and are always public.
     type Person (name, age)
     mut dave = Person("Dave", 45)
-    mut dave.age = "David"
+    dave.age = "David"
 
 
 SELF REFERENCE
@@ -839,31 +840,34 @@ USING A FUNCTION AS METHOD
    mut nigel = Person("Nigel Nicargua")
    show(nigel)
    mut nigel.show() # using show funtion like a method since Person is the first argument
-
+   # you can also use it on objects directly
+   mut a = Person("Nigel Nicargua").getDetail()
+   mut b = "hello".upper()
+   mut c = 25_000.divideBy(x) # Don't do this though. :)
+   mut d = (2f/4f).floor()
    # if a method directly follows its type, then its first parameter can be skipped with a comma
    type Person (name, age)
    def getName(,): .name
    def setName(, name = Str): .name = name
 
 
-
 DESTRUCTORS
-   type Car:
-      mut name, model = Str
-      def (name)
-      def (name, model)
-      def (!) : # Destructor implicitly contains a first parameter of type Car
-         print('Object Deleted!')
-   ..
+    type Car:
+        mut name, model = Str
+        def (name)
+        def (name, model)
+        def (!) : # Destructor implicitly contains a first parameter of type Car
+            print('Object Deleted!')
+    ..
 
 
 MODIFIERS IN CLASS
-- No public modifer, members are all public by default
-   mut priv a = 10
-   let pack b = 'HELLO'
-   mut pass a = true # synon with protected
-   let prod let x = 5f # synon with internal
-- proj(ect), prod(uction), prog(ram) clashes with prot(ected)
+    # No public modifer, members are all public by default
+    mut priv a = 10
+    let pack b = 'HELLO'
+    mut pass a = true # synon with protected
+    let prod let x = 5f # synon with internal
+    # proj(ect), prod(uction), prog(ram) clashes with prot(ected)
 
 
 MODIFIERS CAN BE ON CLASSES AND METHODS Took
@@ -873,7 +877,7 @@ MODIFIERS CAN BE ON CLASSES AND METHODS Took
    def prod createSession() # is accessible only to production unit
 
 
-PACKAGE ACCESS LEVEL # Will Remove this, it looks dangerous!!!
+PACKAGE ACCESS LEVEL # Might remove this, it looks dangerous!!!
    mut pack< date = Date
    mut pack>> isbn = Long
 
@@ -884,7 +888,7 @@ READ-ONLY WRITE-ONLY ACCESS
 
 
 MODIFIER BLOCK
-   # modifier block is the only block in Pluto that may not be indented
+   # modifier block is the only block in Pluto that may not be indented and it doesn't create a scope
    mod priv let :
    mut x = 4.5f
    mut y = 2.5f
@@ -902,7 +906,7 @@ MODIFIER BLOCK
 
 
 MODIFIERS IN LIST DECLARATION
-  mut priv let i, j = Int
+    mut priv let i, j = Int
 
 
 PROPERTIES / GETTERS SETTERS
@@ -920,19 +924,28 @@ PROPERTIES / GETTERS SETTERS
 
 
 TYPE CHECKING
-   if myCar == Car._exact:
-      print('Type is a Car')
-   ..
-   if myCar == Car._sub :
-      print('Type is a sub-class of Car')
-   ..
-   if myCar == Car._super :
-      print('Type is a super-class of Car')
-   ..
-   type Transportation<T[Vehicle._sub]>:
-      myVehicle1 = T
-      myVehicle2 = T
-   ..
+    # Is
+    if myCar === Car:
+        print('myCar is a Car or its subtype')
+    ..
+    if myCar ==: Car:
+      print('myCar is a Car ')
+    ..
+    if myCar =<: Car:
+      print('myCar is a subtype of Car')
+    ..
+    if myCar =>: Car:
+      print('myCar is a supertype of Car')
+    ..
+    # Is Not
+    if phone !== Phone:
+        print("phone is not a Phone or its subtype")
+    if phone !=: Phone:
+        print("phone is not a Phone")
+    if phone !<: Phone:
+        print("phone is not a subtype of Phone")
+    if phone !>: Phone:
+        print("phone is not a supertype of Phone")
 
 
 IMPORT / USING STATEMENT
@@ -1001,7 +1014,7 @@ STICKY LOCAL VARIABLES
 
 HOLD VARIABLES IN LOOPS
    for x thru [1:50]:
-      hold x = 1
+      mut hold x = 1
       print(x * y)
       x++
    ..
@@ -1035,7 +1048,7 @@ INHERITANCE # Not Finalized!
 
 
 COVARIANCE
-    # Pluto supports covariance, it is however not contravariant
+    # Pluto supports covariance by default
     type Person (name = Str, age = Int)
     def showDetails(,): print("name: [.name], .age: [.age]")
     type Engineer (type = Str) [Person]
@@ -1078,7 +1091,7 @@ CALLING SUPER
         mut kind = Str
         def priv (job)
         def (name, age, kind):
-            super(name, age) # calls the parent constructor to in
+            super(name, age) # calls the parent constructor to initilize parameters
             self(kind)
         ..
     ..
@@ -1092,16 +1105,17 @@ CALLING SUPER
 
 
 VIRTUAL METHODS
-   def respond(a = Listener) # a method without a body is implicitly virtual and cannot be called
+   def respond(a = Listener) # a method without a body is implicitly virtual and cannot be called however.
+   # constructors cannot be virtual and therefore use the same syntax for shortening initialisation
    def respond(a = ButtonListener) # error, a virtual super method can't be overriden by a virtual sub method
 
 
 OVERRIDING METHODS
-Pluto does not, currently, have an override keyword. Methods are overriden implicitly
-This might cause some unexpected problems. Important super methods could be overiden without knowing
-I'm going to look into the problem later
-   def play(a = Player): .start()
-   def play(a = DigitalPlayer): .startAt(0) # this play overrides its super method implicitly
+    # Pluto does not, currently, have an override keyword. Methods are overriden implicitly
+    # This might cause some unexpected problems. Important super methods could be overiden without knowing
+    # I'm going to look into the problem later
+    def play(a = Player): .start()
+    def play(a = DigitalPlayer): .startAt(0) # this play overrides its super method implicitly
 
 
 COVARIANT OVERRIDE
@@ -1119,7 +1133,7 @@ ABSTRACT TYPES
    type DigitalPlayer [Player]
 
 
-DOWNCASTING ! Needs review
+DOWNCASTING
   # assuming Movie and Song extends MediaItem
    library = MediaItem [Movie("Zack Snyder's Sucker Punch"), Song("Lazy - Bruno Mars"), Song("Radioactive - Imagine Dragons"), Movie("Zack Snyder's 300")]
    for item thru library:
@@ -1132,15 +1146,15 @@ DOWNCASTING ! Needs review
 
 
 CONSTANT CLASS
-   type let MyClass:
+   type let MyType:
       x = 'is immutable'
       mut y = 'is mutable'
    ..
 
 
 UNINHERITABLE CLASS
-   type solo MyClass:
-      x = 'Class Cannot Be Inherited'
+   type solo MyType:
+      x = 'Type Cannot Be Inherited'
    ..
 
 
@@ -1174,7 +1188,7 @@ GENERICS
 ENUMS
     # enum is an abstract type that contains ONLY its subtypes.
     # its subtypes are all constructor types and only extend the enum
-    # lso an enum object expects a subtype as value
+    # also an enum object expects a subtype as value
     enum Friends: Deji, Tosin, Tola # Deji, Tosin and Tola are parameterless conctructor types
     match whichFriend(f = Friend):
         case Deji : print("This is Deji")
@@ -1185,7 +1199,7 @@ ENUMS
     enum Number: IntegerNumber(i <: Integer), RealNumber(r <: Real) # IntegerNumber and RealNumber are constructor types
 
     # You can access an enum subtype using the access operator
-    mut sym = Friends[1]
+    mut sym = Friends[1] # I can't conclude whether this returns a Symbol object or a DataType object yet.
     # Iterating thru enum
     for x thru Friends:
         print(x)
@@ -1228,21 +1242,15 @@ EXPLICIT TYPE CASTING
 
 
 STACK EXPRESSION
-   let a = add (x, y) >>> subtract(_, z) # tmp represent the value passed from preceding method
+   let a = add (x, y) >>> subtract(_, z) # '_' represent the value passed from preceding method
    let a = subtract(_, z) <<< add (x, y) # same as above
 
 
 MOVE SEMANTICS
-- Move feature is automated in Pluto in any place where it is possible.
-- But you can still explicitly specify it.
-   let y = getPerson('Californio')._move
-
-
-CONCURRENCY
-- All singular (_var+) and associative (_var+=) operations on variables are atomic by default.
-- In an assignment or initialisation operation. The whole expression is singularly atomic
-- Variables are volatile by default
-- And methods are sychronised by default
+    # Move feature is automatic in areas where it makes sense to do so.
+    # for example, returning a value (not reference) to a variable
+    # But you can still explicitly specify it.
+    let y = move getPerson('Californio')
 
 
 ATOMIC EXPRESSION
@@ -1267,7 +1275,7 @@ ATOMIC BLOCKS
 
 
 OPERATOR OVERLOADING
-   # !! REVISION NEEDED
+   # Old
    _var++ ():
       value++
    ..
@@ -1365,15 +1373,15 @@ TRY & ASSOCIATES
 
 
 ERR
-Err stops application whenever it is evoked
-   if num and den == 0:
-      err DivideByZeroErr()
-   ..
+    # Err stops application whenever it is evoked
+    if num and den == 0:
+        err DivideByZeroErr()
+    ..
 
 
 ASSERTION
-   @assert(x == nil, "Hello")
-   @assert(x == nil)
+    @assert(x == nil, "Hello")
+    @assert(x == nil)
 
 
 ITERATORS (?)
@@ -1383,46 +1391,46 @@ FLOATING POINT BITWISE OPERATORS (?)
 
 
 HINTS
-   @deprecated:
-      msg: "MediaPlayer class should be used instead"
-   @stub
-   @if (platform: "Mac"): print("This is a Machintosh Computer") $ @endif
-   #------------------------------------
-   @compiler # evaluated at compile-time
-   @linker # evaluated at link-time
-   @runtime # evaluated at runtime
-   @if: [] # evaluated at compile, link and run time
+    @deprecated:
+        msg: "MediaPlayer class should be used instead"
+    @stub
+    @if (platform: "Mac"): print("This is a Machintosh Computer") $ @endif
+    #------------------------------------
+    @compiler # evaluated at compile-time
+    @linker # evaluated at link-time
+    @runtime # evaluated at runtime
+    @if: [] # evaluated at compile, link and run time
 
 
 COMPILER HINT
-   @compiler:
-      typing = "static"
-      variable = "immutable"
-      warn_me = {
-         unimplemented_inherited_functions
-         unimplemented_inherited_fields
-         }
-   ..
+    @compiler:
+        typing = "static"
+        variable = "immutable"
+        warn_me = {
+            unimplemented_inherited_functions
+            unimplemented_inherited_fields
+        }
+    ..
 
 
 NON-STANDARD STRING LITERAL HINT
-   myRegex = re"^(\w+)$"
-   @strLiteral:
-      re: {Regex(_str)}
+    myRegex = re"^(\w+)$"
+    @strLiteral:
+        re: {Regex(_str)}
 
 
 METAVARS CONTEXT SPECIFIC ENVIRONMENT
-   arr[_last] = 20
-   if(x == _even)
-   match check30DayMonth(month = Month):
-      case _.value == 4 : print("This is April, a 30-day Month!")
-      case _.value == 6 : print("This is June, a 30-day Month!")
-      case _.value == 9 : print("This is September, a 30-day Month!")
-      case _.value == 11 : print("This is November, a 30-day Month!")
-      print("Not a 30-day Month!")
-   ..
-   sum = add(a, b) >>> add(_, x)
-   tip = def set(a = Int): _ = 25 $ def get(): rt _
+    arr[_last] = 20
+    if(x == _even)
+    match check30DayMonth(month = Month):
+        case _.value == 4 : print("This is April, a 30-day Month!")
+        case _.value == 6 : print("This is June, a 30-day Month!")
+        case _.value == 9 : print("This is September, a 30-day Month!")
+        case _.value == 11 : print("This is November, a 30-day Month!")
+    print("Not a 30-day Month!")
+    ..
+    mut sum = add(a, b) >>> add(_, x)
+    mut tip = def set(a = Int): _ = 25 $ def get(): rt _
 
 
 LIST OF METAVARS
@@ -1439,13 +1447,13 @@ REFLECTION
    # dynmically determining which class to use
    @if (stage = "runtime", condition = "Main.useOldClass == true"): # ????
     type Class:
-      value = def set(x Str): _ = x $ def get(): rt _
+      mut value = def set(x Str): _ = x $ def get(): rt _
       def (value)
     ..
    @else
     type Class:
-      str = def set(x Str): _ = x $ def get(): _
-      num = def set(x Float64): _ = x $ def get(): _
+      mut str = def set(x Str): _ = x $ def get(): _
+      mut num = def set(x Float64): _ = x $ def get(): _
       def (str)
       def (num)
     ..
@@ -1453,248 +1461,249 @@ REFLECTION
 
 
 MACROS
-   @macro subtract(a, b):
-      a - b
-   ..
-   dune = @subtract(50, rune)
+    @macro subtract(a, b):
+        a - b
+    ..
+    mut dune = @subtract(50, rune)
 
 
 COMPLEX, QUATERNION DECLARATION
-   x = 5 + 2i # complex
-   y = 5 + 2i + 3j + 4k # quaternion
+    mut x = 5 + 2i # complex
+    mut y = 5 + 2i + 3j + 4k # quaternion
 
 
 MATHEMATICAL EXPRESSION
-    top = m{3x - 2y/5 + r(d^5)} # operator precedence still applies
-    tip = m{3x y z^2} # when there is no operator between 2 operands, multiplication is assumed
-    pat = m{4y - 2x(z^2) getSalary()} # you can use functions and variables directly
-    pet = m{4d 5f} # MathExpr doesn't support numeric literals with type prefix. 4d and 5f here means 4 * d * 5 * f
-    pot = m{5y [getSalary().round()] 3e-1 + [4d]} # for complex lang expressions you need to use []. 4d here means a Double literal
+    let top = m{3x - 2y/5 + r(d^5)} # operator precedence still applies
+    let tip = m{3x y z^2} # when there is no operator between 2 operands, multiplication is assumed
+    mut pat = m{4y - 2x(z^2) getSalary()} # you can use functions and variables directly
+    mut pet = m{4d 5f} # MathExpr doesn't support numeric literals with type prefix. 4d and 5f here means 4 * d * 5 * f
+    mut pot = m{5y [getSalary().round()] 3e-1 + [4d]} # for complex lang expressions you need to use []. 4d here means a Double literal
 
 
 SYMBOL, EXPR, HOMOICONICITY & OTHER SYMBOLIC CLASSES
-   # Symbol
-   # delimited by spaces and commas
-   # interpolated using "[]"
-   # can alo be nested {x, {y, b}}
-   buck = {1}
-   back = {1 2 3}
-   beak = {"hello ", [name]}
-   bean = {hello {hi {halo}}}
-   # Functions
-   foo = Func{Int Int : Bool}
-   # Expressions
-   pet = Expr({call}, {+}, 1, ({call}, {*}, 2, 3))
-   # or better
-   pat = Expr{call, +, 1, {call, *, 2, 3}}
-   exp = parse("1 + 2 + 3")
-   ingrid = eval(exp)
-   parse(pat)
-   ma = m{3x - 2y/5 + r(d^5)}
+    # Symbol
+    # delimited by spaces and commas
+    # interpolated using "[]"
+    # can also be nested {x, {y, b}}
+    mut buck = {1}
+    mut back = {1 2 3}
+    let beak = {"hello ", [name]}
+    let bean = {hello {hi {halo}}}
+    # Functions
+    let foo = Func{Int Int : Bool}
+    # Expressions
+    mut pet = Expr({call}, {+}, 1, ({call}, {*}, 2, 3))
+    # or better
+    mut pat = Expr{call, +, 1, {call, *, 2, 3}}
+    mut exp = parse("1 + 2 + 3")
+    mut ingrid = eval(exp)
+    parse(pat)
+    mut ma = m{3x - 2y/5 + r(d^5)}
 
 
 CPLUSPLUS SYMBOL
-   str = cpp{ void add(int a, int b) {return a + b;}}
-   parse(str)
-   sum = str.add
-   brim = sum(1, 3)
+    mut str = cpp{ void add(int a, int b) {return a + b;}}
+    parse(str)
+    let sum = str.add
+    mut brim = sum(1, 3)
 
 
 NON-STANDARD SYMBOL LITERAL HINT
-    str = cpp{ void main() {printf("Hello")}}
+    mut str = cpp{ void main() {printf("Hello")}}
     @symLiteral:
         cpp= {Cpp(_str.toStr())}
 
 
 NUMERIC CLASS
-   x = UInt.max()
-   y = Int32.min()
-   z = m{2x + 4y/3}.round() + (24.25/4).floor()
+    let x = UInt.max()
+    let y = Int32.min()
+    mut z = m{2x + 4y/3}.round() + (24.25/4).floor()
 
 
-RATIO CLASS RATIONAL NUMBERS
-   xianghou = 2//3
-   dean = x.toFloat() # rational format can be changed to fp
-   bean = 4//6 ; print(y) # 2//3
-   4//2 == 1//2 # true
-   4//2 == 0.5 # true
+RATIONAL CLASS
+    mut xianghou = 2//3
+    mut dean = x.toFloat() # rational format can be changed to fp
+    mut bean = 4//6 ; print(y) # 2//3
+    4//2 == 1//2 # true
+    4//2 == 0.5 # true
 
 
 RAW CLASS
-   # bits stored in multiples of 8
-   bits8 = Raw<8>
-   bits16 = Raw<16>
+    # bits stored in multiples of 8
+    let bits8 = Raw<8>
+    let bits16 = Raw<16>
 
 
 INTEGER BITWISE OPERATORS
-   myVar = 2.&2 # and
-   myVar1 = 2.|2 # or
-   myVar3 = ~2 # exclusive or
+    mut myVar = 2.&2 # and
+    mut myVar1 = 2.|2 # or
+    mut myVar3 = ~2 # exclusive or
 
 
 SHIFT OPERATORS
-   myVar = 4<<1
-   myVar = 2>>2
+    mut myVar = 4<<1
+    mut myVar = 2>>2
 
 
 BINARY LITERALS
-   myVar = 0b11001001
+    mut myVar = 0b11001001
 
 
 HEXADECIMAL LITERALS
-   myVar = 0x5eff77
+    let myVar = 0x5eff77
 
 
 OCTAL LITERALS
-   myVar = 0o56773
+    mut myVar = 0o56773
 
 
 UTF-8 CHARACTERS
-   char = '\u6E'
+    let char = '\u6E'
 
 
 CLASSES OF OBJECTS
-   Obj (0.7), Any (0.8)
-   Func (0.7)
-   Var (0.7)
-   Array (0.7)
-   Dict (0.7)
-   Exp (0.7), Expr(0.8.2)
-   Nil (0.4), None (0.8.1)
-   Symbol(0.7)
+    Obj (0.7), Any (0.8)
+    Func (0.7)
+    Var (0.7)
+    Array (0.7)
+    Dict (0.7)
+    Exp (0.7), Expr(0.8.2)
+    Nil (0.4), None (0.8.1)
+    Symbol(0.7)
 
 
 PREDEFINED TYPES # These types are optimized as part of the lang
-   Int, Int16, Int32, Int64
-   UInt, UInt16, UInt32, UInt64
-   Float16(0.8.2), Float/Float32 (0.4), Float64/Double (0.6.1)
-   Bool (0.4)
-   Str (0.4), String (0.6.1), Str (0.8.1)
-   Char
-   Byte
-   SByte
-   Comp, Comp128
-   Quat, Quat256
-   Num (0.4) # redefined in 0.8.1 # (combines the features of BigInt, BigFloat)
-   Ratio
-
-
-NUMERIC LITERALS
-   8
-   64u64
-   -255i16
-   4089b
-   1024sb
-   512f
-   0d
-   123.0
-   123.4
-   123.4f
-   123.4
-   1.234e-2
-   1.234e-2f
-   .1 # 0.1
-   1. # 1.0
+    Int, Int16, Int32, Int64
+    UInt, UInt16, UInt32, UInt64
+    Float16(0.8.2), Float/Float32 (0.4), Float64/Double (0.6.1)
+    Bool (0.4)
+    Str (0.4), String (0.6.1), Str (0.8.1)
+    Char
+    Byte
+    SByte
+    Comp, Comp128
+    Quat, Quat256
+    Num (0.4) # redefined in 0.8.1 # (combines the features of BigInt, BigFloat)
+    Ratio
 
 
 LOGICAL vs BITWISE OPERATORS
-   ! & |
-   ~ .& .|
+    ! & |
+    ~ .& .|
 
 
 KEYWORDS
-   stick (0.4) sticky  (0.6.1)
-   # pub (0.4) public (0.6.1) pub
-   priv (0.4) private (0.6.1) priv
-   pro (0.4) protected (0.6.1) prot
-   pack (0.4) package (0.6.1) pack
-   pass (0.7.5)
-   class (0.4)
-   rt (0.7.2)
-   def (Rev 0.5.2), def (0.8.2) # reintroduced
-   let (Rev 0.5.2)
-   get (Rev 0.5.2)
-   set (Rev 0.5.2)
-   as (0.8)
-   if
-   else
-   elsif
-   while  (0.6.1)
-   eval (Rev 0.5.2) match (0.8.1)
-   for
-   do
-   until (0.6.1)
-   next (0.6.1)
-   break
-   label (0.7.0)
-   use (0.5.2), use (0.8.2) # reintroduced
-   # fixed
-   thru (0.8)
-   in(0.7.2)
-   skip(0.8)
-   ensure (0.8)
-   try
-   except
-   self
-   mut (0.8)
-   nan (0.8)
-   nil
+    stick (0.4) sticky  (0.6.1)
+    # pub (0.4) public (0.6.1) pub
+    priv (0.4) private (0.6.1) priv
+    pro (0.4) protected (0.6.1) prot
+    pack (0.4) package (0.6.1) pack
+    pass (0.7.5)
+    class (0.4)
+    rt (0.7.2)
+    def (Rev 0.5.2), def (0.8.2) # reintroduced
+    let (Rev 0.5.2)
+    get (Rev 0.5.2)
+    set (Rev 0.5.2)
+    as (0.8)
+    if
+    else
+    elsif
+    while  (0.6.1)
+    eval (Rev 0.5.2) match (0.8.1)
+    for
+    do
+    until (0.6.1)
+    next (0.6.1)
+    break
+    label (0.7.0)
+    use (0.5.2), use (0.8.2) # reintroduced
+    # fixed
+    thru (0.8)
+    in(0.7.2)
+    skip(0.8)
+    ensure (0.8)
+    try
+    except
+    self
+    mut (0.8)
+    nan (0.8)
+    nil
 
 
 
 OPERATORS
-   +
-   -
-   *
-   /
-   // # for ratios
-   ^
-   %
-   --
-   ++
-   =
-   +=
-   -=
-   *=
-   /=
-   //=
-   ^=
-   %=
-   ==
-   !=
-   ===
-   !===
-   !
-   >
-   <
-   >=
-   <=
-   &
-   |
-   ~
-   .|
-   .&
-   >>
-   <<
+    +
+    -
+    *
+    /
+    // # for ratios
+    ^
+    %
+    --
+    ++
+    =
+    =:
+    <:
+    >:
+    +=
+    -=
+    *=
+    /=
+    //=
+    ^=
+    %=
+    ==
+    !=
+    ===
+    !==
+    ==:
+    !=:
+    =<:
+    !<:
+    =>:
+    !>:
+    !
+    >
+    <
+    >=
+    <=
+    &
+    |
+    ~
+    .|
+    .&
+    >>
+    <<
 -   '
-   .=
+    .=
 
 
 SYNTACTIC SYMBOLS
-   |, $ (0.8.2)
-   *
-   ~
-   @
-   .
-   :
+    |, $ (0.8.2)
+    ;
+    @
+    :
+    ..
 
 ---------------! NOTES !------------------------
 VARIABLE BINDING
-- Variables can only be bound to a type once.
-- Unlike Julia or Python, a variable can't be associated with more than one concrete type through out its life time
-   pat
-   pat = 25
-   pat = "Hello" # error! pat already bound to Int32
+- The default assignment binds a variable to None and one more type, however due to
+- covariance, a variable can also be bound to the types subtypes
+- This behavior can be changed using other assignment operators
+    mut pat = Integer
+    pat = 25i16
+    pat = 750i32 # ok
+    pat = "Hello" # error! dat can only be bound to Integer and its subtypes
+    mut dat =: Integer
+    dat = Int16(25) # error! dat can only be bound to Integer
+
+
+CONCURRENCY (Still Needs Proper Review)
+- All singular +() and associative +=!() operations on variables are atomic by default.
+- In an assignment or initialisation operation. The whole expression is singularly atomic
+- Variables are volatile by default
+- And methods are sychronised by default
 
 
 CONDITIONALS
@@ -1724,12 +1733,12 @@ SUBJECT OF OPERATIONS
 
 AUTOMATIC REFERENCE COUNTING
 - There can only be one strong ref to an object
-   type Skeleton:
-      bones List<own Bone> # bones contain a list of strong Refs to Bone objects
-   ..
-   type Bone:
-      skel Skeleton
-   ..
+    type Skeleton:
+        bones List<own Bone> # bones contain a list of strong Refs to Bone objects
+    ..
+    type Bone:
+        skel Skeleton
+    ..
 
 
 DECLARATIVE PLUTO ".deplu" #27/06/16
@@ -1751,29 +1760,29 @@ DECLARATIVE PLUTO ".deplu" #27/06/16
 
 
 DUCK TYPING EXAMPLES
-   c
-   a = 25
-   b = [1, 2, 3, 4, 5] # array
-   c = [1, 2, 3 | 4, 5, 6] # multi dimen array
-   d = ['Hello', 25, 1.3f, 'Hi'] # table
+   mut c
+   mut a = 25
+   mut b = [1, 2, 3, 4, 5] # array
+   mut c = [1, 2, 3 | 4, 5, 6] # multi dimen array
+   mut d = ['Hello', 25, 1.3f, 'Hi'] # table
    def getArea(length, breadth):
       length * breadth
    ..
-   length = 10
-   breadth = 25
-   rectangleArea = getArea(length, breadth)
+   mut length = 10
+   mut breadth = 25
+   mut rectangleArea = getArea(length, breadth)
 
 
 NESTED ASSIGNMENT
 - Pluto does not support nested assignments.
-   tip = 5
-   tap = (tip *= 5)
+   mut tip = 5
+   mut tap = (tip *= 5)
 
 
 NIL VARIABLES
 - Access to nil variables should be caught at compile time.
 - Run-time ones are also caught, NilErr
-   x
+   mut x
    print(x) # raises NilErr
    print(x ?? "Error! x is nil")
 
@@ -1810,3 +1819,24 @@ PUNCTUATION
 - Pluto needs proper use of indentations and newline to compile successfully
 - This makes code reformatable to original when copied with newlines stripped.
 - Pluto only supports 4-space identation
+
+
+UTILITIES
+IDE
+- The REPL
+- Advanced Refactoring
+- Code Completion
+- Render/Plot View
+-------------------
+Network and Streams
+- terminals
+- files
+- TCP sockets
+- pipes
+-------------------
+Virtual Machine
+- PlutoMine
+-------------------
+Compilers
+- AOT and JIT Compilers.
+- Static and Dynamic Analysis.

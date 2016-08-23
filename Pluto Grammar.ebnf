@@ -1,0 +1,41 @@
+#22/08/16
+(*TYPES*)
+type_definition =
+    "type" type_modifier identifier parameter_enclosure {inheritance_declaration}
+
+type_modifier =
+
+inheritance_declaration =
+
+
+
+(*FUNCTIONS*)
+function_definition = def function_modifier identifier parameter_enclosure
+
+
+function_modifier =
+
+parameter_enclosure = "(" parameter ")"
+
+parameter =
+
+(*VARIABLES*)
+variable_declaration =
+
+
+expression =
+
+
+function_call =
+
+
+literal =
+
+
+identifier =
+
+
+token =
+
+
+primitive_operators =
