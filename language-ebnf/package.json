@@ -1,0 +1,17 @@
+{
+  "name": "language-ebnf",
+  "version": "0.0.0",
+  "description": "EBNF support in Atom",
+  "engines": {
+    "atom": ">=0.174.0 <2.0.0"
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "bugs": {
+    "url": ""
+  },
+  "license": "MIT"
+}

@@ -156,7 +156,7 @@ repository:
             }
             # TYPES
             {
-                match: '\\b(?:AStr|Str|Char|Byte|SByte|Num|Int|Int32|Int64|Int16|UInt|UInt32|UInt64|UInt16|IFit|UIFit|Float|Double|Float16|Float32|Float64|Comp|Comp128|Quat|Quat256|Bool|Any|Func|Array|Dict|Indie|None)\\b',
+                match: '\\b(?:AStr|Str|Char|Byte|SByte|Num|Int|Int32|Int64|Int16|UInt|UInt32|UInt64|UInt16|IFit|UIFit|Float|Double|Float16|Float32|Float64|Comp|Comp128|Quat|Quat256|Bool|Any|Func|Array|Dict|Indie|Symbol|DataType|Expr)\\b',
                 name: 'support.type.pluto'
             }
             # LANG VARIABLES
@@ -166,12 +166,12 @@ repository:
             }
             # CONTROL FLOW
             {
-                match: '\\b(?:for|if|else|elsif|rt|while|repeat|match|case|until|do|use|loop|label|block|try|except|ensure|raise|next|break|skip|step|yield|take|run|import)\\b',
+                match: '\\b(?:for|if|else|elsif|rt|while|repeat|match|case|until|do|use|loop|label|op|block|try|except|ensure|raise|next|break|skip|step|yield|take|run|import)\\b',
                 name: 'keyword.control.pluto'
             }
             # MODIFIERS
             {
-                match: '\\b(?:sticky|abs|solo|const|priv|pack|pass|prod|prot|rpriv|rpack|rpass|rprod|rpub|wpriv|wpack|wpass|wprod|wprot|wpub|hold|nan|lock|iso|val|ref|own|move|read|to|from)\\b',
+                match: '\\b(?:sticky|abs|solo|const|priv|pack|pass|prod|prot|rpriv|rpack|rpass|rprod|wpriv|wpack|wpass|wprod|hold|nan|lock|iso|val|ref|own|read|to|from)\\b',
                 name: 'storage.modifier.pluto'
             }
             # CATEGORIES
@@ -394,9 +394,6 @@ repository:
                         include: "#string_interpolate"
                     }
                     {
-                        include: "#comment"
-                    }
-                    {
                         include: "#comments"
                     }
                 ]
@@ -432,4 +429,5 @@ repository:
                 include: '$self'
             }
         ]
+
 scopeName: "source.pluto"

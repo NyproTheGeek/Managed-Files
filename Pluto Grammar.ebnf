@@ -1,33 +1,66 @@
 #22/08/16
 (*TYPES*)
 type_definition =
-    "type" type_modifier identifier parameter_enclosure {inheritance_declaration}
+    "type" (type_modifiers)? identifier (generics)? (enclosed_constructor_parameters)? (inheritance_declaration)? (":")?
 
-type_modifier =
+type_modifiers =
+    (type_modifier1)? type_modifier2 | (type_modifier2)? type_modifier1
+
+type_modifier1 =
+    "let"
+
+type_modifier2 = (* Solo is not include, I'm cntemplating on removing the keyword*)
+    "sticky" | "abs"
+
+generics =
+    "<" (* TODO *)">"
+
+enclosed_constructor_parameters =
 
 inheritance_declaration =
-
+    "[" (identifier)+ "]"
 
 
 (*FUNCTIONS*)
-function_definition = def function_modifier identifier parameter_enclosure
+function_definition =
+    "def" (function_modifier)? (identifier)? (generics)? (enclosed_function_parameters)? (":")?
+    (*root function must have an identifier, closures cannot have generics*)
 
+function_modifier = "let"
 
-function_modifier =
+enclosed_function_parameters = "(" function_parameters_declaration ")"
 
-parameter_enclosure = "(" parameter ")"
+function_parameters_declaration =
 
-parameter =
 
 (*VARIABLES*)
 variable_declaration =
+
+lhs_variable_declaration =
+
+lhs_variable_declaration =
+    variable_modifiers identifier
+
+variable_modifiers =
+    variable_modifier1 (variable_modifier2)? variable_modifier3 |
+    variable_modifier1 (variable_modifier3)? variable_modifier2
+
+variable_modifier1 =
+    "mut" | "let"
+
+variable_modifier2 =
+    "sticky"
+
+variable_modifier3 =
+    "pack" | "priv" | "pass" | "prod" | "rpack" | "rpriv" | "rpass" | "rprod" | "wpack" | "wpriv" | "wpass" | "wprod"
 
 
 expression =
 
 
 function_call =
-
+    
+operation =
 
 literal =
 
@@ -36,6 +69,3 @@ identifier =
 
 
 token =
-
-
-primitive_operators =

@@ -32,10 +32,11 @@ SINGLE-LINE COMMENTS
 
 
 MULTILINE COMMENTS
-   #=
-   I'm Pluto
-   I'm cool
-   =#
+    #=
+    I'm Pluto
+    I'm cool
+    =#
+    # Pluto's will support nested multiline comments :)
 
 
 DOCUMENTATION
@@ -62,10 +63,7 @@ VARIABLE DECLARATION & INITIALIZATION
 
 
 SPECIFYING TYPES
-    # type specification in declaration refers to what types a variable can be bind to appart from None
-    # variables are generally bound to two types None and any other one type
-    # however type specification can extend the number of types a variable can be bound to
-    # p = None & ?
+    # type specification in declaration is used to specify what types a variable can be bind to
     mut p = Person # Person and Person's subtypes
     mut p =: Person # Person
     mut p <: Person # Person's subtypes
@@ -78,10 +76,8 @@ VARIABLES AND REFERENCES
     # see pass table below
     mut pet = own getObject() # pet now holds a sole strong ref to the object returned
     mut pet = iso getObject() # pet exclusively exclusively refers to the object returned (if it is a value object)
-    mut put = val pet # assigned by value
-    let pat = move put # ownership moved from put to pat, put is now nil
-    let pen = own move pat
-    mut pot = read pat # pot references object but cannot assign to it
+    let put = val pet # assigned by value
+    mut pot = read pat # read is a type of ref that allow reading only from referenced object
     # side effect of read:
     # if later in the future a variable is changed to read, it will lead to having to change code that have assigned to it, which can be a lot. :'(
     let pit = val put
@@ -98,12 +94,13 @@ VARIABLES AND REFERENCES
     let alm = ref add(val x, val y) # warning, return a val to a ref
 
     swap!(val a, val b)
+    # there is othing like ref iso or ref own, there is however val iso and val own.
+    mut x = ref iso getName() # error!
+    mut y = val own getName() # ok, y gets a copy of name and owns it.
 
 
 OPTIONAL TYPE DECLARATION
    mut myNumber = Str|Int
-   # every varaible is optional implicitly to None and one other type (and its subtypes)
-   # however this behavior is changeable using other assignment operators like =:, <:, etc.
    mut myNumber = '01000999'
    # might change the behavior below in the future
    mut myNumber = 23 # error! variable already bound to String
@@ -150,7 +147,7 @@ ARRAYS / LISTS
    # or better
    mut pot = []
 
-   mut pit = Array{Int, 3} # an Int array with the size of three
+   mut pit = Array<Int, 3> # an Int array with the size of three
    # or better
    mut pit = 3 Int []
 
@@ -176,11 +173,14 @@ DICTIONARIES / TUPLES
         'Steve Rogers'   : 'Captain America', 32 |
         'Tchaka Tchalla' : 'Black Panther'  , 29
     ]
-    let candidate = index, name [
+    let candidate = (index, name) [
         1 : 'Aditya' |
         2 : 'Nypro'
     ]
+    list(candidate.key(1)) # Aditya
     list(candidate.index) # 1, 2
+    list(candidate.name) # "Aditya", "Nypro"
+    list(candidate[1]) # 1, "Aditya"
     let aditya = Str Int Int ["Aditya Singh": 19, 6.2]
     let aditya = (name, age, height) Str Int Int ["Aditya Singh", 19, 6.2]
 
@@ -314,12 +314,32 @@ IF SATEMENT
 
 
 FOR LOOP
-   for i thru [1:10]: # a for variabe is always mutable
-      if  i % 2 == 0 :
-         print('[i] is an even number')
-      else :
-         next
-   ..
+    for i thru [1:10]: # for variables are implicitly hold and always mutable
+        if  i % 2 == 0 :
+            print('[i] is an even number')
+        else :
+            next
+    ..
+    # thru a dictionary
+    mut heroes = (realName, supeheroName, age) [
+        'Peter Parker'   : 'Spider-man'     , 16 |
+        'Steve Rogers'   : 'Captain America', 32 |
+        'Tchaka Tchalla' : 'Black Panther'  , 29
+    ]
+    for a thru heroes.realName:
+        for b thru heroes.key(a):
+            print(b)
+
+    let interestingNumbers = (title, numberList) [
+        "Prime": 2, 3, 5, 7, 11, 13     |
+        "Fibonacci": 1, 1, 2, 3, 5, 8   |
+        "Square": 1, 4, 9, 16, 25
+    ]
+    mut largest
+    for x thru interestingNumbers.title:
+        for y thru interestingNumbers.key(x):
+            if y > largest: largest = y
+
 
 
 LOOP
@@ -430,22 +450,26 @@ NOT IN
 
 
 NIL CONDITION AND OPERATOR
-   if mySalary = getSalary(): buyNewHouse() $ else: borrow() # if variables are implicitly mutable
-   if let mySalary = getSalary(), let myAllowance = getAllowance(): party()
-   # if any of the if variables is nil, the if block will be skipped
-   # unless there is an else block
-   if let name = getChars() => name.characters.count in [4:15]:
-      print('hello')
-   if x = getStr(): print(x) $ else: print('x is nil')
-   mut someone = person.getAge() ? _ $ printErr('someone is no one') # problematic if subject of op is a bool object
-   # better
-   mut someone = person.getAge() == nil ? _ $ printerr('someone is no one')
-   # better still
-   mut someone = person.getAge() ?? printerr('someone is no one')
+    # Nil is a universal literal. Every type has a nil literal. This means, unlike most langs, all Pluto's
+    # types are nullable. The programmer doesn't need to specify which variable gets to be nullable.
+    # You can't return a nil value to an variable without handling it. Doing so will invoke NilErr.
+    if mySalary = getSalary(): buyNewHouse() $ else: borrow() # if variables are implicitly mutable
+    if let mySalary = getSalary(), let myAllowance = getAllowance(): party()
+    # if any of the if variables is nil, the if block will be skipped
+    # unless there is an else block
+    if let name = getChars() => name.characters.count in [4:15]:
+        print('hello')
+    if x = getStr(): print(x) $ else: print('x is nil')
+    mut someone = person.getAge() ? _ $ printErr('someone is no one') # problematic if subject of op is a bool object
+    # better
+    mut someone = person.getAge() == nil ? _ $ printerr('someone is no one')
+    # better still
+    mut someone = person.getAge() ?? printerr('someone is no one')
 
-   mut penny = purse.change() ?? 0 # expression returns 0 if purse.change() returns nil
-   mut myName = me.name ?? "Unknown"
-   mut pay = (jobHours ?? 0) * 50 # when nil operator appears within an expression it must be bracketed
+    mut penny = purse.change() ?? 0 # expression returns 0 if purse.change() returns nil
+    mut myName = me.name ?? "Unknown"
+    mut pay = (jobHours ?? 0) * 50 # when nil operator appears within an expression it must be bracketed
+    let service = remote.(account??Account("Empty")).getService()?? # account and getService are handled
 
 
 ONE-LINE BLOCK
@@ -499,6 +523,11 @@ FUNCTION DEFINITION
    def add(a = Int, b = Int) Int:
       rt a + b
    ..
+   # a parameter can have default value. Before nko
+   def add(a = 0, b = 0) Int:
+      rt a + b
+   ..
+
 
 RETURNING A VALUE
    def add(a = Int, b = Int) Int:
@@ -506,7 +535,7 @@ RETURNING A VALUE
    ..
 
 
-EXPRESSION
+EXPRESSION-ORIENTED
     # Pluto is an epression-based language. If an exprssion evaluates to something, it is returned
     let myBool = myName == "Nypro"
     def add(a, b): rt a + b
@@ -536,7 +565,7 @@ GLOBAL FUNCTIONS
    typeOf(Int)
 
 
-LIST DECLARATION IN METHOD PARAMETER
+LIST DECLARATION IN FUNCTION PARAMETER
    def add(a, b): a + b # parameters a and b are dynamic, their types are known at run-time or inferred at compile-time.
    def add(a, b = Int): rt a + b # a is dynamic, b is Int
    def add(a b =  Int): rt a + b # both a and b are Int, = is left associative here
@@ -551,6 +580,7 @@ CONSTANT PARAMETER
    # or
    def let add(mut a, mut b): c = a + b ; rt c
    # with this, not just the params, but the local vars are also constant by default
+   # a constant default-valued parameter cannot be modified, you have to make it mut. Might change this behvior later.
 
 
 ARGUMENT NAMING
@@ -646,7 +676,7 @@ RETURNING VARIABLES
       rt ref myList
    ..
    def getOwnership() [,]:
-      rt array._move
+      rt array
    ..
    mut pat = val getVal() # redundant
    mut put = ref getRef() # redundant
@@ -660,8 +690,9 @@ RETURNING VARIABLES
 
 FUNCTION OBJECTS
    mut add2 = add
-   mut add3 = Func{Int Int Int : Int}
-   def solve(a, b, c = Func{Int Int : Int}): c(a, b)
+   mut add3 = Func({Int Int Int : Int})
+   mut add = func{Float Float : Float}
+   def solve(a, b, c = func{Int Int : Int}): c(a, b)
 
 
 CLOSURES
@@ -678,11 +709,11 @@ CLOSURES
    ..
    mut sum = Func
    mut sum = add
-   mut tip = Func{Int Int > Bool}
+   mut tip = Func({Int Int : Bool})
 
 
-FUNCTION ARGUMENTS
-   def addThree(a, b, c, myFunc = Func{Int Int}):
+ARGUMENTS AS FUNCTION
+   def addThree(a, b, c, myFunc = func{Int Int}):
       rt myFunc(a, b) + c
    ..
    addThree(1, 2, 3, def (a, b): a * b)
@@ -715,7 +746,8 @@ LAMBDAS
    keyListener(rt print("World")) # shortened lambda using 'rt'
    arr.filter(def (a): pivot > a) # anonymous functions
    arr.filter() do a: pivot > a # function argument
-   arr.filter(rt pivot > _) # lambda
+   arr.filter(rt pivot > _1) # lambda
+   let reversed = sort(names, rt _1 > _2 )
 
 
 MATCH FUNCTION
@@ -732,7 +764,7 @@ COROUTINES
    # New Proposed Coroutine with Concurrency. Thanks to Go 03/08/16
 
    # Concurrent Coroutine
-   def pinger(pipe p = String):
+   def pinger(pipe p = Str):
       loop:
          p <- "ping"
 
@@ -743,14 +775,14 @@ COROUTINES
       time.sleep(time.second * 1)
    ..
    def main():
-      pipe p = String # pipe creation
+      pipe p = Str # pipe creation
       run pinger(p) # run pinger concurrently
       run printer(p) # run printer concurrently
-      mut input = String
+      mut input = Str
       scanln(input)
    ..
-   doSth(from p = String) # can only send thru the channel
-   doSth(to p = String) # can only recieve thru the channel
+   doSth(from p = Str) # can only send thru the channel
+   doSth(to p = Str) # can only recieve thru the channel
 
    # Sequential coroutine
     def coroutine():
@@ -777,7 +809,9 @@ COROUTINES
 
 
 EVENTS
-   mut mathOps = Event{Float Float : Float}
+   mut mathOps = Event({Float Float : Float})
+   # or better
+   mut mathOps = event{Float Float : Float}
    mut mathOps += add, subtract, divide
    mut mathOps -= divide
    mut buttonPressed = Event(createProject)
@@ -864,14 +898,14 @@ DESTRUCTORS
 MODIFIERS IN CLASS
     # No public modifer, members are all public by default
     mut priv a = 10
-    let pack b = 'HELLO'
+    let pack b = 'HELLO' # accessible within the file level
     mut pass a = true # synon with protected
     let prod let x = 5f # synon with internal
     # proj(ect), prod(uction), prog(ram) clashes with prot(ected)
 
 
 MODIFIERS CAN BE ON CLASSES AND METHODS Took
-   def priv addPerson() # is accessible only within the module
+   def pack addPerson() # accessible within the file level
    def pass getNumber() # is accessible within the module and to associated types
    type priv Company # is accessible only within the module
    def prod createSession() # is accessible only to production unit
@@ -883,8 +917,8 @@ PACKAGE ACCESS LEVEL # Might remove this, it looks dangerous!!!
 
 
 READ-ONLY WRITE-ONLY ACCESS
-   rpriv, rpack, rprod, rpub
-   wpriv, wpack, wprod, wpub
+   rpriv, rpass, rpack, rprod # rpub and wpub useless
+   wpriv, wpass, wpack, wprod
 
 
 MODIFIER BLOCK
@@ -1146,29 +1180,36 @@ DOWNCASTING
 
 
 CONSTANT CLASS
-   type let MyType:
-      x = 'is immutable'
-      mut y = 'is mutable'
-   ..
+    type let MyType:
+        x = 'is immutable'
+        mut y = 'is mutable'
+    ..
 
 
 UNINHERITABLE CLASS
-   type solo MyType:
-      x = 'Type Cannot Be Inherited'
-   ..
+    # Why would I want a user not to inherit my class. I might remove this class in the near future
+    type solo MyType:
+        x = 'Type Cannot Be Inherited'
+    ..
 
 
 GENERICS
+    # Type Parameter
     <T[Integer]> # Integer and subtypes
-    <T[::Integer]> # Integer exactly
+    <T[=:Integer]> # Integer exactly
     <T[<:Integer]> # Integer subtypes
     <T[>:Integer]> # Integer supertypes
     <T[Str|Int]> # Str and subtypes or Int and subtypes
+    # Value Parameter
+    <T[Integer], U = Int> # U is a value parameter not a type parameter
+    # For example
+    type Container <T, U = Int> # U can be used to specify container size here
+    mut keg = Container<Str, 5>
 
     type DataManager<T[Str|Int], U>:
-        T dataID
-        U dataX
-        U dataY
+        dataID = T
+        dataX = U
+        dataY = U
     ..
     mut object DataManager<Str, Car>
 
@@ -1185,6 +1226,17 @@ GENERICS
     add(2, 3, 4f) # error, mismatched types
 
 
+DATATYPE OBJECTS
+    # Just as variables and function have types, types also have types. :/
+    # The type of types like Int, Float, Str is DataType
+    mut var = Car("Camaro")
+    typeOf(var) # Car
+    typeOf(Car) # DataType
+    typeOf(DataType(Car)) # DataType
+    # a DataType variable is always immutable, even parameters with default values
+    checkType(a = DataType(Str), b): b == a?
+
+
 ENUMS
     # enum is an abstract type that contains ONLY its subtypes.
     # its subtypes are all constructor types and only extend the enum
@@ -1199,7 +1251,7 @@ ENUMS
     enum Number: IntegerNumber(i <: Integer), RealNumber(r <: Real) # IntegerNumber and RealNumber are constructor types
 
     # You can access an enum subtype using the access operator
-    mut sym = Friends[1] # I can't conclude whether this returns a Symbol object or a DataType object yet.
+    mut dataType = Friends[1] # Returns a DataType object, here the DataType object is Deji
     # Iterating thru enum
     for x thru Friends:
         print(x)
@@ -1246,13 +1298,6 @@ STACK EXPRESSION
    let a = subtract(_, z) <<< add (x, y) # same as above
 
 
-MOVE SEMANTICS
-    # Move feature is automatic in areas where it makes sense to do so.
-    # for example, returning a value (not reference) to a variable
-    # But you can still explicitly specify it.
-    let y = move getPerson('Californio')
-
-
 ATOMIC EXPRESSION
    lock: x = 5; y = x
    lock: if y == 5: print('y is 5')
@@ -1270,48 +1315,25 @@ ATOMIC BLOCKS
    ..
    lock if tip == top:
    print("Hello")
-   print(" World!")
+   print(", World!")
    ..
 
 
 OPERATOR OVERLOADING
-   # Old
-   _var++ ():
-      value++
-   ..
-   _-var ():
-      0 - value
-   ..
-   _var* (other = MyObj) MyObj:
-      rt MyObj(.value * other.value)
-   ..
-   _var() (other = Int):
-      value = other
-   ..
-   _type() (other = Int) MyObj:
-      rt MyObj(other)
-   ..
-   _var[] (row = Int, col = Int) MyObj:
-      rt my2DArr[row, col]
-   ..
-   _var=[] (args = Int []) MyObj:
-      for x thru args:
-         hold i = 1
-         my1DArr[i] = x
-      ..
-   ..
-   # Proposed
-   def +(x, y): tmp;  tmp.value = x.value + y.value
-   def ++!(): self.value++
-   # others
-   [A B C] # hcat()
-   [A, B, C] # vcat()
-   [A B; C D] # hvcat()
-   A’ # ctranspose()
-   [1:n] # thru()
-   A[i] # getindex()
-   A[i]=x # setindex!()
-   A(x) # call()
+    def +(x = Number, y = Number): x.value + y.value
+    _setIndex(a = Int): arr[a]
+    _convert(a = DataType(MyString), b = Int): b.toStr()
+    def ++!(a = Number): a.value++
+    # check Julia and Swift for reference
+
+
+CUSTOM OPERATORS
+    # Pluto, like Swift, allows you to create your own set of custom operators that are not
+    # provided by the language. The oprators you can string together include
+    # + - * / = < > % ^ & | ! ?
+    # you have to specify operator position, associativity and prcedence for custom operators
+    [op: 180, left, postfix] # this operator has a predence level of 180, left associativity and is a postfix operator
+    def **(a = Number): a.value ^ 2
 
 
 TRY & ASSOCIATES
@@ -1487,31 +1509,36 @@ SYMBOL, EXPR, HOMOICONICITY & OTHER SYMBOLIC CLASSES
     # can also be nested {x, {y, b}}
     mut buck = {1}
     mut back = {1 2 3}
+    let bean = {hello {hi {halo}}} # can be nested too
     let beak = {"hello ", [name]}
-    let bean = {hello {hi {halo}}}
+    let x = beak[1] # hello
+    let y = beak.toStr() # hello Nypro
     # Functions
-    let foo = Func{Int Int : Bool}
+    let foo = Func({Int Int : Bool})
+    # or
+    let foo = func{Int Int : Bool}
     # Expressions
-    mut pet = Expr({call}, {+}, 1, ({call}, {*}, 2, 3))
-    # or better
-    mut pat = Expr{call, +, 1, {call, *, 2, 3}}
+    mut pat = Expr({call, +, 1, {call, *, 2, 3}})
     mut exp = parse("1 + 2 + 3")
     mut ingrid = eval(exp)
     parse(pat)
-    mut ma = m{3x - 2y/5 + r(d^5)}
+    mut math = m{3x - 2y/5 + r(d^5)}
 
 
 CPLUSPLUS SYMBOL
-    mut str = cpp{ void add(int a, int b) {return a + b;}}
+    mut str = cpp{void add(int a, int b) {return a + b;}}
     parse(str)
     let sum = str.add
     mut brim = sum(1, 3)
 
 
 NON-STANDARD SYMBOL LITERAL HINT
-    mut str = cpp{ void main() {printf("Hello")}}
+    mut cxxCode = cpp{void main() {printf("Hello")}}
     @symLiteral:
-        cpp= {Cpp(_str.toStr())}
+        cpp = {Cpp(_sym.toStr())}
+    mut myFunc = f{Float, Float : Float}
+    @symLiteral:
+        func = {Func(_sym}}
 
 
 NUMERIC CLASS
@@ -1564,12 +1591,13 @@ UTF-8 CHARACTERS
 CLASSES OF OBJECTS
     Obj (0.7), Any (0.8)
     Func (0.7)
-    Var (0.7)
+    Var (0.7), Indie(0.8.2)
     Array (0.7)
     Dict (0.7)
     Exp (0.7), Expr(0.8.2)
-    Nil (0.4), None (0.8.1)
+    # Nil (0.4), None (0.8.1), # Removed (0.8.2)
     Symbol(0.7)
+    DataType(0.8.2)
 
 
 PREDEFINED TYPES # These types are optimized as part of the lang
@@ -1629,6 +1657,7 @@ KEYWORDS
     mut (0.8)
     nan (0.8)
     nil
+    op (0.8.2)
 
 
 
@@ -1688,15 +1717,45 @@ SYNTACTIC SYMBOLS
 
 ---------------! NOTES !------------------------
 VARIABLE BINDING
-- The default assignment binds a variable to None and one more type, however due to
-- covariance, a variable can also be bound to the types subtypes
-- This behavior can be changed using other assignment operators
+- By default variables bind to one type and its subtypes. However depending on assignment operator used
+- the behaviour can be changed.
     mut pat = Integer
     pat = 25i16
     pat = 750i32 # ok
     pat = "Hello" # error! dat can only be bound to Integer and its subtypes
     mut dat =: Integer
     dat = Int16(25) # error! dat can only be bound to Integer
+
+
+LITERALS
+- Literals are subexpressions that do not return unlike other subexpressions (variable access)
+- or expressions (operations, function call).
+Type of Literals
+- Numeric
+    50, 12_000_i32, 78.89e-2
+- String
+    "Hello", 'Hi'
+- Symbol
+    {Root}, {Parent {Child1, Child2}}
+
+
+NIL
+- Nil is a universal literal. Every type has a nil literal. This means, unlike most langs, all Pluto's
+- types are nullable. The programmer doesn't need to specify which variable gets to be nullable.
+- You can't return a nil value to an variable without handling it. Doing so will invoke NilErr.
+    mut deal = nil
+    mut done = deal # error! NilErr
+    mut deck = deal?? # deck now accepts nil
+    # you could also handle
+    mut dark = deal?? 0  # dark will be 0 if deal == nil
+- However, you can assign a nil literal directly to a variable without any sideffect. Literals do not return.
+    mut brain = nil
+    mut herat = nil
+
+
+OBJECT HIERARCHY
+- Any -> Indie, Array, Func
+- Array -> Dict, Tuple
 
 
 CONCURRENCY (Still Needs Proper Review)
@@ -1741,6 +1800,13 @@ AUTOMATIC REFERENCE COUNTING
     ..
 
 
+MOVE SEMANTICS
+- Move feature is automatic in areas where it makes sense to do so for example, returning a value (not reference) to a variable.
+- I removed the explicit move keyword cause I think it will have some unwanted side effects. For example, moving a returned reference which is also referenced elsewhere.
+- And Pluto moves at the appropriate places anyway.
+
+
+
 DECLARATIVE PLUTO ".deplu" #27/06/16
    person:[
       name : "Nypro"
@@ -1779,23 +1845,19 @@ NESTED ASSIGNMENT
    mut tap = (tip *= 5)
 
 
-NIL VARIABLES
-- Access to nil variables should be caught at compile time.
-- Run-time ones are also caught, NilErr
-   mut x
-   print(x) # raises NilErr
-   print(x ?? "Error! x is nil")
-
-
 PASS TABLE
 #=
-   Types                              |   Passed Around By
-   ----------------------------------------------------------
-   Built-in Ind Types /  Value Types  |   val
-   Array Types                          |   ref
-   Func Types                         |   ref
-   Custom Types                       |   ref
+    Types                               |   Passed Around By
+    ----------------------------------------------------------
+    Built-in Ind Types /  Value Types   |   val
+    Array Types                         |   ref
+    Func Types                          |   ref
+    Custom Types                        |   ref
 =#
+- Note that objects of relatively small Array, Func and Custom Types
+- will be allocated on the stack while simulating referencing
+- And this is done only if the object is iso or guaranteed to have a
+- single reference
 
 
 VARIABLE VS PARAMETER
@@ -1821,12 +1883,20 @@ PUNCTUATION
 - Pluto only supports 4-space identation
 
 
+BIG AIMS
+- If Pluto is written entirely statically, then most analyses should be done statically
+- with benefits of optimisations (e.g. usingg traditional arrays). Only certain checks are
+- done at runtime.
+- Static ARC analysis. Be careful with concurrency.
+
+
 UTILITIES
 IDE
 - The REPL
 - Advanced Refactoring
 - Code Completion
 - Render/Plot View
+- Profiler
 -------------------
 Network and Streams
 - terminals

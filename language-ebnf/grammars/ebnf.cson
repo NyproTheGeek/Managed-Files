@@ -1,0 +1,103 @@
+#22/08/16
+
+fileTypes: [
+  "ebnf"
+]
+name: "EBNF"
+
+patterns: [
+    {
+        include: "#string"
+    }
+    {
+        include: "#comment"
+    }
+    {
+        include: "#head"
+    }
+    {
+        include: "#symbol"
+    }
+    {
+        include: "#special_seq"
+    }
+]
+repository:
+    comment:
+        patterns: [
+            begin: "\\(\\*"
+            end: "\\*\\)"
+            name: "comment.block.pluto"
+        ]
+
+    string:
+        patterns: [
+            # SINGLE-LINE SINGLE-QUOTE STRING
+            {
+                begin: "'"
+                end: "'"
+                name: "string.quoted.single.ebnf"
+            }
+            # DOUBLE-QUOTE STRING
+            {
+                begin: '"'
+                end: '"'
+                name: "string.quoted.double.ebnf"
+            }
+        ]
+
+    special_seq:
+        patterns: [
+            {
+                begin: '\\?'
+                end: '\\?'
+                name: "storage.type.ebnf"
+            }
+
+        ]
+
+    head:
+        patterns: [
+            {
+                match: "(?:[A-za-z_][A-za-z_0-9]*)\\s*="
+                name: "variable.language.ebnf"
+            }
+        ]
+
+    symbol:
+        patterns: [
+            {
+                begin: "\\("
+                beginCaptures:
+                    "0":
+                        name: "constant.numeric.ebnf"
+                end: "(\\)\\?|\\)\\*|\\)\\+|\\))"
+                endCaptures:
+                    "0":
+                        name: "constant.numeric.ebnf"
+                patterns: [
+                    {
+                        include: "$self"
+                    }
+                ]
+
+            }
+            {
+                match: "\\,|;|\\[|\\]|\\{|\\}|-"
+                name: "constant.numeric.ebnf"
+            }
+            {
+                match: "\\|"
+                name: "entity.name.function.ebnf"
+            }
+        ]
+
+    # body:
+    #     patterns: [
+    #         {
+    #             match: "(?:[A-za-z_][A-za-z_0-9]*)"
+    #             name: "constant.numeric.ebnf"
+    #         }
+    #     ]
+
+scopeName: "source.ebnf"
