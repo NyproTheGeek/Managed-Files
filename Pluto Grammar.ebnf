@@ -1,71 +1,114 @@
 #22/08/16
-(*TYPES*)
+(*TYPE*)
 type_definition =
-    "type" (type_modifiers)? identifier (generics)? (enclosed_constructor_parameters)? (inheritance_declaration)? (":")?
+    "type" (type_modifiers)? identifier (generics)? (enclosed_constructor_parameters)? (inheritance_declaration)? (":")?;
 
 type_modifiers =
-    (type_modifier1)? type_modifier2 | (type_modifier2)? type_modifier1
+    (type_modifier1)? type_modifier2 | (type_modifier2)? type_modifier1;
 
 type_modifier1 =
-    "let"
+    "let";
 
-type_modifier2 = (* Solo is not include, I'm cntemplating on removing the keyword*)
-    "sticky" | "abs"
+type_modifier2 =
+    "sticky" | "abs";
+    (* Solo is not include, I'm cntemplating on removing the keyword*)
 
 generics =
-    "<" (* TODO *)">"
+    "<" (* TODO *)">";
 
 enclosed_constructor_parameters =
 
 inheritance_declaration =
-    "[" (identifier)+ "]"
+    "[" identifier ("," identifier)* "]";
 
 
-(*FUNCTIONS*)
+(*FUNCTION*)
+
 function_definition =
-    "def" (function_modifier)? (identifier)? (generics)? (enclosed_function_parameters)? (":")?
-    (*root function must have an identifier, closures cannot have generics*)
+    "def" (function_modifier)? (identifier)? (generics)? (enclosed_function_parameters)? (":")?;
+    (*root function must have an identifier; closures cannot have generics*)
 
-function_modifier = "let"
+function_modifier = "let";
 
-enclosed_function_parameters = "(" function_parameters_declaration ")"
+enclosed_function_parameters =
+    "(" (function_parameters_declaration)? ")";
+    (*ambiguities = *)
 
 function_parameters_declaration =
+    (lhs_function_parameter_declaration | assigned_function_parameter_declaration | spaced_function_parameters_declaration)
+    (lhs_function_parameter_declaration | assigned_function_parameter_declaration | spaced_function_parameters_declaration)*;
+    (*ambiguities = lhs_function_parameter_declaration, assigned_function_parameter_declaration, spaced_function_parameters_declaration*)
+
+spaced_function_parameters_declaration =
+    lhs_function_parameter_declaration (lhs_function_parameter_declaration)+ ("=" rhs_function_parameter_declaration)?;
+
+assigned_function_parameter_declaration =
+    lhs_function_parameter_declaration "=" rhs_function_parameter_declaration;
+
+rhs_function_parameter_declaration =
+    rhs_specifiers (literal|Object_constructor) | rhs_specifiers | (literal|Object_constructor);
+    (*ambiguities = rhs_specifiers, literal, Object_constructor*)
+
+lhs_function_parameter_declaration =
+    (variable_modifier1)? (variable_modifier2)? identifier;
+    (*ambiguities = identifier*)
 
 
-(*VARIABLES*)
+
+(*VARIABLE*)
 variable_declaration =
 
-lhs_variable_declaration =
+rhs_variable_declaration =
+
+rhs_specifiers =
+    (rhs_specifier1)? rhs_specifier2 |
+    (rhs_specifier2)? rhs_specifier1;
+    (*ambiguities = rhs_specifier1, rhs_specifier2 *)
+
+rhs_specifier1 =
+    "own" | "iso";
+
+rhs_specifier2 =
+    "ref" | "val" | "read";
 
 lhs_variable_declaration =
-    variable_modifiers identifier
+    variable_modifiers identifier;
 
 variable_modifiers =
     variable_modifier1 (variable_modifier2)? variable_modifier3 |
-    variable_modifier1 (variable_modifier3)? variable_modifier2
+    variable_modifier1 (variable_modifier3)? variable_modifier2;
 
 variable_modifier1 =
-    "mut" | "let"
+    "mut" | "let";
 
 variable_modifier2 =
-    "sticky"
+    "sticky";
 
 variable_modifier3 =
-    "pack" | "priv" | "pass" | "prod" | "rpack" | "rpriv" | "rpass" | "rprod" | "wpack" | "wpriv" | "wpass" | "wprod"
+    "pack" | "priv" | "pass" | "prod" | "rpack" | "rpriv" | "rpass" | "rprod" | "wpack" | "wpriv" | "wpass" | "wprod";
 
 
+
+(*EXPRESSION*)
 expression =
 
 
 function_call =
-    
+
+
 operation =
+
+
+Object_constructor =
+    identifier "(" (*TODO*) ")";
 
 literal =
 
 
+digits =
+    "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9";
+
 identifier =
 
 
-token =
+letters =

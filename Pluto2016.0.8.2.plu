@@ -593,18 +593,18 @@ ARGUMENT NAMING
 
 
 COMPOUND METHODS
-   def getValue():
-      mut sticky x = 1, y = Int(2)
-      def ():
-         rt x + y
-      ..
-      def (a = Int):
-         rt x + y + a
-      ..
-          def (a b =  Int):
-         rt x + y + a + b
-      ..
-   ..
+    def getValue():
+        mut sticky x = 1, y = Int(2)
+        def ():
+            rt x + y
+        ..
+        def (a = Int):
+            rt x + y + a
+        ..
+        def (a b =  Int):
+            rt x + y + a + b
+        ..
+    ..
 
 
 VARIADIC PARAMETERS
@@ -1085,8 +1085,8 @@ COVARIANCE
     # Pluto supports covariance by default
     type Person (name = Str, age = Int)
     def showDetails(,): print("name: [.name], .age: [.age]")
-    type Engineer (type = Str) [Person]
-    type Artist (type = Str) [Person]
+    type Engineer (kind = Str) [Person]
+    type Artist (kind = Str) [Person]
 
     mut person = Person("Peter", 16)
     mut engineer = Engineer("Civil Engineer")
@@ -1298,12 +1298,12 @@ STACK EXPRESSION
    let a = subtract(_, z) <<< add (x, y) # same as above
 
 
-ATOMIC EXPRESSION
+ATOMIC EXPRESSION # Might Remove this and follow goroutines implementation
    lock: x = 5; y = x
    lock: if y == 5: print('y is 5')
 
 
-ATOMIC BLOCKS
+ATOMIC BLOCKS # Might Remove this and follow goroutines implementation
    lock block:
       x = 5
       y = x
@@ -1323,7 +1323,8 @@ OPERATOR OVERLOADING
     def +(x = Number, y = Number): x.value + y.value
     _setIndex(a = Int): arr[a]
     _convert(a = DataType(MyString), b = Int): b.toStr()
-    def ++!(a = Number): a.value++
+    # you can't add "!" infront of a mutative operator function
+    def ++(a = Number): a.value++
     # check Julia and Swift for reference
 
 
@@ -1429,7 +1430,7 @@ COMPILER HINT
         typing = "static"
         variable = "immutable"
         warn_me = {
-            unimplemented_inherited_functions
+            unimplemented_inherited_functions,
             unimplemented_inherited_fields
         }
     ..
