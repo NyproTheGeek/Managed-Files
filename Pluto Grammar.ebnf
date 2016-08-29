@@ -1,17 +1,10 @@
 #22/08/16
 (*TYPE*)
 type_definition =
-    "type" (type_modifiers)? identifier (generics)? (enclosed_constructor_parameters)? (inheritance_declaration)? (":")?;
+    "type" (type_modifier)? identifier (generics)? (enclosed_constructor_parameters)? (inheritance_declaration)? (":")?;
 
-type_modifiers =
-    (type_modifier1)? type_modifier2 | (type_modifier2)? type_modifier1;
-
-type_modifier1 =
-    "let";
-
-type_modifier2 =
-    "sticky" | "abs";
-    (* Solo is not include, I'm cntemplating on removing the keyword*)
+type_modifier =
+    "solo" | "abs";
 
 generics =
     "<" (* TODO *)">";
@@ -25,10 +18,10 @@ inheritance_declaration =
 (*FUNCTION*)
 
 function_definition =
-    "def" (function_modifier)? (identifier)? (generics)? (enclosed_function_parameters)? (":")?;
-    (*root function must have an identifier; closures cannot have generics*)
+    ("run")? "func" (identifier)? (generics)? enclosed_function_parameters (return_type_parameters)? (":")?;
+    (*root function must have an identifier; closures cannot have generics; only anon can have run before their declaration*)
 
-function_modifier = "let";
+return_type_parameters =
 
 enclosed_function_parameters =
     "(" (function_parameters_declaration)? ")";
@@ -50,7 +43,7 @@ rhs_function_parameter_declaration =
     (*ambiguities = rhs_specifiers, literal, Object_constructor*)
 
 lhs_function_parameter_declaration =
-    (variable_modifier1)? (variable_modifier2)? identifier;
+    ("let")? ("sticky")? identifier;
     (*ambiguities = identifier*)
 
 
@@ -79,10 +72,10 @@ variable_modifiers =
     variable_modifier1 (variable_modifier3)? variable_modifier2;
 
 variable_modifier1 =
-    "mut" | "let";
+    "mut" | "let" ;
 
 variable_modifier2 =
-    "sticky";
+    "sticky" | "hold";
 
 variable_modifier3 =
     "pack" | "priv" | "pass" | "prod" | "rpack" | "rpriv" | "rpass" | "rprod" | "wpack" | "wpriv" | "wpass" | "wprod";

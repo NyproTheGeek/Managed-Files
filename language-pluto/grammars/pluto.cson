@@ -17,7 +17,7 @@ patterns: [
         include: '#non_pluto'
     }
     {
-        include: '#annotations'
+        include: '#hints'
     }
     {
         include: "#brackets"
@@ -65,34 +65,11 @@ repository:
                 name: "comment.double-dash.pluto"
             }
         ]
-    annotations:
+    hints:
         patterns:[
-            {
-                begin: "\\@(?:[A-za-z_][A-za-z_0-9]*)\\s*\\:\\s*\\["
-                end: "\\]"
-                name: 'support.function.macro.pluto'
-                patterns: [
-                    {
-                        include: '#nest_block'
-                    }
-                ]
-            }
             {
                 match: "\\@(?:[A-za-z_][A-za-z_0-9]*)"
                 name: 'support.function.macro.pluto'
-            }
-        ]
-    nest_block:
-        patterns: [
-            {
-                begin: '\\['
-                end: '\\]'
-                name: 'support.function.macro.pluto'
-                patterns: [
-                    {
-                        include: '#nest_block'
-                    }
-                ]
             }
         ]
     brackets:
@@ -166,7 +143,7 @@ repository:
             }
             # CONTROL FLOW
             {
-                match: '\\b(?:for|if|else|elsif|rt|while|repeat|match|case|until|do|use|loop|label|op|block|try|except|ensure|raise|next|break|skip|step|yield|take|run|import)\\b',
+                match: '\\b(?:for|if|else|elsif|rt|while|repeat|match|case|until|do|use|loop|label|op|block|try|except|ensure|raise|next|break|skip|step|yield|take|run|select|import|module)\\b',
                 name: 'keyword.control.pluto'
             }
             # MODIFIERS
@@ -176,7 +153,7 @@ repository:
             }
             # CATEGORIES
             {
-                match: '\\b(?:type|def|enum|pipe|let|mut|mod|as)\\b',
+                match: '\\b(?:type|func|enum|pipe|let|mut|mod|as)\\b',
                 name: 'storage.type.pluto'
             }
             # CLASSES
@@ -402,7 +379,7 @@ repository:
     string_escaped_chars:
         patterns: [
             {
-                match: "\\.(\\[|t|n|\"|\'|#)|\\\\(\\[|\\t|\\n|\"|\'|#|\\.|\\\\)"
+                match: "\\\\(\\[|\\t|\\n|\"|\'|#|\\.|\\\\)" # \\.(\\[|t|n|\"|\'|#)
                 name: "constant.character.escape.julia"
             }
             ]

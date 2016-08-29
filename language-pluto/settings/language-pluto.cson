@@ -5,5 +5,5 @@
     'tabLength': 4
     # 'foldEndPattern': '^\\s*"""\\s*$'
     'commentStart': '# '
-    'increaseIndentPattern': ':\\s*$|:\\=\\s*$|\\[\\s*$'
-    'decreaseIndentPattern': '^\\s*(elsif|else|catch|ensure)\\b.*:|\\s+\\.\\.\\s*$|\\s+\\]$' # while
+    'increaseIndentPattern': ':\\s*$|:\\=\\s*$|\\[\\s*$|\\{\\s*$'
+    'decreaseIndentPattern': '^\\s*(elsif|else|catch|ensure)\\b.*:|\\s+\\.\\.\\s*$|\\s+\\]$|\\s+\\}$' # while

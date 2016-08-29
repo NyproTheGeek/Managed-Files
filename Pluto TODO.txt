@@ -1,0 +1,23 @@
+# 29/08/16
+- Scoping - Local Variables, Fields, Nested Local, Access Modifiers
+- Runtime Properties Check - Methods, Fields/Variables, Multiple Dispatch, Array Indexing
+- Meta Trees
+- Dissolvable Expressions - Ternary Ops, For Comprehensions, Match Functions, Enums, Stack Expressions
+- Array, List, Dict and Tuple Representation Model
+- String Representation Model
+- Events
+- ARC
+- Terminal and File IO
+- Dynamic vs Static
+- Type Inference
+- QT IDE - REPL, ...
+- Base Package
+- Package Manager
+- Coroutines
+
+META TREES
+- General Scope Tree
+- Inheritance Scope Tree
+- Function Dispatch List
+- Event Trees
+- Call Interface Lists
