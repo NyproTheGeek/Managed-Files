@@ -133,7 +133,7 @@ repository:
             }
             # TYPES
             {
-                match: '\\b(?:AStr|Str|Char|Byte|SByte|Num|Int|Int32|Int64|Int16|UInt|UInt32|UInt64|UInt16|IFit|UIFit|Float|Double|Float16|Float32|Float64|Comp|Comp128|Quat|Quat256|Bool|Any|Func|Array|Dict|Indie|Symbol|DataType|Expr)\\b',
+                match: '\\b(?:AStr|Str|Char|Byte|SByte|Int|Int32|Int64|Int16|UInt|UInt32|UInt64|UInt16|Float|Double|Float16|Float32|Float64|Comp|Comp128|Quat|Quat256|BigInt|BigFloat|Ratio|Bool|Any|Func|Array|Dict|Indie|Symbol|DataType|Expr)\\b',
                 name: 'support.type.pluto'
             }
             # LANG VARIABLES
@@ -143,7 +143,7 @@ repository:
             }
             # CONTROL FLOW
             {
-                match: '\\b(?:for|if|else|elsif|rt|while|repeat|match|case|until|do|use|loop|label|op|block|try|except|ensure|raise|next|break|skip|step|yield|take|run|select|import|module)\\b',
+                match: '\\b(?:for|if|else|elsif|rt|while|repeat|match|case|until|do|use|loop|label|op|block|try|except|ensure|raise|err|next|break|skip|step|yield|take|run|select|import|module)\\b',
                 name: 'keyword.control.pluto'
             }
             # MODIFIERS
@@ -379,7 +379,7 @@ repository:
     string_escaped_chars:
         patterns: [
             {
-                match: "\\\\(\\[|\\t|\\n|\"|\'|#|\\.|\\\\)" # \\.(\\[|t|n|\"|\'|#)
+                match: "\\\\(\\[|\\t|\\n|\"|\'|#|\\\\)" # \\.(\\[|t|n|\"|\'|#)
                 name: "constant.character.escape.julia"
             }
             ]

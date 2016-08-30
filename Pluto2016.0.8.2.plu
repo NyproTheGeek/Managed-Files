@@ -6,7 +6,7 @@ Major Change:
     Import is now module-based, rather than being type-based, due to the introduction of multiple dispatch
     A type's method may be defined outside the type's file
     Added def to function declaration #18/08/16 Changed to func, which was I started with initially #29/06/16
-    Changing assignment operator back to good ol' way, binding to nil-and-one-other-type is still enforced 19/08/16
+    Changing assignment operator back to good ol' way, binding to nil-and-one-other-type is still enforced 19/08/16 Nl is now a state #30/08/16
     The block punstuation is now $, it helps resolve some ambiguity in statements like repeat play() | while state == "Play" | x == y ? y | z
         repeat: play() $ while state == "Play" | x == y ? y $ z
     Added mut for mutable variable declaration; solves some scoping issues
@@ -328,9 +328,9 @@ EXPRESSION CONTINUATION ON NEXT LINE
     mut yay = (2 *
         (a / 2) + b)
     # a backslash is recommended though
-    let men = length == 0 ? 25 $ 0
+    let men = length == 0 ? 25 || 0
     let mune = length == 1 ? \
-        25 $ 0
+        25 || 0
     let meter = \
         getMeter()
 
@@ -350,6 +350,7 @@ IF SATEMENT
     if x : # if x does not equal nil or false
         print('x has been assigned to')
     ..
+    if x = getX(): print(x)  # if variables are implicitly mutable
 
 
 
@@ -421,37 +422,28 @@ REPEAT UNTIL LOOP
    repeat: print ("Hello ") $ until myBool
 
 
-LIST CONDITION
-   if myVar == a | == b & == c :
-      print(myVar)
-   ..
-   if x == y == z :
-      play()
-   ..
-   if "two-syllable word" == pit & == pot & == pet:
-      print("That's wierd")
-   ..
-   # or better
-   if pit and pot and pet == "two-syllable word":
-      print("That's wierd")
-   ..
-   if "two-syllable word" == pit | == pot | == pet:
-      print("That's wierd")
-   # or better
-   if pit or pot or pet == "two-syllable word":
-      print("That's wierd")
-   # 'and' and 'or' here are used in a different manner
-   # than in Python
-   if pit or (pot and pet) == "two-syllable word":
-      print("That's wierd")
-   ..
+CHAINED CONDITION
+    # 'and' and 'or' here are used in a different manner
+    # than in Python
+    if "two-syllable word" == pit and == pot:
+        print("That's wierd")
+    # or better
+    if pit and pot == "two-syllable word":
+        print("That's wierd")
+
+    if pit or (pot and pet) == "two-syllable word":
+        print("That's wierd")
 
 
-CONDITIONAL TERNARY OPERATOR
-   mut myVar1 = myBool == true ? 5 $ 6
-   func divide(num, denom): rt denom == 0 ? nan $ num / denom
-   salary = (workYears > 5 ? 10_000 $ 1_000) * rank # when conditional ternary expression appears
-   # within another expression, it must be bracketed
+CONDITIONAL/TERNARY OPERATOR
+    # ternary operator
+    mut myVar1 = myBool == true ? 5 || 6
+    func divide(num, denom): rt denom == 0 ? nan || num / denom
+    mut salary = (workYears > 5 ? 10_000 || 1_000) * rank # when conditional ternary expression appears
+    # within another expression, it must be bracketed
+    # conditional operator
+    mut state = isSick == true? # evaluation returns either true or false, not to be used in an if condition
+    if isSick == true? : print("go to the doctor") # error! redundancy
 
 
 RANGE
@@ -497,27 +489,24 @@ NOT IN
     mut arr = for x thru [1:30] => x not in [2:5]: x * 3
 
 
-NIL CONDITION AND OPERATOR
-    # Nil is a universal literal. Every type has a nil literal. This means, unlike most langs, all Pluto's
-    # types are nullable. The programmer doesn't need to specify which variable gets to be nullable.
-    # You can't return a nil value to an variable without handling it. Doing so will invoke NilErr.
-    if mySalary = getSalary(): buyNewHouse() $ else: borrow() # if variables are implicitly mutable
-    if let mySalary = getSalary(), let myAllowance = getAllowance(): party()
-    # if any of the if variables is nil, the if block will be skipped
-    # unless there is an else block
-    if let name = getChars() => name.characters.count in [4:15]:
-        print('hello')
-    if x = getStr(): print(x) $ else: print('x is nil')
-    mut someone = person.getAge() ? _ $ printErr('someone is no one') # problematic if subject of op is a bool object
+NIL STATE AND OPERATOR
+    # There are two states an object can have, valued state or nil state. An object with valued state can
+    # contain primitive values or other objects, but an object with a nil state can only contain nil.
+    # Nil can be assigned to an object directly (a syntactic sugar for the object's nil state),
+    # but they cannot be returned. Although one can pass or return an object with a Nil state.
+    # The recieving object must handle it or else NilErr will be invoked.
+    if mySalary = getSalary(): print("I don't have a salary") $ else: print("I have a salary") #
+    if let mySalary = getSalary(), let myAllowance = getAllowance(): party() # if any of the if variables is a nil object
+    mut someone = person.getAge() ? _ || printErr('someone is no one') # problem`atic if subject of op is a bool object
     # better
-    mut someone = person.getAge() == nil ? _ $ printerr('someone is no one')
+    mut someone = person.getAge() == nil ? _ || printerr('someone is no one')
     # better still
     mut someone = person.getAge() ?? printerr('someone is no one')
 
-    mut penny = purse.change() ?? 0 # expression returns 0 if purse.change() returns nil
-    mut myName = me.name ?? "Unknown"
-    mut pay = (jobHours ?? 0) * 50 # when nil operator appears within an expression it must be bracketed
-    let service = remote.(account??Account("Empty")).getService()?? # account and getService are handled
+    mut penny = purse.change() ?? 0 # expression returns 0 if returned value from purse.change() is in a nil object
+    mut pay = (jobHours ?? 0) * 50 # when nil operator appears within an expression it should be bracketed
+    let balance = remote.(account??Account("Empty")).getBalance()
+    let currentUser = server.getUser()?? # this means currentUser can be nil
 
 
 ONE-LINE BLOCK
@@ -585,7 +574,7 @@ RETURNING A VALUE
 
 EXPRESSION-ORIENTED
     # Pluto is an epression-based language. If an exprssion evaluates to something, it is returned
-    let myBool = myName == "Nypro"
+    let myBool = myName == "Nypro"?
     func add(a, b): rt a + b
     # or
     func add(a, b): a + b
@@ -727,9 +716,16 @@ RETURNING VARIABLES
 
 FUNCTION OBJECTS
    mut add2 = add
-   mut add3 = Func({Int Int Int : Int})
-   mut add = func{Float Float : Float}
-   func solve(a, b, c = func{Int Int : Int}): c(a, b)
+   mut add3 = Func
+   mut add = func(Str)Str
+   func solve(a, b, c = func(Int Int)Int ): c(a, b)
+   mut new = func(a b = Int): rt a + b
+
+
+EVENTS
+   mut mathOps = func(Int, Int)Int
+   mut mathOps += add, subtract, divide, multiply # once a other functions are attached to a function, it becomes an event
+   mut mathOps -= divide
 
 
 CLOSURES
@@ -746,11 +742,11 @@ CLOSURES
    ..
    mut sum = Func
    mut sum = add
-   mut tip = Func({Int Int : Bool})
+   mut foo = func(Int, Int)Bool
 
 
-ARGUMENTS AS FUNCTION
-   func addThree(a, b, c, myFunc = func{Int Int}):
+FUNCTION AS ARGUMENTS
+   func addThree(a, b, c, foo = func(Int, Int)Bool):
       rt myFunc(a, b) + c
    ..
    addThree(1, 2, 3, func (a, b): a * b)
@@ -772,19 +768,25 @@ ANONYMOUS TYPES
 
 
 LAMBDAS
-   func keyListener(e = Event): e.printText()
-   keyListener(
+    func keyListener(e = Event): e.printText()
+    keyListener(
       Event:
          func printText():
             print ('Hello, ')
          ..
       ..)
-   keyListener(func (): print("World")) # lambda
-   keyListener(rt print("World")) # shortened lambda using 'rt'
-   arr.filter(func (a): pivot > a) # anonymous functions
-   arr.filter() do a: pivot > a # function argument
-   arr.filter(rt pivot > _1) # lambda
-   let reversed = sort(names, rt _1 > _2 )
+    keyListener(func(): print("World")) # lambda
+    keyListener(: print("World")) # shortened lambda using 'rt'
+    arr.filter(func(a): pivot > a) # anonymous functions
+    arr.filter() do a: pivot > a # function argument
+    arr.filter(: pivot > _1) # lambda
+    numbers.filter(: _1 % _2 == 0).map(: _1 * _2).reduce(2, +) # lambda
+    let reversed = sort(names, : _1 > _2 )
+
+
+FUNCTION CHAINING
+    let x = students.filterOutFailed().sortByGrade()
+    let y = add(4, 2) |>  subtract(_, 1) |> divide(10, _)
 
 
 MATCH FUNCTION
@@ -882,16 +884,6 @@ COROUTINES
     print(addUp(0, 6)) # gotcha! only the second argument is summed up.
 
 
-EVENTS
-   mut mathOps = Event({Float Float : Float})
-   # or better
-   mut mathOps = event{Float Float : Float}
-   mut mathOps += add, subtract, divide
-   mut mathOps -= divide
-   mut buttonPressed = Event(createProject)
-   mut buttonPressed += addNewEvent
-
-
 TYPE DEFINITION
    type Car:
       mut name, model = Str
@@ -940,7 +932,7 @@ SELF REFERENCE
    ..
    # this is also applicable to methods where its is the type of the first parameter
    func getDetails(car = Car): rt [.name, .model]
-   func hasModel(car = Car, model = Str): .model == model
+   func hasModel(car = Car, model = Str): .model == model?
 
 
 USING A FUNCTION AS METHOD
@@ -971,11 +963,11 @@ DESTRUCTORS
 
 PROPERTIES / GETTERS SETTERS
     mut myVar1 = func set(a b c =  Int): _ = a * b * c $ func get(): rt _
-    myVar1 = (1, 2, 3)
+    myVar1 = 1, 2, 3
     mut myVar2 =
-        func set(a b =  Int): _ = a * b * c
+        func set(a b = Int): _ = a * b * c
         func get(): rt _
-    myVar2 = (1, 2)
+    myVar2 = 1, 2
     mut myVar3 = func set(a = Int): _ = a $ func get(): rt _
     myVar3 = 1
     mut myVar4 = func set(a = Int) $ get()
@@ -1020,7 +1012,7 @@ MODULES AND IMPORT
     # if the same module name is used in different file-levels, they are not the same module
     # import statement imports a module or its contents
     import Net # imports all types and funcions in a module
-    import nypro.Math: add(), subtract() # imports only add and subtract functions from the module
+    import nypro.Math: add, subtract # imports only add and subtract functions from the module
     # Some modules are imported implicitly, the IO module for example
     # Other stdlib modules are imported at the top-level because they are automatically searched during a module search.
     import Net: Protocol as Proto
@@ -1122,7 +1114,7 @@ SUPERMETHODS AND SUBMETHODS
    type ButtonListener [Listener]
    func respond(a = Listener) # this is a super method to the more specific method below
    @mask
-   func respond(a = ButtonListener): rt # this is a sub method to the method above
+   func respond(a = ButtonListener):.. # this is a sub method to the method above
 
 
 CALLING SUPER
@@ -1237,7 +1229,7 @@ DATATYPE OBJECTS
     enum Letter: A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z
     A == DataType? # true
     A == DataType(A)? # true
-    A == DataType(Letter) # true
+    A == DataType(Letter)? # true
     # DataType objects are always assigned eplicitly, else it  cannot a DatatType object
     mut a = DataType(Car) # ok
     mut a ; a = DataType(Car) # error!, a is dynamic
@@ -1299,11 +1291,6 @@ EXPLICIT TYPE CASTING
    let z = y + Int(y)
 
 
-STACK EXPRESSION
-   let a = add (x, y) >>> subtract(_, z) # '_' represent the value passed from preceding method
-   let a = subtract(_, z) <<< add (x, y) # same as above
-
-
 ATOMIC EXPRESSION # Will Remove this and follow goroutines implementation # lock can still be used for mutex in goroutine implementation
    lock: x = 5; y = x
    lock: if y == 5: print('y is 5')
@@ -1344,67 +1331,60 @@ CUSTOM OPERATORS
 
 
 TRY & ASSOCIATES
-   func main():
-      ensure:
-         file.close()
-      ..
-      print("I'm about to open a text file and print its first 500 characters")
-      mut file = File("C:/Users/Hello/hello.txt")
-      try file.open().print([1:500])
-      except(fnfe = FileNotFoundErr, ioobe = IndexOutOfBoundErr):
-         if fnfe: printErr('Can\'t find file!')
-         if ioobe: printErr('Out of index error!')
-      ..
-   ..
+    # A try statement or block must always be paired with one or more except statement even if the except catches nothing
+    func main():
+        ensure:
+            file.close()
+        ..
+        print("I'm about to open a text file and print its first 500 characters")
+        mut file = File("C:/Users/Hello/hello.txt")
+        try file.open().print([1:500])
+        except(fnfe = FileNotFoundErr, ioobe = IndexOutOfBoundErr):
+            if fnfe: printErr('Can\'t find file!')
+            if ioobe: printErr('Out of index error!')
+        ..
+    ..
 
-   try:
-      file.open()
-      file.write('Hello')
-   except(fnfe = FileNotFoundErr):
-      printErr('Can\'t find file!')
-   ..
+    try:
+        file.open()
+        file.write('Hello')
+    except(fnfe = FileNotFoundErr):
+        printErr('Can\'t find file!')
+    ..
 
-   try:
-      raise Err()
-   except(e = Err):
-      printErr('Error!')
-   ensure:
-      file.close()
-   ..
+    try:
+        raise Err() # this raises an error, but does not stop program
+        err Err() # this raises an error, and stops the program after error handling
+    except(e = Err):  # catches all exception
+        printErr('Error!')
+    ensure:
+        file.close()
+    ..
 
-   try let x = getObject()
-      print('x is nil')
-   ..
+    try let x = getObject()
+    except(ne = NilErr):
+        printErr('x can\'t be nil!')
+    ..
 
-   try:
-      let x = getObject()
-      raise NilErr()
-   except(ne = NilErr):
-      printErr('x can\'t be nil!')
-   ..
+    try:
+        if let x = getObject(): $ else: raise NilErr()
+    except() # this catches nothing
 
-   try:
-      let x = getObject()
-   except(ne = NilErr):
-      printErr('x can\'t be nil!')
-   ..
+    try:
+        let x = getObject()
+    except:
+        printErr('x can\'t be nil!')
+    ..
 
-   try:
-      file.open()
-      let x = file.readLine()
-   except(ne = NilErr):
-      printErr('x can\'t be nil!')
-   except(fnfe = FileNotFoundErr):
-      printErr('Can\'t find file!')
-   ensure:
-      file.close()
-   ..
-
-
-ERR
-    # Err stops application whenever it is evoked
-    if num and den == 0:
-        err DivideByZeroErr()
+    try:
+        file.open()
+        let x = file.readLine()
+    except(ne = NilErr):
+        printErr('x can\'t be nil!')
+    except(fnfe = FileNotFoundErr):
+        printErr('Can\'t find file!')
+    ensure:
+        file.close()
     ..
 
 
@@ -1424,7 +1404,7 @@ ASSERTION
 ITERATORS (?)
 
 
-FLOATING POINT BITWISE OPERATORS (?)
+FLOATING POINT BITWISE OPERATORS - Will Remove this!!
 
 
 HINTS
@@ -1481,7 +1461,7 @@ METAVARS CONTEXT SPECIFIC ENVIRONMENT
         case _.value == 11 : print("This is November, a 30-day Month!")
     print("Not a 30-day Month!")
     ..
-    mut sum = add(a, b) >>> add(_, x)
+    mut sum = add(a, b) |> add(_, x)
     mut tip = func set(a = Int): _ = 25 $ func get(): rt _
 
 
@@ -1545,12 +1525,8 @@ SYMBOL, EXPR, HOMOICONICITY & OTHER SYMBOLIC CLASSES
     let beak = {"hello ", [name]}
     let x = beak[1] # hello
     let y = beak.toStr() # hello Nypro
-    # Functions
-    let foo = Func({Int Int : Bool})
-    # or
-    let foo = func{Int Int : Bool}
     # Expressions
-    mut pat = Expr({call, +, 1, {call, *, 2, 3}})
+    mut pat = Expr({call + 1 {call * 2 3}})
     mut exp = parse("1 + 2 + 3")
     mut ingrid = eval(exp)
     parse(pat)
@@ -1643,7 +1619,7 @@ PREDEFINED TYPES # These types are optimized as part of the lang
     SByte
     Comp, Comp128
     Quat, Quat256
-    Num (0.4) # redefined in 0.8.1 # (combines the features of BigInt, BigFloat)
+    Num (0.4) #= redefined in (0.8.1) =#, BigInt, BigFloat (0.8.2)
     Ratio
 
 
@@ -1751,8 +1727,8 @@ SYNTACTIC SYMBOLS
 
 ---------------! NOTES !------------------------
 VARIABLE BINDING
-- By default variables bind to one type and its subtypes. However depending on assignment operator used
-- the behaviour can be changed.
+- Pluto supports dynamic binding, but unlike other dynamic languages, a variable can only
+- be bound to the type(s) it is initially assigned to.
     mut pat = Integer
     pat = 25i16
     pat = 750i32 # ok
@@ -1770,21 +1746,20 @@ Type of Literals
 - String
     "Hello", 'Hi'
 - Symbol
-    {Root}, {Parent {Child1, Child2}}
+    {Root}, {Parent {Child1 Child2}}
 
 
 NIL
-- Nil is a universal literal. Every type has a nil literal. This means, unlike most langs, all Pluto's
-- types are nullable. The programmer doesn't need to specify which variable gets to be nullable.
-- You can't return a nil value to an variable without handling it. Doing so will invoke NilErr.
+- There are two states an object can have, valued state or nil state. An object with valued state can
+- contain primitive values or other objects, but an object with a nil state can only contain nil.
+- Nil can be assigned to an object directly (a syntactic sugar for the object's nil state),
+- but they cannot be returned. Although one can pass or return an object with a Nil state.
+- The recieving object must handle it or else NilErr will be invoked.
     mut deal = nil
     mut done = deal # error! NilErr
     mut deck = deal?? # deck now accepts nil
-    # you could also handle
-    mut dark = deal?? 0  # dark will be 0 if deal == nil
-- However, you can assign a nil literal directly to a variable without any sideffect. Literals do not return.
-    mut brain = nil
-    mut heart = nil
+    # you could also do this
+    mut dark = deal?? 0  # dark will be 0 if deal is nil
 
 
 OBJECT HIERARCHY
