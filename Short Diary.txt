@@ -1,7 +1,6 @@
 #14/05/16
-
 Pluto is a flexible language. Its design process has also been very flexible.
-What started as an idea two years ago (when I was thinking if there could be a graphical languge that made programming easy) has now become a text-based modern programming languge. My initial thought was along the line of Unreal Engine's blueprint but much more graphical. (I found out later that there is a language like that on code.google.com, though I can't remember the name now)
+What started as an idea two years ago (when I was thinking if there could be a graphical language that made programming easy) has now become a text-based modern programming languge. My initial thought was along the line of Unreal Engine's blueprint but much more graphical. (I found out later that there is a language like that on code.google.com, though I can't remember the name now)
 Last year I joined a Java group on whatsapp, it was one of the most exciting moments. I just finished learning Java and that woud be the perfect place to start working with other professional programmers. Then there was a time someone suggested setting up a Java project for people to contribute and learn from. People submitted their ideas and I submitted mine. But being an Advert and PR dude, I promoted my idea among the members and my idea got the highest vote. 
 I named the language SimpleScript (which Okafor found out was taken) and I wrote the shortest language spec ever-imagined before the next day, an 11-page doc explaining mostly variable and function declarations. The language was pushed as a languge for beginning programmers, but I knew deep down that won't be true for long.
 I wrote another spec for people dealing with the lang parsers. Back then I had the littlest idea about how compilation, interpreting, VM, bytecode, etc. work or how any of it makes sense.
@@ -44,14 +43,24 @@ I'm changing TinyPose to Crude. I initially booked that name for my Pluto Langua
 I might still change it later.
 
 #31/05/16
-I discovered KSI and Deji's channel yesterday. Unbelievable. Been on Youtube for years nw nad I'm just discovering them.
+I discovered KSI and Deji's channel yesterday. Unbelievable. Been on Youtube for years now and I'm just discovering them.
 
 
 #24/07/16
 Last year (or was it the year before?) I noticed that the way most approached AI was wrong. Building an adult-humanoid AI with photographic memory is perhaps the wrong way of developing AI. For me, I think an AI is meant to be grown, just like humans grow from being babies to being adults. The memory model used for AI too is ineffective. For examples we shouldn't record what an AI sees as videos files or what it it hears audio files. Those data types are meant for human perception only. An AI memory model should be about retrieving inputs in the form of textures, shapes or structural bits, that are stored and connected other related bits in a neural digraph. In short, it models how humans remember things. Humans don't remember things photographically, they remember it by piecing experiences together. 
+
 
 #17/08/16
 I've installed vmware since July 29. But I was only able to download Linux last Sunday. I installed and it worked fine, albeit some issues during installation. 
 And the next day, I found out I couldn't resume my pc, so I had to force shut down, which affected the hibernated VM as I was unable to start up my ubuntu VM later. So I had create new one from scratch yesterday and it is urrently working fine.
 I've learnt my lesson to always shutdown the guest OS before hibernating.
 I'm still downloading the VMware tools, it is taking incredibly long, and it is just 160+ mb.
+
+
+#23/08/16
+I just found out today, while skimming through C# 5.0 spec, that the '??' operator I introduced fairly recently to Pluto is also used the same way in C#. Like minds right? Just like when I noticed that Julia also uses the word 'type' instead of the pop 'class' keyword. 
+
+
+#31/08/16
+Yesterday, I discovered Crystal lang. It is a compiled statically-typed language with Ruby-like syntax and that takes type inference a notch higher. It requires almost no type annotations for it to infer types. I had originally thought Pluto as a dynamic interpreted language cos that was the idea I started with, but thinking about it today, the features it has accumulated has made Pluto a statically-typed lang, esp. with type inference and inheritance (default covariance).
+So today, I'm making it official that Pluto is an interpreted statically-typed lang and just like Crystal, it doesn't require type annotations, giving it the dynamic feel. 

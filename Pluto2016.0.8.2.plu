@@ -9,7 +9,8 @@ Major Change:
     Changing assignment operator back to good ol' way, binding to nil-and-one-other-type is still enforced 19/08/16 Nl is now a state #30/08/16
     The block punstuation is now $, it helps resolve some ambiguity in statements like repeat play() | while state == "Play" | x == y ? y | z
         repeat: play() $ while state == "Play" | x == y ? y $ z
-    Added mut for mutable variable declaration; solves some scoping issues
+    Added mut for mutable variable declaration; solves some scoping issues.
+    Pluto is an interpreted statically-typed language that requires no type annotation. #31/08/16
 =#
 
 PLUTO's DESIGN PHILOSOPHY
@@ -17,7 +18,6 @@ PLUTO's DESIGN PHILOSOPHY
 - make it fast
 - make it legible
 - make it consistent
-- make it flexible. Dynamic and statically typed
 - make it lightweight
 
 DESCRIPTION
@@ -94,7 +94,7 @@ VARIABLES AND REFERENCES
         rt val a + b
     let alm = ref add(val x, val y) # warning, return a val to a ref
     swap!(val a, val b)
-    # there is othing like ref iso or ref own, there is however val iso and val own.
+    # there is nothing like ref iso or ref own, there is however val iso and val own.
     mut x = ref iso getName() # error!
     mut y = val own getName() # ok, y gets a copy of name and owns it.
 
@@ -124,6 +124,7 @@ NUMERIC LITERALS
     mut w = 145_ui18 # UInt16
     mut z = .1 # Double
     mut p = .2e-2f # Float
+    mut d = 1.56_f32 # Float
 
 
 ACCESS MODIFIERS
@@ -347,10 +348,17 @@ IF SATEMENT
     else :
         print('invalid value')
     ..
-    if x : # if x does not equal nil or false
-        print('x has been assigned to')
+    # checking if an object is not nil, requires
+    # the '??' operator. This is, in part, due to the ambiguity
+    # with Bool objects. "if bool: print(bool)" would have been
+    # ambigous otherwise. Not knowing whether it checks for not-nil
+    # or it checks for true
+    if x??: # if x is not nil
+        print('x has a value')
     ..
-    if x = getX(): print(x)  # if variables are implicitly mutable
+    if x = getX()??: print("x is not nil")  # if variables are implicitly mutable
+    if !let x = getX()??: print("x is nil")
+
 
 
 
@@ -495,14 +503,8 @@ NIL STATE AND OPERATOR
     # Nil can be assigned to an object directly (a syntactic sugar for the object's nil state),
     # but they cannot be returned. Although one can pass or return an object with a Nil state.
     # The recieving object must handle it or else NilErr will be invoked.
-    if mySalary = getSalary(): print("I don't have a salary") $ else: print("I have a salary") #
-    if let mySalary = getSalary(), let myAllowance = getAllowance(): party() # if any of the if variables is a nil object
-    mut someone = person.getAge() ? _ || printErr('someone is no one') # problem`atic if subject of op is a bool object
-    # better
-    mut someone = person.getAge() == nil ? _ || printerr('someone is no one')
-    # better still
-    mut someone = person.getAge() ?? printerr('someone is no one')
-
+    if mySalary = getSalary()??: print("I don't have a salary") $ else: print("I have a salary") #
+    if let mySalary = getSalary()??, let myAllowance = getAllowance()??: party() # if any of the if variables is a nil object
     mut penny = purse.change() ?? 0 # expression returns 0 if returned value from purse.change() is in a nil object
     mut pay = (jobHours ?? 0) * 50 # when nil operator appears within an expression it should be bracketed
     let balance = remote.(account??Account("Empty")).getBalance()
@@ -611,10 +613,10 @@ GLOBAL FUNCTIONS
 
 
 LIST DECLARATION IN FUNCTION PARAMETER
-   func add(a, b): a + b # parameters a and b are dynamic, their types are known at run-time or inferred at compile-time.
-   func add(a, b = Int): rt a + b # a is dynamic, b is Int
+   func add(a, b): a + b # parameters a and b are deferred-inferred, their types will be inferred when they are called.
+   func add(a, b = Int): rt a + b # a is deferred-inferred, b is Int
    func add(a b =  Int): rt a + b # both a and b are Int, = is left associative here
-   func add4(a b, c d = Int) Int: # a and b are dynamic, c and d are Int
+   func add4(a b, c d = Int) Int: # a and b are deferred-inferred, c and d are Int
       rt a + b + c + d
    ..
 
@@ -1230,9 +1232,7 @@ DATATYPE OBJECTS
     A == DataType? # true
     A == DataType(A)? # true
     A == DataType(Letter)? # true
-    # DataType objects are always assigned eplicitly, else it  cannot a DatatType object
     mut a = DataType(Car) # ok
-    mut a ; a = DataType(Car) # error!, a is dynamic
 
 
 ENUMS
@@ -1727,8 +1727,7 @@ SYNTACTIC SYMBOLS
 
 ---------------! NOTES !------------------------
 VARIABLE BINDING
-- Pluto supports dynamic binding, but unlike other dynamic languages, a variable can only
-- be bound to the type(s) it is initially assigned to.
+- A variable can only be bound to the type(s) it is initially assigned to.
     mut pat = Integer
     pat = 25i16
     pat = 750i32 # ok
@@ -1759,7 +1758,7 @@ NIL
     mut done = deal # error! NilErr
     mut deck = deal?? # deck now accepts nil
     # you could also do this
-    mut dark = deal?? 0  # dark will be 0 if deal is nil
+    mut dark = deal??0  # dark will be 0 if deal is nil
 
 
 OBJECT HIERARCHY
@@ -1913,5 +1912,4 @@ Virtual Machine
 - PlutoMine
 -------------------
 Compilers
-- AOT and JIT Compilers.
-- Static and Dynamic Analysis.
+- AST Interpreter and JIT Compilers.
