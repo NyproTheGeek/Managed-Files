@@ -15,6 +15,18 @@
 - Package Manager
 - Coroutines
 
+
+STATIC ANALYSIS
+- Determining a statically-sized array that has no chance of changing at runtime.
+- Array index verification, where the index is not an expression.
+- Verification of fields and methods for bound variables.
+- Verification of fields and methods for flexible variables where the methods and fields are not inside branching statements. (Look at Crystallang's Union Types)
+- Type inference for bound variables
+- Type inference for flexible variables that are not inside branching statements. (Look at Crystal-lang's Union Types)
+- Identifying scope
+- Identifying passage of variable and the type of passage.
+
+
 META TREES
 - General Scope Tree
 - Inheritance Scope Tree
