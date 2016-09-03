@@ -35,8 +35,5 @@ META TREES
 - Call Interface Lists
 
 
-
-
-
-
-Major Redesign!!! Pluto is an interpreted dynamic language with static-dynamic type system. Redesigned the assignment operators: '=' means flexible; '=:' means specific; '<:' means covariance; '>:' means contravariance. I have cringe for the new set of assignment operators. Hope it becomes better.
+RAND
+symbols syntax are macros

@@ -1,3 +1,15 @@
+// 02/09/16
+// Appending to QTextEdit Without Newline
+// with cursor at the end of added text
+myTextEdit->moveCursor (QTextCursor::End);
+myTextEdit->insertPlainText (myString);
+myTextEdit->moveCursor (QTextCursor::End);
+// with cursor back to prev position
+QTextCursor prev_cursor = myTextEdit->textCursor();
+myTextEdit->moveCursor (QTextCursor::End);
+myTextEdit->insertPlainText (myString);
+myTextEdit->setTextCursor (&prev_cursor);
+
 //25/07/16
 // getting random value
 // RAND_MAX is usually 2^15 -1 = 32767.
@@ -26,7 +38,7 @@ str.remove(15, 7);
 
 // to add and create a folder in a specified directory
 QDir dir(projDir);
-dir.mkdir(projName); 
+dir.mkdir(projName);
 dir.rmdir(projName);
 
 // check for any type
@@ -55,7 +67,7 @@ QString dir = QFileDialog::getExistingDirectory(
 
 
 // get a file from File Explorer
-QString fileName = 
+QString fileName =
 	QFileDialog::getOpenFileName(this, tr("Open File"),
         "/home",
         tr("Images (*.png *.xpm *.jpg);;Text files (*.txt);;XML files (*.xml)"));

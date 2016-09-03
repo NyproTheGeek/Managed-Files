@@ -1,4 +1,5 @@
 #22/08/16
+(* 01/09/16 I've been writing PEG without realizing. I might need to change it to CFG. But this formalism has a natural place in my mind *)
 (*TYPE*)
 type_definition =
     "type" (type_modifier)? identifier (generics)? (enclosed_constructor_parameters)? (inheritance_declaration)? (":")?;
