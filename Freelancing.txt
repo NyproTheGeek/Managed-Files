@@ -1,0 +1,7 @@
+# 06/09/16
+2D ANIMATIONS AND ILLUSTRATIONS
+- explainer videos
+- commercials
+- game character animations (spritesheet and runtime)
+- cartoons
+- motion comics

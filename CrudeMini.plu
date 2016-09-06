@@ -1,0 +1,222 @@
+# 04/08/16
+#=
+- project.json
+- export/
+- images/
+    - image.png
+    - imageMesh.json
+- skeletons/
+    - skeleton.json
+    - skeletonAnimations.json
+
+=#
+
+type Skeleton:
+	mut name =: Str
+	mut imagesFolder =: Str # this is not needed in th runtime end
+	mut id =: Int
+	mut bones =: Map<Str, own Bone>  # boneName||bone
+	mut anims =: Map<Str, own Animation> # animationName||animation
+	mut skins =: Map<Str, own Skin> # skinName||skin
+..
+func animate(skel =: Skeleton, anim =: Str)
+func bridgeAnimate(skel =: Skeleton, anims =: List<Str>)
+func bridgeAnimate(skel =: Skeleton, anims =: List<Str>, curve =: List<CurveGraph>)
+func setSkin(skel =: Skeleton, skin =: Str)
+
+type Bone:
+	mut name =: Str
+	mut skel =: ref Skeleton
+	mut drawOrderIndex =: Int
+	mut children =: List<ref Bone>
+	mut baseParent =: ref Bone
+	mut tipParent =: ref Bone
+	mut spriteSlot =: own SpriteSlot
+	mut pos =: 2 Float []
+	mut angle =: Float
+	mut length =: Float
+	mut propsFlag =: Bits<16>
+..
+
+type SpriteSlot:
+	mut sprites =: Map<Str, own Sprite> # spriteName||sprite
+	mut visibleSprites =: Map<Str, Int> # spriteIndex||alpha # visible sprites with 0-alphas are not rendered
+	mut scale =: 2 Float []
+	mut shear =: 2 Float []
+	mut tint =: 4 Float []
+..
+
+type Sprite:
+	mut name =: Str
+	mut mesh =: own Mesh
+	mut pos =: 2 Float []
+	mut angle =: Float
+	mut scale =: 2 Float []
+	mut shear =: 2 Float []
+	mut rgba =: 4 Float []
+    mut imageName =: Str
+    #=
+	mut texAtlas =: ref TextureAtlas
+	mut texPos =: 2 Float []
+	mut texDimen =: 2 Float []
+	mut texAngle =: Float
+    =#
+..
+
+type Mesh:
+	mut name =: Str
+	mut id =: Int
+	mut vertices =: List<4 Float []> # vertexPosition||vertexUV
+	mut indices =: List<3 Int []>
+	mut meshSeamVertices =: List<3 Float []> # # vertexPosition||influence
+    mut meshSeamVertexIndices =: List<3 Int []>
+	mut abstractMeshVertices =: List<2 Float []>
+    mut abstractMeshVertexIndices =: List<3 Int []>
+..
+
+type Skin:
+	mut name =: Str
+	mut settings =: List<Str, own SpriteSlot> # boneName||spriteSlot # spriteSlot details used to override the ones in the skeleton
+..
+
+
+# ANIMATION
+type Animation: # can be used for transform constraint
+	mut name =: Str
+	mut frames =: HashMap<Int, List<own Timeline>> # frameNumber||Timelines
+..
+
+type BridgeSheet:
+	mut attachedAnimName =: Str
+	mut curves =: Hash<ref Timeline, own CurveGraph> # begin key and preceding curve # destroyed when bridgeSheet is disposed
+..
+
+type CurveGraph:
+	mut isStepped =: Bool
+	mut p1 =: 2 Float []
+	mut p2 =: 2 Float []
+	# if respectively, p1 and p2 are 0,0|1,1 or 0,0|0,0 or 1,1|1,1 or 1,1|0,0 then they are linear
+	# if isStepped is true, then p1.x is used as the step value; it must be in the range 0 and 1
+..
+
+# TIMELINES
+type SubLoop:
+	mut isProgressiveLoop =: Bool
+	mut loopTimes loopCount backTrack =: Int
+	mut curve =: own CurveGraph
+..
+
+type Timeline:
+	mut bone =: Str
+	mut sprite =: "" # if empty, then animation is applied on slot
+..
+
+type ScaleXTimeline [Timeline] :
+	mut frames =: Map<Int, own ScaleXKey> # frameNumber||scaleXKey
+	mut subLoops =: Map<Int, own SubLoop> # frameNumber||subLoop
+..
+
+type ScaleYTimeline [Timeline] :
+	mut frames =: Map<Int, own ScaleYKey> # frameNumber||scaleYKey
+	mut subLoops =: Map<Int, own SubLoop> # frameNumber||subLoop
+..
+
+type RotateTimeline [Timeline]:
+	mut frames =: Map<Int, own RotateKey>
+	mut subLoops =: Map<Int, own SubLoop>
+..
+
+type TranslateXTimeline [Timeline]:
+	mut frames =: Map<Int, own TranslateXKey>
+	mut subLoops =: Map<Int, own SubLoop>
+..
+
+type TranslateYTimeline [Timeline]:
+	mut frames =: Map<Int, own TranslateYKey>
+	mut subLoops =: Map<Int, own SubLoop>
+..
+
+type TranslateXVertexTimeline [Timeline]:
+	mut frames =: Map<Int, own TranslateXVertexKey>
+	mut subLoops =: Map<Int, own SubLoop>
+..
+
+type TranslateYVertexTimeline [Timeline]:
+	mut frames =: Map<Int, own TranslateYVertexKey>
+	mut subLoops =: Map<Int, own SubLoop>
+..
+
+type DrawOrderTimeline [Timeline]:
+	mut frames =: Map<Int, own DrawOrderKey>
+	mut subLoops =: Map<Int, own SubLoop>
+..
+
+type TintTimeline [Timeline]:
+	mut frames =: Map<Int, own TintKey>
+	mut subLoops =: Map<Int, own SubLoop>
+..
+
+type SwapTimeline [Timeline]:
+	mut frames =: Map<Int, own SwapKey>
+	mut subLoops =: Map<Int, own SubLoop>
+..
+
+# KEYS
+type Key
+
+type ScaleXKey [Key]:
+	mut value =: Float
+	mut curve =: CurveGraph
+..
+
+type ScaleYKey [Key]:
+	mut value =: Float
+	mut curve =: CurveGraph
+..
+
+type RotateKey [Key]:
+	mut value =: Float
+	mut curve =: CurveGraph
+..
+
+type TranslateXKey [Key]:
+	mut value =: Float
+	mut curve =: CurveGraph
+..
+
+type TranslateYKey [Key]:
+	mut value =: Float
+	mut curve =: CurveGraph
+..
+
+type TranslateXVertexKey [Key]:
+	mut value =: Float
+	mut curve =: CurveGraph
+..
+
+type TranslateYVertexKey [Key]:
+	mut value =: Float
+	mut curve =: CurveGraph
+..
+
+type DrawOrderKey [Key]:
+	mut boneOrderSwap =: List<2 Int []> # old pos and new pos
+..
+
+type TintKey [Key]:
+	mut tint =: 4 Float [] # rgba
+	mut curve =: CurveGraph
+..
+
+type SwapKey [Key]:
+	mut visibleSprites =: Hash<Str, Int> # spriteName||alpha
+	mut curve =: CurveGraph
+..
+
+
+######################################################
+
+type TextureAtlas:
+	mut name =: Str
+	mut bitmap =: Vec4f [,]
+..

@@ -56,23 +56,19 @@ VARIABLE DECLARATION & INITIALIZATION
     mut y = 12f
     mut z = 'Hello'
     mut a =: Car('Camaro')
-    mut b = Car('Camaro').setDate(2014) # ok
+    mut b = Car('Camaro').setDate(2014)
     mut n = getCar('Camaro')
     mut o = add(2, 4)
     mut p = List<Car>(3) # generics
-    func add (a b c = UInt) Int
-    func add (a = 1, b = 2, c = UInt(3)) UInt
 
 
 SPECIFYING TYPES
-    # type specification in declaration is used to specify what types a variable can be bind to
-    mut p = Person("Bradley") # Flexible assignment, variable can be assigned another type.
-    mut p = Person # error! You can't do explicitly binding with '=' operator
+    mut p = Person("Bradley") # Flexible assignment, variable can be assigned another type later.
+    mut p = Person # error! You can't do strict binding with '=' operator
     mut p =: Person # Strictly bound to Person and Person's subtypes.
     mut a =: [] # when used with array or dict it means the container must be populated with a particular type only.
-    func add(a b =: Int) # this function is specific and will be called when ther is a an operation like add(1, 2)
-    # this can also be accomplished in this manner
-
+    let d = "Hello, world!" # Flexible variables can also be constant, even though they are promoted to Strictly
+    mut r = 25, r =: 0.3 # error! flexible variables cannot be canged later to strict variables and vice-versa
 
 
 VARIABLES AND REFERENCES
@@ -111,6 +107,7 @@ LIST DECLARATION
    mut a, b, c = arr[2:4]
    mut x, y = y, x
    let a, b, c, d = [1:4]
+   mut loopTimes loopCount backTrack =: Int # you can omit the commas too
 
 
 NUMERIC LITERALS
@@ -212,7 +209,7 @@ DICTIONARIES / TUPLES
         'Steve Rogers'   : 'Captain America', 32 |
         'Tchaka Tchalla' : 'Black Panther'  , 29
     ]
-    let candidate = |index name| [ # specifying headers
+    let candidate = [ # specifying headers
         1 : 'Aditya' |
         2 : 'Nypro'
     ]
@@ -221,7 +218,9 @@ DICTIONARIES / TUPLES
     list(candidate.name) # "Aditya", "Nypro"
     list(candidate[1]) # 1, "Aditya"
     let aditya = Str Int Int ["Aditya Singh": 19, 6.2]
-    let aditya = |name age height| Str Int Int ["Aditya Singh", 19, 6.2]
+    let aditya = Str Int Int ["Aditya Singh", 19, 6.2]
+    for index, name thru candidate:
+        print("[index] : [candidate]")
 
 
 ARRAY SLICING
@@ -305,9 +304,8 @@ STRING OPERATIONS
 
 
 NON-STANDARD STRING LITERAL
-   let byteArr = ba"87004" # 8, 7, 0, 0, 4 repesent the actual byte to be placed in memory
+   let byteArr = ba"87004" # 8, 7, 0, 0, 4 represent the actual byte to be placed in memory
    mut byteArr = bv"data\xff" # converts the values d, a, t, a, \xff into binary that fits in a byte
-   mut myRegex = re"^(\w+)$"
 
 
 ESCAPE SEQUENCE
@@ -358,8 +356,7 @@ IF SATEMENT
     ..
     if x =: getX()??: print("x is not nil")  # if variables are implicitly mutable
     if !let x =: getX()??: print("x is nil")
-
-
+    if let mySalary = getSalary()??, let myAllowance = getAllowance()??: letsParty()
 
 
 FOR LOOP
@@ -499,16 +496,12 @@ NOT IN
 
 NIL STATE AND OPERATOR
     # There are two states an object can have, valued state or nil state. An object with valued state can
-    # contain primitive values or other objects, but an object with a nil state can only contain nil.
-    # Nil can be assigned to an object directly (a syntactic sugar for the object's nil state),
-    # but it cannot be returned. Although one can pass or return an object with a Nil state.
-    # The recieving object must handle it or else NilErr will be invoked.
-    if mySalary = getSalary()??: print("I don't have a salary") $ else: print("I have a salary") #
-    if let mySalary = getSalary()??, let myAllowance = getAllowance()??: party() # if any of the if variables is a nil object
-    mut penny = purse.change() ?? 0 # expression returns 0 if returned value from purse.change() is in a nil object
+    # contain primitive values or other objects, but an object with a nil state only has nil.
+    mut name = nil # Flexible variables can be assigned nil
+    let name =: Str.nil # Strictly bound variables cannot, the nil must be of a particular object
+    mut penny = purse.change() ?? 0 # This expression returns 0 if returned value from purse.change() is in a nil object
     mut pay = (jobHours ?? 0) * 50 # when nil operator appears within an expression it should be bracketed
-    let balance = remote.(account??Account("Empty")).getBalance()
-    let currentUser = server.getUser()?? # this means currentUser can be nil
+    let balance = remote.(account??Account("Empty")).getBalance() # Needs to be handled if returned nil is not of a particular object
 
 
 ONE-LINE BLOCK
@@ -956,7 +949,7 @@ DESTRUCTORS
         func (name)
         func (name, model)
         func (!) : # Destructor implicitly contains a first parameter of type Car
-            print('Object Deleted!')
+            print('Object Destroyed!')
     ..
 
 
@@ -1203,33 +1196,31 @@ DATATYPE OBJECTS
     mut var = Car("Camaro")
     typeOf(var) # Car
     typeOf(Car) # DataType
-    typeOf(DataType(Car)) # DataType
-    # a DataType variable is always immutable, even parameters with default values
-    checkType(a = DataType(Str), b): b === a?
+    checkIfStr(a): a === Str?
     # Note that a DataType object, assuming Artist with a parent type Person, is a DataType,
     # is a DataType(Artist) and is a DataType(Person)
     enum Letter: A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z
-    A == DataType? # true
-    A == DataType(A)? # true
-    A == DataType(Letter)? # true
-    mut a = DataType(Car) # ok
-
+    A === DataType? # true
+    A == A? # true
+    A == Letter? # true
+    let a = DataType(Car) # DataType objects are exposed thru DataType constructor and can be assigned to variables
+    print(a) # Car
 
 ENUMS
     # enum is an abstract type that contains ONLY its subtypes.
     # its subtypes are all constructor types and only extend the enum
     # also an enum object expects a subtype as value
     enum Friends: Deji, Tosin, Tola # Deji, Tosin and Tola are parameterless conctructor types
-    match whichFriend(f =: Friend):
+    match whichFriend(f =: Friends):
         case Deji : print("This is Deji")
         case Tosin : print("This is Tosin")
         case Tola : print("This is Tola")
     ..
-
+    mut closeFriend =: Friends.Deji
+    whichFriend(closeFriend)
     enum Number: IntegerNumber(i =: Integer), RealNumber(r =: Real) # IntegerNumber and RealNumber are constructor types
-
-    # You can access an enum subtype using the access operator
-    mut dataType = Friends[1] # Returns a DataType object, here the DataType object is Deji
+    # Enums provide access to its subtypes using the access operator
+    Friends[1] # Returns a DataType object, here the DataType object is Deji
     # Iterating thru enum
     for x thru Friends:
         print(x)
@@ -1242,27 +1233,28 @@ PATTERN MATCHING
     type Leaf<T>(value =: T) [Tree]
     type Node (l = Leaf, r = Tree) [Tree]
     match sum(t =: Tree):
-        case a == Leaf: a.value
-        case a == Node: sum(a.l) + sum(a.r)
+        case Leaf: t.value
+        case Node: sum(t.l) + sum(t.r)
     ..
     mut x = Node(Leaf<Int>(1), Node(Leaf<Int>(2), Leaf<Int>(3)))
     mut y = sum(x)
     # or better
     enum Tree<T>: Leaf(value =: T), Node(l =: Leaf, r = Tree)
     match sum(t =: Tree):
-        case Leaf: a.value
-        case Node: sum(a.l) + sum(a.r)
+        case Leaf: t.value
+        case Node: sum(t.l) + sum(t.r)
     ..
     # you can use this verbose version
     mut x =: Tree<Int>.Node(Tree<Int>.Leaf(1), Tree<Int>.Node(Tree<Int>.Leaf(2), Tree<Int>.Leaf(3)))
     # or better
-    mut x =: Tree<Int>(_.Node(_.Leaf(1), _.Node(_.Leaf(2), _.Leaf(3))))
+    mut x =: Tree.Node(Leaf(1), Node(Leaf(2), Leaf(3))) # the generic type is inferred
     mut y =: sum(x)
 
 
 REGEX
-    mut x =: Regex("\d+")
-    mut x =: re"\d+"
+    mut number =: /\d+(\.\d+(e[-+]\d+)?)?/
+    mut input = "23.4e+5"
+    if input ~= number: print("input is a number") $ else print("input is not a number")
 
 
 EXPLICIT TYPE CASTING
@@ -1422,9 +1414,9 @@ COMPOUND HINT
 
 
 NON-STANDARD STRING LITERAL HINT
-    myRegex =: re"^(\w+)$"
+    byteArray =: ba"87004"
     @strLiteral:
-        re: {Regex(_str)}
+        re: {ByteArray(_str)}
 
 
 METAVARS CONTEXT SPECIFIC ENVIRONMENT
@@ -1546,8 +1538,8 @@ RATIONAL CLASS
 
 RAW CLASS
     # bits stored in multiples of 8
-    let bits8 = Raw<8>
-    let bits16 = Raw<16>
+    let bits8 = Bits<8>
+    let bits16 = Bits<16>
 
 
 INTEGER BITWISE OPERATORS
