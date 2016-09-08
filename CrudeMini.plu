@@ -65,10 +65,9 @@ type Sprite:
 
 type Mesh:
 	mut name =: Str
-	mut id =: Int
 	mut vertices =: List<4 Float []> # vertexPosition||vertexUV
 	mut indices =: List<3 Int []>
-	mut meshSeamVertices =: List<3 Float []> # # vertexPosition||influence
+	mut meshSeamVertices =: List<3 Float []> # vertexPosition||influence
     mut meshSeamVertexIndices =: List<3 Int []>
 	mut abstractMeshVertices =: List<2 Float []>
     mut abstractMeshVertexIndices =: List<3 Int []>
@@ -83,12 +82,12 @@ type Skin:
 # ANIMATION
 type Animation: # can be used for transform constraint
 	mut name =: Str
-	mut frames =: HashMap<Int, List<own Timeline>> # frameNumber||Timelines
+	mut frames =: Map<Int, List<own Timeline>> # frameNumber||Timelines
 ..
 
 type BridgeSheet:
 	mut attachedAnimName =: Str
-	mut curves =: Hash<ref Timeline, own CurveGraph> # begin key and preceding curve # destroyed when bridgeSheet is disposed
+	mut curves =: Hash<ref Timeline, own CurveGraph>
 ..
 
 type CurveGraph:
@@ -200,7 +199,7 @@ type TranslateYVertexKey [Key]:
 ..
 
 type DrawOrderKey [Key]:
-	mut boneOrderSwap =: List<2 Int []> # old pos and new pos
+	mut boneOrderIndex =: Int # number of steps backward
 ..
 
 type TintKey [Key]:
@@ -209,7 +208,7 @@ type TintKey [Key]:
 ..
 
 type SwapKey [Key]:
-	mut visibleSprites =: Hash<Str, Int> # spriteName||alpha
+	mut visibleSprites =: Hash<Str, Float> # spriteName||alpha
 	mut curve =: CurveGraph
 ..
 

@@ -1,13 +1,13 @@
 #ifndef DRAWORDERKEY_H
 #define DRAWORDERKEY_H
 
-#include <QList>
+#include "Key.h"
 
-class DrawOrderKey
+class DrawOrderKey : public Key
 {
 public:
     DrawOrderKey();
-    QList<int [2]> boneOrderSwap;
+    int boneOrderIndex; // number of steps backward
 };
 
 #endif // DRAWORDERKEY_H

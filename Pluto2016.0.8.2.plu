@@ -660,7 +660,7 @@ MUTATIVE FUNCTIONS
 
 UNOVERLOADABLE FUNCTIONS
    func add(args = [])
-   func add<T>(args =: [] T) T
+   func add<T>(args =: T[]) T
 
 
 RETURNING AN ARRAY
@@ -678,11 +678,11 @@ RETURNING AN ARRAY
    ..
 
 
-RETURNING A DICT
+RETURNING A TUPLE
    func getDetails(u = User):
-      rt (name, age) [.name, .age ]
+      rt [.name, .age ]
    ..
-   mut x = (id, age) getDetails() # the headers can be respecified
+   mut x = getDetails() # the headers can be respecified
 
 
 RETURNING VARIABLES
@@ -955,11 +955,11 @@ DESTRUCTORS
 
 PROPERTIES / GETTERS SETTERS
     mut myVar1 = func set(a b c =: Int): _ = a * b * c $ func get(): rt _
-    myVar1 = 1, 2, 3
+    myVar1 = (1, 2, 3)
     mut myVar2 =
         func set(a b =: Int): _ = a * b * c
         func get(): rt _
-    myVar2 = 1, 2
+    myVar2 = (1, 2)
     mut myVar3 = func set(a =: Int): _ = a $ func get(): rt _
     myVar3 = 1
     mut myVar4 = func set(a =: Int) $ get()
@@ -1011,7 +1011,6 @@ TYPE ALIAS
    import marko.IO: MarkosSimplifiedRegex as Regex
    func(Str Int)Str as StrIntFunc
    mut d = StrIntFunc
-
 
 
 METHOD CHAINING
@@ -1131,10 +1130,10 @@ CALLING SUPER
 
 
 VIRTUAL METHODS
-   func respond(a =: Listener) # a method without a body is implicitly virtual and cannot be called however.
-   # constructors cannot be virtual and therefore use the same syntax for shortening initialisation
-   @mask
-   func respond(a =: ButtonListener) # error, a virtual super method can't be overriden by a virtual sub method
+    func respond(a =: Listener) # a method without a body is implicitly virtual and cannot be called however.
+    # constructors cannot be virtual and therefore use the same syntax for shortening initialisation
+    @mask
+    func respond(a =: ButtonListener) # error, a virtual super method can't be overriden by a virtual sub method
 
 
 COVARIANT OVERRIDE
@@ -1206,6 +1205,7 @@ DATATYPE OBJECTS
     let a = DataType(Car) # DataType objects are exposed thru DataType constructor and can be assigned to variables
     print(a) # Car
 
+
 ENUMS
     # enum is an abstract type that contains ONLY its subtypes.
     # its subtypes are all constructor types and only extend the enum
@@ -1254,7 +1254,7 @@ PATTERN MATCHING
 REGEX
     mut number =: /\d+(\.\d+(e[-+]\d+)?)?/
     mut input = "23.4e+5"
-    if input ~= number: print("input is a number") $ else print("input is not a number")
+    if input =~ number: print("input is a number") $ else print("input is not a number")
 
 
 EXPLICIT TYPE CASTING
@@ -1286,8 +1286,8 @@ ATOMIC BLOCKS # Will Remove this and follow goroutines implementation # lock can
 
 OPERATOR OVERLOADING
     func +(x =: Number, y = Number): x.value + y.value
-    _setIndex(a =: Int): arr[a]
-    _convert(a =: DataType(MyString), b = Int): b.toStr()
+    func _setIndex(a =: Int): arr[a]
+    func _value(a =: MyNumber): a.value
     # you can't add "!" infront of a mutative operator function
     func ++(a =: Number): a.value++
     # check Julia and Swift for reference
@@ -1434,13 +1434,24 @@ METAVARS CONTEXT SPECIFIC ENVIRONMENT
 
 
 LIST OF METAVARS
-   _init # to check if sth is initialised
-   _
-   _last
-   _even
-   _odd
-   _min
-   _max
+    # MetaVars can be functions and variables
+    # Some metavars can be overloaded, some others can't
+    _init # to check if sth is initialised
+    _
+    _last
+    _even
+    _odd
+    _min
+    _max
+
+
+VALUE METAVAR
+    # Returned value must be a prinmitive value
+    # This represents the objects value
+    func _value(num =: MyNumber): rt num.value
+    mut x = MyNumber(12)
+    print("[x] is my number")
+    mut myMap =: Map<MyNumber, Int> # sorted by MyNumber's _value
 
 
 REFLECTION
@@ -1493,7 +1504,7 @@ SYMBOL, EXPR, HOMOICONICITY & OTHER SYMBOLIC CLASSES
     let bean = {hello {hi {halo}}} # can be nested too
     let beak = {"hello ", [name]}
     let x = beak[1] # hello
-    let y = beak.toStr() # hello Nypro
+    let y = beak._value # hello Nypro
     # Expressions
     mut pat =: ex{1 + 2 * [number]}
     mut exp = parse("1 + 2 * 3")
@@ -1519,7 +1530,7 @@ CPLUSPLUS SYMBOL
 NON-STANDARD SYMBOL LITERAL HINT
     mut cxxCode = cpp{void main() {printf("Hello")}}
     @symLiteral:
-        cpp = {Cpp(_sym.toStr())}
+        cpp = {Cpp(_sym._value}
 
 
 NUMERIC CLASS
@@ -1674,6 +1685,8 @@ OPERATORS
     !<:
     =>:
     !>:
+    =~
+    !~
     !
     >
     <

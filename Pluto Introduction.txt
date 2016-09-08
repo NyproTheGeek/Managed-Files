@@ -1,0 +1,44 @@
+# Composed on 28/08/16
+INTRODUCING PLUTO
+Good day folks,
+I'm presenting my programming language, Pluto, and I'm going to give a little background on it.
+If you don't have time for the story, you can grab the IDE (Linux or Windows) here and try Pluto out. The IDE also comes with an interactive REPL, a {compiler}, intellisense-like code assistant and the language specification, so it is pretty self-sufficient to get started with. Note that the implementation is currently incomplete, so not all of Pluto's features are available out of the box.
+September, 2015, I joined a WhatsApp group for Java programmers. I found the group through this platform and I quickly became an active member on it.
+At one point, the group wanted a project to work on so I pitched the programming language idea. I thought it would be a fun project to take on and I promoted the idea among the members (being a PRAD guy of course :)). My idea got the highest vote and with flaming enthusiasm, I wrote a rough 11-page language specification the next day. We named it SimpleScript because I wanted it to be aimed at newbies and kids.
+The initial days were fun as people threw ideas around on how to implement the language in Java. We were all working on the language's lexer and parser, even though none of us had the slightest idea how language design or compilers works. We thought it would be a cake walk. We were wrong!
+A few weeks later, the project became lifeless and I shoved the idea into my "later stuff" shelf.
+Early this year, Aditya, the last folk on the project revived it again, he didn't want the project to die so he tried developing an IDE for the language while I decided the language needed a new name. People suggested names, Aditya suggested tons and I was attracted with one of his suggestions. Pluto. By now, the language has no particular goal in sight because I kept adding features I found cool, although, I always wanted the language to have a small footprint and be expressive, so the name, Pluto, made sense to me at the time. I promoted the name again and it got the highest vote. And from there I kept designing and redesigning the language whenever I had the chance to. I read topics on compiler design and learnt about the decisions that went into some design choices in other programming languages. I also drew inspiration from syntaxes of other languages, my favorites being Python, Swift and Julia.
+
+Currently I'm the only dude working on Pluto, so let me list out the paradigms and features Pluto is expected to support.
+- Procedural
+- Object-oriented
+- First-class Functions
+- Lambdas
+- Closures
+- List Comprehension
+- Events
+- Coroutines
+- Properties
+- Expression-oriented
+- Optional Typing
+- Operator Overloading
+- Generics
+- Regex
+- Exception Handling
+- Multiple Inheritance (Sorry :/, I prefer this to traits, mixins or interfaces)
+- Multiple Dispatch
+- Algebraic Data Types and Pattern Matching
+- Meta Programming
+- Automatic Reference Counting (Sorry again :/, I prefer this to tracing GCs)
+
+As Pluto is still currently in development, some of these features may not make it to 1.0 and some other unprecedented features may be added too.
+
+Being a language designer, as weird as it sounds whenever I call myself that, has been an eye-opening exposition. I've had moments of overwhelming euphoria, depression, satisfaction, frustration, stress, angst and pride. I think the most fulfilling part is the eureka moment and I'm so elated to have completed the first demo of the language and to make it available to whoever cares to see.
+I know some of you will ask about my motive behind creating Pluto, so here are my short answers.
+As for why I did it, even when there are gazillions other languages out there with similar features. I did it mostly for fun and I was also challenging myself.
+As for what is special about Pluto. Nothing much. It does a lot of things differently that makes it unique in those aspects. Pluto is joining the new waves of hi-perf dynamic language like Julia and I think its most interesting feature is the synergy between method inheritance and multiple dispatch, something Julia shies away from.
+As for what I intend to do next. I will make it open-source and continue its the development whenever I have the chance to. I will also like to make it available to institutions as example language for compiler and language design classes.
+
+Pluto is a general purpose language. I could probably write web apps, native apps, games, etc., in it, but wrapping the gazillions of libraries and frameworks out there is a humongous undertaking, so I consider Pluto a lab language at the moment. A language for you to play and experiment with.
+
+Questions, comments, critics and suggestions are welcomed.

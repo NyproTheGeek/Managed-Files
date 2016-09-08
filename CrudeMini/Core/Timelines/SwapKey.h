@@ -6,7 +6,7 @@
 #include <QHash>
 #include <QString>
 
-class SwapKey : Key
+class SwapKey : public Key
 {
 public:
     SwapKey();
