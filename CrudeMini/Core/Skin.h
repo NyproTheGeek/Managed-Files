@@ -2,6 +2,7 @@
 #define SKIN_H
 
 #include "SpriteSlot.h"
+#include <QMap>
 #include <QString>
 
 class Skin
@@ -9,7 +10,7 @@ class Skin
 public:
     Skin();
     QString name;
-    QList<QString, SpriteSlot> settings; // boneName||spriteSlot
+    QMap<QString, SpriteSlot> settings; // boneName||spriteSlot
 };
 
 #endif // SKIN_H

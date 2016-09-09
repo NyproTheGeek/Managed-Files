@@ -13,7 +13,7 @@
 
 type Skeleton:
 	mut name =: Str
-	mut imagesFolder =: Str # this is not needed in th runtime end
+	mut imagesFolder =: Str # this is not needed in the runtime end
 	mut id =: Int
 	mut bones =: Map<Str, own Bone>  # boneName||bone
 	mut anims =: Map<Str, own Animation> # animationName||animation
@@ -75,7 +75,7 @@ type Mesh:
 
 type Skin:
 	mut name =: Str
-	mut settings =: List<Str, own SpriteSlot> # boneName||spriteSlot # spriteSlot details used to override the ones in the skeleton
+	mut settings =: Map<Str, own SpriteSlot> # boneName||spriteSlot # spriteSlot details used to override the ones in the skeleton
 ..
 
 

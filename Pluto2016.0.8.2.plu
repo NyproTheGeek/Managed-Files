@@ -63,12 +63,12 @@ VARIABLE DECLARATION & INITIALIZATION
 
 
 SPECIFYING TYPES
-    mut p = Person("Bradley") # Flexible assignment, variable can be assigned another type later.
+    mut p = Person("Bradley") # loosely-bound assignment, variable can be assigned another type later.
     mut p = Person # error! You can't do strict binding with '=' operator
     mut p =: Person # Strictly bound to Person and Person's subtypes.
-    mut a =: [] # when used with array or dict it means the container must be populated with a particular type only.
-    let d = "Hello, world!" # Flexible variables can also be constant, even though they are promoted to Strictly
-    mut r = 25, r =: 0.3 # error! flexible variables cannot be canged later to strict variables and vice-versa
+    mut a =: Int[] # when used with array or dict it means the container must be populated with a particular type only.
+    let d = "Hello, world!" # loosely-bound variables can also be constant, even though they are promoted to Strictly
+    mut r = 25, r =: 0.3 # error! loosely-bound variables cannot be canged later to strict variables and vice-versa
 
 
 VARIABLES AND REFERENCES
@@ -246,10 +246,10 @@ MULTIDIMENSIONAL ARRAY
     mut arr = [1, 2 | 3, 4] # vhcat
     # 1 2
     # 3 4
-    mut arr = [1 2] # hcat
+    mut arr = [1 2] # hcat # might change the to just vhcat
     # 1
     # 2
-    mut arr = [1 2 | 3 4] # hvcat
+    mut arr = [1 2 | 3 4] # hvcat # might change the to just vcat and vhcat
     # 1 3
     # 2 4
 
@@ -269,9 +269,9 @@ ARRAY OBJECT ARITHMETIC AND COMPARISON OPERATIONS
 MATRIX-VECTOR OPERATIONS # column major order
     mut mP = 2x2 [2, 4, 3 | 3, 1, 5] * [3, 10 | 4, 2 | 1, 7]
     mut mX =: Mat.identity(2, 2)
-    mut mY = 4x2 Int [
-        1, 1, 1, 0 |
-        0, 1, 1, 1 |
+    mut mY = 2x4 Int [ # might change the to just vhcat
+        1 1 1 0 |
+        0 1 1 1 |
     ]
 
     let mZ = mX / mY
@@ -313,9 +313,9 @@ ESCAPE SEQUENCE
 
 
 MULTILINE STRINGS
-   let cap =:
-   "Hello "
-   "World"
+   let greeting =:
+   "Hello,"
+   " world!"
 
 
 VERBATIM STRING
@@ -347,16 +347,16 @@ IF SATEMENT
         print('invalid value')
     ..
     # checking if an object is not nil, requires
-    # the '??' operator. This is, in part, due to the ambiguity
+    # the '~' operator. This is, in part, due to the ambiguity
     # with Bool objects. "if bool: print(bool)" would have been
     # ambigous otherwise. Not knowing whether it checks for not-nil
     # or it checks for true
-    if x??: # if x is not nil
+    if x~: # if x is not nil
         print('x has a value')
     ..
-    if x =: getX()??: print("x is not nil")  # if variables are implicitly mutable
-    if !let x =: getX()??: print("x is nil")
-    if let mySalary = getSalary()??, let myAllowance = getAllowance()??: letsParty()
+    if x =: getX()~: print("x is not nil")  # if variables are implicitly mutable
+    if !let x =: getX()~: print("x is nil")
+    if let mySalary = getSalary()~, let myAllowance = getAllowance()~: letsParty()
 
 
 FOR LOOP
@@ -499,9 +499,9 @@ NIL STATE AND OPERATOR
     # contain primitive values or other objects, but an object with a nil state only has nil.
     mut name = nil # Flexible variables can be assigned nil
     let name =: Str.nil # Strictly bound variables cannot, the nil must be of a particular object
-    mut penny = purse.change() ?? 0 # This expression returns 0 if returned value from purse.change() is in a nil object
-    mut pay = (jobHours ?? 0) * 50 # when nil operator appears within an expression it should be bracketed
-    let balance = remote.(account??Account("Empty")).getBalance() # Needs to be handled if returned nil is not of a particular object
+    mut penny = purse.change()~0 # This expression returns 0 if returned value from purse.change() is in a nil object
+    mut pay = (jobHours~0) * 50 # when nil operator appears within an expression it should be bracketed
+    let balance = remote.(account~Account("Empty")).getBalance() # Needs to be handled if returned nil is not of a particular object
 
 
 ONE-LINE BLOCK
@@ -668,7 +668,7 @@ RETURNING AN ARRAY
       mut arr = [a + b, a + c, b + c]
       arr
    ..
-   p, q, r = 1, 2, 3
+   p, q, r =: 1, 2, 3
    x, y, z = addThree(p, q, r)
    w= addThree(p, q, r)[1] + z
 
@@ -699,12 +699,12 @@ RETURNING VARIABLES
    func getOwnership() [,]:
       rt array
    ..
-   mut pat = val getVal() # redundant
+   mut pat =: val getVal() # redundant
    mut put = ref getRef() # redundant
    mut pit = read getReadOnly() # redundant
-   let cup = ref getVal() # returned value is moved
-   let cap = val getRef() # returned reference is copied
-   mut cep = own getRef() # error, already has reference
+   let cup =: ref getVal() # returned value is moved
+   let cap =: val getRef() # returned reference is copied
+   mut cep =: own getRef() # error, already has reference
    mut cip = iso getRef() # error, already has reference
    mut hola = read getVal() # returned value is moved, but cannot write
 
@@ -1247,7 +1247,7 @@ PATTERN MATCHING
     # you can use this verbose version
     mut x =: Tree<Int>.Node(Tree<Int>.Leaf(1), Tree<Int>.Node(Tree<Int>.Leaf(2), Tree<Int>.Leaf(3)))
     # or better
-    mut x =: Tree.Node(Leaf(1), Node(Leaf(2), Leaf(3))) # the generic type is inferred
+    mut x =: Tree.Node(_.Leaf(1), _.Node(Leaf(2), _.Leaf(3))) # the generic type is inferred
     mut y =: sum(x)
 
 
@@ -1456,7 +1456,7 @@ VALUE METAVAR
 
 REFLECTION
     # dynmically determining which class to use
-    @if (stage = "runtime", condition = "Main.useOldClass == true"): # ????
+    @if (stage = "runtime", condition = "Main.useOldClass == true"): # ??
         type Class:
             mut value = func set(x Str): _ = x $ func get(): rt _
             func (value)
@@ -1556,7 +1556,7 @@ RAW CLASS
 INTEGER BITWISE OPERATORS
     mut myVar = 2.&2 # and
     mut myVar1 = 2.|2 # or
-    mut myVar3 = ~2 # exclusive or
+    mut myVar3 = .~2 # exclusive or
 
 
 SHIFT OPERATORS
@@ -1609,7 +1609,7 @@ PREDEFINED TYPES # These types are optimized as part of the lang
 
 LOGICAL vs BITWISE OPERATORS
     ! & |
-    ~ .& .|
+    .~ .& .|
 
 
 KEYWORDS
@@ -1733,11 +1733,11 @@ NIL
 - Nil can be assigned to an object directly (a syntactic sugar for the object's nil state),
 - but they cannot be returned. Although one can pass or return an object with a Nil state.
 - The recieving object must handle it or else NilErr will be invoked.
-    mut deal = nil # is Any~nil
+    mut deal = nil # is Any.nil
     mut done = deal # error! NilErr
-    mut deck = deal?? # deck now accepts nil
+    mut deck = deal~ # deck now accepts nil
     # you could also do this
-    mut dark = deal??0  # dark will be 0 if deal is nil
+    mut dark = deal~0  # dark will be 0 if deal is nil
 
 
 OBJECT HIERARCHY
@@ -1891,4 +1891,4 @@ Virtual Machine
 - PlutoMine
 -------------------
 Compilers
-- Bytecode Interpreter and JIT Compiler.
+- Bytecode/AST Interpreter and JIT Compiler.
