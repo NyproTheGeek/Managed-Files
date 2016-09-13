@@ -13,7 +13,6 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        MainWindow.cpp \
     Core/Skeleton.cpp \
     Core/Bone.cpp \
     Core/SpriteSlot.cpp \
@@ -45,9 +44,14 @@ SOURCES += main.cpp\
     Core/Timelines/DrawOrderKey.cpp \
     Core/Timelines/TintKey.cpp \
     Core/Timelines/SwapKey.cpp \
-    Core/Timelines/SubLoop.cpp
+    Core/Timelines/SubLoop.cpp \
+    Core/Timelines/ShearXTimeline.cpp \
+    Core/Timelines/ShearYTimeline.cpp \
+    Core/Timelines/ShearXKey.cpp \
+    Core/Timelines/ShearYKey.cpp \
+    GUI/MainWindow.cpp
 
-HEADERS  += MainWindow.h \
+HEADERS  += \
     Core/Skeleton.h \
     Core/Bone.h \
     Core/SpriteSlot.h \
@@ -79,6 +83,11 @@ HEADERS  += MainWindow.h \
     Core/Timelines/DrawOrderKey.h \
     Core/Timelines/TintKey.h \
     Core/Timelines/SwapKey.h \
-    Core/Timelines/SubLoop.h
+    Core/Timelines/SubLoop.h \
+    Core/Timelines/ShearXTimeline.h \
+    Core/Timelines/ShearYTimeline.h \
+    Core/Timelines/ShearXKey.h \
+    Core/Timelines/ShearYKey.h \
+    GUI/MainWindow.h
 
-FORMS    += MainWindow.ui
+FORMS    += GUI/MainWindow.ui

@@ -14,14 +14,12 @@
 type Skeleton:
 	mut name =: Str
 	mut imagesFolder =: Str # this is not needed in the runtime end
-	mut id =: Int
 	mut bones =: Map<Str, own Bone>  # boneName||bone
 	mut anims =: Map<Str, own Animation> # animationName||animation
 	mut skins =: Map<Str, own Skin> # skinName||skin
 ..
 func animate(skel =: Skeleton, anim =: Str)
-func bridgeAnimate(skel =: Skeleton, anims =: List<Str>)
-func bridgeAnimate(skel =: Skeleton, anims =: List<Str>, curve =: List<CurveGraph>)
+func listAnimate(skel =: Skeleton, anims =: List<Str>, curve =: List<CurveGraph>) # this uses the provided curveGraph between animations else uses the brigeSheets between animations
 func setSkin(skel =: Skeleton, skin =: Str)
 
 type Bone:
@@ -32,29 +30,30 @@ type Bone:
 	mut baseParent =: ref Bone
 	mut tipParent =: ref Bone
 	mut spriteSlot =: own SpriteSlot
-	mut pos =: 2 Float []
 	mut angle =: Float
+	mut pos =: 2 Float []
 	mut length =: Float
-	mut propsFlag =: Bits<16>
+	mut propertyFlags =: Bits<16>
 ..
 
 type SpriteSlot:
 	mut sprites =: Map<Str, own Sprite> # spriteName||sprite
 	mut visibleSprites =: Map<Str, Int> # spriteIndex||alpha # visible sprites with 0-alphas are not rendered
-	mut scale =: 2 Float []
 	mut shear =: 2 Float []
+	mut scale =: 2 Float []
+	mut angle =: Float
+	mut pos =: 2 Float []
 	mut tint =: 4 Float []
 ..
 
 type Sprite:
-	mut name =: Str
+	mut image =: Str
 	mut mesh =: own Mesh
-	mut pos =: 2 Float []
-	mut angle =: Float
-	mut scale =: 2 Float []
 	mut shear =: 2 Float []
+	mut scale =: 2 Float []
+	mut angle =: Float
+	mut pos =: 2 Float []
 	mut rgba =: 4 Float []
-    mut imageName =: Str
     #=
 	mut texAtlas =: ref TextureAtlas
 	mut texPos =: 2 Float []
@@ -69,8 +68,8 @@ type Mesh:
 	mut indices =: List<3 Int []>
 	mut meshSeamVertices =: List<3 Float []> # vertexPosition||influence
     mut meshSeamVertexIndices =: List<3 Int []>
-	mut abstractMeshVertices =: List<2 Float []>
-    mut abstractMeshVertexIndices =: List<3 Int []>
+	mut abstractMeshVertices =: 8 Float []
+    mut abstractMeshVertexIndices =: 6 Int []
 ..
 
 type Skin:

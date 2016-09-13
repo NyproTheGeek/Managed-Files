@@ -285,6 +285,7 @@ STRING TYPE
    mut str = AStr("This is an ascii string") # ASCII string
    mut myStr3 = 'Halo'
    mut str2 = Str
+   let length = "Hello".len()
 
 
 STRING INTERPOLATION
@@ -323,7 +324,8 @@ VERBATIM STRING
    """Use \t for tab and \n for newline"""
 
 
-EXPRESSION CONTINUATION ON NEXT LINE
+
+EXPRESSIONS
     # expressions that are not naturally enclosed like arrays or function calls can be continued
     # on separate lines by enclosing the whole expression in a bracket
     # or by ending each line with a backslash before contnuing the expression on the next line.
@@ -332,6 +334,14 @@ EXPRESSION CONTINUATION ON NEXT LINE
     # or
     let mune = length == 1 ? 25 \
         || 0
+    mut d = "I am a star 28" \ # even for expressions like this you have to use '\'
+        .split(/\s/) \
+        .join \
+        .filter(: _1 !~ \d)
+    # sometimes one would want to write a seris of expression where it is not expected.
+    # In such case, the list of expessions can be ncapsulated in a bracket.
+    func clean(input =: Str): input.filter do x : mut hold y; y != x ? (y = x; true) || false # idiomatic
+
 
 
 IF SATEMENT
@@ -357,6 +367,15 @@ IF SATEMENT
     if x =: getX()~: print("x is not nil")  # if variables are implicitly mutable
     if !let x =: getX()~: print("x is nil")
     if let mySalary = getSalary()~, let myAllowance = getAllowance()~: letsParty()
+
+
+CONDITIONS
+    if x == 10: print("Hi")
+    if x > 0 & x < 10: print("Hello")
+    # or
+    if x > 0 & < 10: print("Hello")
+    # or
+    if 0 < x < 10: print("Hello")
 
 
 FOR LOOP
@@ -388,11 +407,16 @@ FOR LOOP
 
 
 HOLD VARIABLES IN LOOPS
-   for x thru [1:50]:
-      mut hold x = 1
-      print(x * y)
-      x++
-   ..
+    for x thru [1:50]:
+        mut hold x = 1
+        print(x * y)
+        x++
+    ..
+    func recursive():
+        mut hold x = 24 # You can use hold variables in recursive functions
+        if x < 0: print("Yes")
+        else: x--
+
 
 
 LOOP
@@ -449,11 +473,13 @@ CONDITIONAL/TERNARY OPERATOR
     # conditional operator
     mut state = isSick == true? # evaluation returns either true or false, not to be used in an if condition
     if isSick == true? : print("go to the doctor") # error! redundancy
+    func clean(input =: Str): input.filter do x : mut hold y; y != x ? (y = x; true) || false # idiomatic
 
 
 RANGE
    let x, y, z = [1:3]
    for x thru [1:(20 - 1)]: print(x)
+   let x = ['a':'z'].append(['A':'Z'])
 
 
 THRU
@@ -750,6 +776,9 @@ FUNCTION AS ARGUMENTS
 
    func add(a, b): a + b
    addThree(1, 2, 3, add) # passing and already-declared function
+
+   numberList.filter() do x: pivot > x # if a function has no argument, you can ommit the brackets before the do statement
+   numberList.filter do x: pivot > x
 
 
 ANONYMOUS TYPES
@@ -1247,7 +1276,7 @@ PATTERN MATCHING
     # you can use this verbose version
     mut x =: Tree<Int>.Node(Tree<Int>.Leaf(1), Tree<Int>.Node(Tree<Int>.Leaf(2), Tree<Int>.Leaf(3)))
     # or better
-    mut x =: Tree.Node(_.Leaf(1), _.Node(Leaf(2), _.Leaf(3))) # the generic type is inferred
+    mut x =: Tree.Node(_.Leaf(1), _.Node(_.Leaf(2), _.Leaf(3))) # the generic type is inferred
     mut y =: sum(x)
 
 
@@ -1490,7 +1519,8 @@ MATHEMATICAL EXPRESSION
     let tip =: m{3x y z^2} # when there is no operator between 2 operands, multiplication is assumed
     mut pat = m{4y - 2x(z^2) getSalary()} # you can use functions and variables directly
     mut pet = m{4d 5f} # MathExpr doesn't support numeric literals with type prefix. 4d and 5f here means 4 * d * 5 * f
-    mut pot = m{5y [getValue[2]] 3e-1 + [4d]} # Use '[' and ']' to escape literals with fp type prefix or
+    mut pot = m{5y [g
+    etValue[2]] 3e-1 + [4d]} # Use '[' and ']' to escape literals with fp type prefix or
     # variables that use index operator. 4d here is a Double literal and getValue[2] gets the value in index 2.
 
 
