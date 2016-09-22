@@ -78,7 +78,7 @@ OPTIONAL TYPE DECLARATION
   # might change the below behavior in the future
   myNumber = 23 # error! variable already bound to String
 
-'[]'
+
 
 CONSTANT VARIABLE DECLARATION
   let x := 25

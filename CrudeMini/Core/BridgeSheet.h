@@ -13,7 +13,7 @@ class BridgeSheet
 public:
     BridgeSheet();
     QString attachedAnimName;
-    QHash<std::weak_ptr<Timeline>, CurveGraph> curves;
+    QHash<std::shared_ptr<Timeline>, CurveGraph> curves; // no cyclic ref here
     // mut curves =: Hash<ref Timeline, own CurveGraph>
 };
 

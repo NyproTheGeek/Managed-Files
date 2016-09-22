@@ -49,7 +49,20 @@ SOURCES += main.cpp\
     Core/Timelines/ShearYTimeline.cpp \
     Core/Timelines/ShearXKey.cpp \
     Core/Timelines/ShearYKey.cpp \
-    GUI/MainWindow.cpp
+    GUI/MainWindow.cpp \
+    GUI/DopeSheetInterface.cpp \
+    GUI/SceneViewInterface.cpp \
+    GUI/ModelViewInterface.cpp \
+    GUI/ModelListInterface.cpp \
+    GUI/DopeSheetData.cpp \
+    GUI/SceneViewData.cpp \
+    GUI/ModelViewData.cpp \
+    GUI/ModelListData.cpp \
+    GUI/SplitView.cpp \
+    GUI/TabView.cpp \
+    GUI/Interface.cpp \
+    GUI/Dialogs/NewProjDialog.cpp \
+    GUI/Dialogs/OpenProjDialog.cpp
 
 HEADERS  += \
     Core/Skeleton.h \
@@ -88,6 +101,23 @@ HEADERS  += \
     Core/Timelines/ShearYTimeline.h \
     Core/Timelines/ShearXKey.h \
     Core/Timelines/ShearYKey.h \
-    GUI/MainWindow.h
+    GUI/MainWindow.h \
+    GUI/DopeSheetInterface.h \
+    GUI/SceneViewInterface.h \
+    GUI/ModelViewInterface.h \
+    GUI/ModelListInterface.h \
+    GUI/DopeSheetData.h \
+    GUI/SceneViewData.h \
+    GUI/ModelViewData.h \
+    GUI/ModelListData.h \
+    GUI/SplitView.h \
+    GUI/TabView.h \
+    GUI/Interface.h \
+    GUI/Dialogs/NewProjDialog.h \
+    GUI/Dialogs/OpenProjDialog.h
 
-FORMS    += GUI/MainWindow.ui
+FORMS    += GUI/MainWindow.ui \
+    GUI/DopeSheetInterface.ui \
+    GUI/SceneViewInterface.ui \
+    GUI/ModelListInterface.ui \
+    GUI/ModelViewInterface.ui

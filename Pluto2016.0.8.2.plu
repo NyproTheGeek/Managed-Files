@@ -51,7 +51,7 @@ VARIABLE DECLARATION & INITIALIZATION
     mut x # is a mutable
     let y # is a constant
     func add(a, b): rt a + b # function parameters are implicitly mutable
-    func swap!(mut a, mut b): a, b = b, a # error! mut should not be specified in their declaration
+    func swap!(mut a, mut b): a, b = [b, a] # error! mut should not be specified in their declaration
     mut e ; e = Car('Camaro') # semi-colon is used to separate two statements
     mut y = 12f
     mut z = 'Hello'
@@ -103,11 +103,12 @@ OPTIONAL TYPE DECLARATION
    mut myNumber = 23
 
 
-LIST DECLARATION
+CHAINED DECLARATION
    mut a, b, c = arr[2:4]
-   mut x, y = y, x
+   mut x, y = [y, x]
    let a, b, c, d = [1:4]
-   mut loopTimes loopCount backTrack =: Int # you can omit the commas too
+   mut loopTimes loopCount backTrack =: Int # you can ommit the commas too
+   mut person =: Person = Artist("Painter")
 
 
 NUMERIC LITERALS
@@ -166,10 +167,10 @@ ACCESS MODIFIER BLOCK
     ..
 
 
-ARRAYS / LISTS
-   # major diff between lists and arrays is that, the type and size of an array are
-   # inferrable at compile time, this allows for arrays to be stored like traditional array
+ARRAYS
+   #  An array can grow.
    mut fin = Car[('Camaro'), ('Mustang')]
+   mut fan =: [Car('Camaro'), Bike('Ducati')]
    mut gin = 3 Car[] ; mut gin = Car[('Camaro'), ('Mustang'), ('Maserrati')]
    mut tin = 3 [Car('Camaro'), Car('Mustang'), Car('Maserrati')]
    let ted = [1, 2, 3, 4, 5]
@@ -193,54 +194,23 @@ ARRAYS / LISTS
    let pat.foldleft(0, func (a, b): rt a + b) # (((0 + 1) + 2) + 3) + 4 = 10
    mut mat = getArray()
    mut net = getArray() # error, array not exposed, so '[]' must be used
-   list(go) # list elements row-wise
-   list(go[_col]) # list elements col-wise
+   print(go) # list elements row-wise
+   print(go[_col]) # list elements col-wise
    mut dean = Array
    mut dean = [10, 8, 6 ,4, 2]
 
 
-DICTIONARIES / TUPLES
-    # I'm planning on changing this to CSON like representation
-    # the major diff between dict and tuple is that
-    # tuples are not key based and don't have colon after their "key" element
-    mut tup = ['Tola', 1.2, 50, 'Tola']
-    mut dict = [
-        'Peter Parker'   : 'Spider-man'     , 20 |
-        'Steve Rogers'   : 'Captain America', 32 |
-        'Tchaka Tchalla' : 'Black Panther'  , 29
-    ]
-    let candidate = [ # specifying headers
-        1 : 'Aditya' |
-        2 : 'Nypro'
-    ]
-    list(candidate.key(1)) # Aditya
-    list(candidate.index) # 1, 2
-    list(candidate.name) # "Aditya", "Nypro"
-    list(candidate[1]) # 1, "Aditya"
-    let aditya = Str Int Int ["Aditya Singh": 19, 6.2]
-    let aditya = Str Int Int ["Aditya Singh", 19, 6.2]
-    for index, name thru candidate:
-        print("[index] : [candidate]")
-
-
-ARRAY SLICING
-   arr = [1, 2, 3, 4, 5, 6]
-   print(arr[1:3]) # first index to the third
-   print(arr[:5]) # first index to the 5th index
-   print(arr[3:_last]) # 3rd index to the last
-   print(arr[-3:]) # from the 3rd index starting from the back
-   newArr = arr[:] # all elements
-   list(arr[_last:]) # list from behind
-
-
 MULTIDIMENSIONAL ARRAY
-    mut arr = [,]
+    mut arr2D = [|]
+    mut arr3D = [||]
     mut arr = 2x2 [1, 2 | 3, 4]
     let arr = 2x2x2 Int [1, 2 | 2, 3 || 4, 5 | 6, 7]
     mut arr = [1, 2 | 3, 4]
-    list(arr [:])
-    list(arr[2, ]) # list columns in row 2
-    list(arr[, 2]) # list rows in col 2
+    mut d =: List<List<Int>> ; #= better =# mut x =: Int[|] # A multidimensional array is a dictionary
+    mut d = Map<Int, Str> ; #= better =# mut x = Int Str [|]
+    print(arr [:])
+    print(arr[2, ]) # print columns in row 2
+    print(arr[, 2]) # print rows in col 2
     mut arr = [1, 2] # vcat
     # 1 2
     mut arr = [1, 2 | 3, 4] # vhcat
@@ -254,20 +224,59 @@ MULTIDIMENSIONAL ARRAY
     # 2 4
 
 
+
+DICTIONARIES
+    # A multidimensional array is automatically a dictionary
+    mut tuple = ['Tola', 1.2]
+    let candidate = [
+        1, 'Aditya' |
+        2, 'Nypro'
+    ]
+    print(candidate.key(1)) # Aditya
+    print(candidate[1]) # 1, "Aditya"
+    let aditya = Str Int Int ["Aditya Singh", 19, 6.2]
+    let aditya = Str Int Int ["Aditya Singh", 19, 6.2]
+    for index, name thru candidate:
+        print("[index] : [candidate]")
+    # Dictionaries of higher dimension (greater than 2)
+    mut dict3D = [
+        "People",
+            "Tony", 4, 5, 6 |
+            "Brad", 1, 2, 3 ||
+        "Animals",
+            "Bingo", 1, 5, 6 |
+            "Servo", 3, 6, 9 ||
+    ]
+    dict3D["People", "Tony", 1] = 5
+    dict3D["People", "Tony"] = [1, 2, 3]
+    for kind, name, number thru dict3D:
+        put("[kind]::[name]::[number], ")
+
+
+ARRAY SLICING
+   arr = [1, 2, 3, 4, 5, 6]
+   print(arr[1:3]) # first index to the third
+   print(arr[:5]) # first index to the 5th index
+   print(arr[3:_last]) # 3rd index to the last
+   print(arr[-3:]) # from the 3rd index starting from the back
+   newArr = arr[:] # all elements
+   print(arr[_last:]) # print from behind
+
+
 ACCESSING ARRAYS
-    list = Person[("Dave", 25), ("Tony", 45), ("Spencer", 18)]
-    mut names =: list.[name] # returns a list of name fields in the list
-    mut ages = list.[age] # returns a list of age fields in the list
+    mut attendanceList = Person[("Dave", 25), ("Tony", 45), ("Spencer", 18)]
+    mut names =: attendanceList.[name] # returns a list of name fields in the list
+    mut ages = attendanceList.[age] # returns a list of age fields in the list
 
 
 ARRAY OBJECT ARITHMETIC AND COMPARISON OPERATIONS
     # Operations are element-wise
-    if arr1 == arr2: list(arr1)
+    if arr1 == arr2: print(arr1)
     let arr3 = arr1 / arr2
 
 
 MATRIX-VECTOR OPERATIONS # column major order
-    mut mP = 2x2 [2, 4, 3 | 3, 1, 5] * [3, 10 | 4, 2 | 1, 7]
+    mut mP = 2x3 [2, 4, 3 | 3, 1, 5] * [3, 10 | 4, 2 | 1, 7]
     mut mX =: Mat.identity(2, 2)
     mut mY = 2x4 Int [ # might change the to just vhcat
         1 1 1 0 |
@@ -277,6 +286,14 @@ MATRIX-VECTOR OPERATIONS # column major order
     let mZ = mX / mY
     mut mRows, mCols = m.size()
     let mQ = mX’ # z is assigned transpose of matrix u
+
+
+VECTORIZATION AND ARRAYS
+    # Element-wise operations
+    mut mA =: [2, 4, 3 | 3, 1, 5]
+    mut mB =: [3, 10 | 4, 2 | 1, 7]
+    mut mC = mA .* mB # element-wise multiplication
+    let mD =: mA ./ mB ./ mC
 
 
 STRING TYPE
@@ -296,10 +313,10 @@ STRING INTERPOLATION
    print("This is a number: ", 4)
 
 
-STRING OPERATIONS
+STRING OPERATIONS PROPOSAL
    'ab' + 'c' # = 'abc'
    'abc' * 2 # = 'abcabc'
-   'abcabc' + 'ca' # = 'abbc'
+   'abcabc' - 'ca' # = 'abbc'
    'abcabc' / 'c' # = ['ab', 'ab']
    ['ab', 'ab'] * 'c' # = 'abcab'
 
@@ -307,6 +324,7 @@ STRING OPERATIONS
 NON-STANDARD STRING LITERAL
    let byteArr = ba"87004" # 8, 7, 0, 0, 4 represent the actual byte to be placed in memory
    mut byteArr = bv"data\xff" # converts the values d, a, t, a, \xff into binary that fits in a byte
+   let specVersion = ver"0.8.2"
 
 
 ESCAPE SEQUENCE
@@ -325,22 +343,22 @@ VERBATIM STRING
 
 
 
-EXPRESSIONS
+MULTILINE EXPRESSIONS
     # expressions that are not naturally enclosed like arrays or function calls can be continued
     # on separate lines by enclosing the whole expression in a bracket
-    # or by ending each line with a backslash before contnuing the expression on the next line.
+    # or by ending each line with a backslash before continuing the expression on the next line.
     mut yay = (2 * (a / 2)
         + b)
     # or
     let mune = length == 1 ? 25 \
-        || 0
+        :: 0
     mut d = "I am a star 28" \ # even for expressions like this you have to use '\'
         .split(/\s/) \
         .join \
         .filter(: _1 !~ \d)
     # sometimes one would want to write a seris of expression where it is not expected.
     # In such case, the list of expessions can be ncapsulated in a bracket.
-    func clean(input =: Str): input.filter do x : mut hold y; y != x ? (y = x; true) || false # idiomatic
+    func clean(input =: Str): input.filter do x : mut sticky y; y != x ? (y = x; true) :: false # idiomatic
 
 
 
@@ -361,6 +379,9 @@ IF SATEMENT
     # with Bool objects. "if bool: print(bool)" would have been
     # ambigous otherwise. Not knowing whether it checks for not-nil
     # or it checks for true
+    if x: # if x is not nil or false
+        print('x has a value')
+    ..
     if x~: # if x is not nil
         print('x has a value')
     ..
@@ -412,10 +433,11 @@ HOLD VARIABLES IN LOOPS
         print(x * y)
         x++
     ..
-    func recursive():
+    func recursive(y):
         mut hold x = 24 # You can use hold variables in recursive functions
-        if x < 0: print("Yes")
-        else: x--
+        if y < 0: print(y)
+        else: recursive(x - y)
+    ..
 
 
 
@@ -466,14 +488,14 @@ CHAINED CONDITION
 
 CONDITIONAL/TERNARY OPERATOR
     # ternary operator
-    mut myVar1 = myBool == true ? 5 || 6
-    func divide(num, denom): rt denom == 0 ? nan || num / denom
-    mut salary = (workYears > 5 ? 10_000 || 1_000) * rank # when conditional ternary expression appears
+    mut myVar1 = myBool == true ? 5 :: 6
+    func divide(num, denom): rt denom == 0 ? nan :: num / denom
+    mut salary = (workYears > 5 ? 10_000 :: 1_000) * rank # when conditional ternary expression appears
     # within another expression, it must be bracketed
     # conditional operator
     mut state = isSick == true? # evaluation returns either true or false, not to be used in an if condition
     if isSick == true? : print("go to the doctor") # error! redundancy
-    func clean(input =: Str): input.filter do x : mut hold y; y != x ? (y = x; true) || false # idiomatic
+    func clean(input =: Str): input.filter do x : mut sticky y; y != x ? (y = x; true) :: false # idiomatic
 
 
 RANGE
@@ -498,13 +520,13 @@ WHERE
 
 
 FOR COMPREHENSION
-   list = for x thru [1:30] => x % 2 == 0: x * 3
+   mut list = for x thru [1:30] => x % 2 == 0: x * 3
    for b thru books, a thru btitle] => a.startsWith("The"): x
 
 
-THRU/STEP
-    # Not all iterable have a step method
-    for x thru [1:6] step 2:
+STEP
+    # Iterables that have step method
+    for x thru [1:2:9]: # 1, 3, 5, 7, 9
         print(x)
     ..
 
@@ -535,26 +557,26 @@ ONE-LINE BLOCK
       print (a + b)
       rt a + b
    ..
-   func addThree(a b c =: Int) Int: print (a + b + c) ; rt a + b + c
+   func addThree(a b c =: Int): print (a + b + c) ; rt a + b + c
    if x == y
-   if x == y : print(x)
-   if x == y : print(x) $ else : print(y)
+   if x == y: print(x)
+   if x == y: print(x) $ else : print(y)
    if state == "Play": play() $ if state == "Stop": stop()
 
 
 NAMELESS BLOCK
    func doSth():
-       mut x, y, z = 1, 2, 3
+       mut x, y, z = [1, 2, 3]
        use x, y: # can only access x znd y
            print("[x] : [y]")
    ..
    func doSth():
-       mut x, y, z = 1, 2, 3
+       mut x, y, z = [1, 2, 3]
        use: # cannot access variabes from outer scope
            print("[x] : [y]") # error!
    ..
    func doSth():
-       mut x, y, z = 1, 2, 3
+       mut x, y, z = [1, 2, 3]
        func(): # can only access any variable from outer scopes
            print("[x] : [y]") # error!
    ..
@@ -626,12 +648,12 @@ STICKY LOCAL VARIABLES
 GLOBAL FUNCTIONS
    # Pluto comes with some helpful global methods
    mut str = "Hello"
-   length(str)
+   len(str)
    typeMin(25)
    typeOf(Int)
 
 
-LIST DECLARATION IN FUNCTION PARAMETER
+CHAINED DECLARATION IN FUNCTION PARAMETER
    func add(a, b): a + b # parameters a and b are deferred-inferred, their types will be inferred when they are called.
    func add(a, b =: Int): rt a + b # a is deferred-inferred, b is Int
    func add(a b =: Int): rt a + b # both a and b are Int, = is left associative here
@@ -665,19 +687,17 @@ VARIADIC PARAMETERS
    # or better
    func sum(first =: Int, others =: Int []): rt first + others
    mut lion = sum(1, 2, 3, 4, 5, 6)
-
-   mut dean = [1, 2, 3, 4, 5]
-   let jean = sum(0, dean)
-   mut joan = sum(0, [1, 2, 3, 4, 5])
-   mut jane = sum(0, 1, 2, 3, 4, 5)
+   mut tiger = sum(1, 2, 3, [4, 5, 6])
+   mut array = [1, 2, 3, 4, 5]
+   let leopard = sum(0, array)
+   # Conflicts
    func add(a = 3 []): rt sum(a) # conflicts with the function below
    func add(a, b, c): rt a + b + c # conflicts with the function above
 
 
-
 MUTATIVE FUNCTIONS
     func add(x, y): a + b
-    func swap!<T>(x y =: ref T): x, y = y, x # use exclamtion mark for functions
+    func swap!<T>(x y =: ref T): x, y = [y, x] # use exclamtion mark for functions
     # that can mutate objects passed to them
     mut tip = add(2, 3)
     mut top = add(4, 5)
@@ -691,17 +711,12 @@ UNOVERLOADABLE FUNCTIONS
 
 RETURNING AN ARRAY
    func addThree (a b c =: Int) 3 Int []:
-      mut arr = [a + b, a + c, b + c]
-      arr
-   ..
-   p, q, r =: 1, 2, 3
+      [a + b, a + c, b + c]
+   p, q, r =: [1, 2, 3]
    x, y, z = addThree(p, q, r)
-   w= addThree(p, q, r)[1] + z
+   w = addThree(p, q, r)[1] + z
 
-   func addSubTwo(a b =: Int) Int []:
-      let arr = [a + b, a - b]
-      arr
-   ..
+   func addSubTwo(a b =: Int) Int []: [a + b, a - b]
 
 
 RETURNING A TUPLE
@@ -722,7 +737,7 @@ RETURNING VARIABLES
    func getRef():
       rt ref myList
    ..
-   func getOwnership() [,]:
+   func getOwnership() [|]:
       rt array
    ..
    mut pat =: val getVal() # redundant
@@ -738,15 +753,17 @@ RETURNING VARIABLES
 FUNCTION OBJECTS
    mut add2 = add
    mut add3 =: Func
-   mut add =: func(Str)Str
+   mut add =: func(Str)
    func solve(a, b, c =: func(Int Int)Int ): c(a, b)
    mut new = func(a b =: Int): rt a + b
 
 
 EVENTS
-   mut mathOps =: func(Int, Int)Int
-   mut mathOps += add, subtract, divide, multiply # once a other functions are attached to a function, it becomes an event
-   mut mathOps -= divide
+   func add(a, b): a + b
+   add += subtract, divide, multiply
+   add -= multiply
+   mut xeno = add(1, 5) # normal function call
+   emit(add) # use emit keyword to event call a function
 
 
 CLOSURES
@@ -763,11 +780,11 @@ CLOSURES
    ..
    mut sum =: Func
    mut sum = add
-   mut foo =: func(Int, Int)Bool
+   mut foo =: func(Int, Int)
 
 
 FUNCTION AS ARGUMENTS
-   func addThree(a, b, c, foo =: func(Int, Int)Bool):
+   func addThree(a, b, c, foo =: func(Int, Int)):
       rt myFunc(a, b) + c
    ..
    addThree(1, 2, 3, func (a, b): a * b)
@@ -893,7 +910,7 @@ COROUTINES
     print(coroutine()) # 2
     print(coroutine()) # 3
     coroutine.reset() # resets the coroutine
-    list(coroutine()) # [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    print(coroutine()) # [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 
     # Simulated coroutine using sticky variables
     func addUp(a, b):
@@ -918,6 +935,7 @@ TYPE DEFINITION
          self.name = name
          self.model = model
       ..
+      func (!): print("Object Destroyed") # Destructor
    ..
 
 
@@ -1022,24 +1040,28 @@ TYPE CHECKING
 
 
 MODULES AND IMPORT
-    # source files should be marked with module name
-    module Math
-    # a module name can be used on other files within a file-level to mean the same module
-    # if the same module name is used in different file-levels, they are not the same module
-    # import statement imports a module or its contents
-    import Net # imports all types and funcions in a module
-    import nypro.Math: add, subtract # imports only add and subtract functions from the module
-    # Some modules are imported implicitly, the IO module for example
-    # Other stdlib modules are imported at the top-level because they are automatically searched during a module search.
-    import Net: Protocol as Proto
-    import nypro..Math # if the module has the same name as the enclosing file, you can skip the filename # this behaviour is case-insensitive
+    module MyMath
+    #......
+    import MyMath
+    mut x = MyMath.pi * 2
+    #......
+    import MyMath: pi
+    mut y = pi * 2
+    #.......
+    import MyMath: Rational as Ratio, add, pi
+    let y = Ratio(4, 6)
+    let z = add(5, pi)
+    #......
+    import MyMath: *
+    let a =: Ratio(2, 4)
+    let b =: Complex(3, 5)
+    let c = pi * 2
 
 
 TYPE ALIAS
    Int as Meter
-   import marko.IO: MarkosSimplifiedRegex as Regex
-   func(Str Int)Str as StrIntFunc
-   mut d = StrIntFunc
+   func(Str Int) as StrIntFunc
+   mut f = StrIntFunc
 
 
 METHOD CHAINING
@@ -1216,6 +1238,8 @@ GENERICS
     add<Int>(1, 2, 3)
     # you can also do this, since the generic parametric values are inferrablfrom the arguments
     add(1, 2, 3)
+    # Triangular dispatch
+    func colorSpace<T[<:ColorValue], U[<:Image<T>]>()
 
 
 DATATYPE OBJECTS
@@ -1286,10 +1310,11 @@ REGEX
     if input =~ number: print("input is a number") $ else print("input is not a number")
 
 
-EXPLICIT TYPE CASTING
-   mut x =: Int(5)
-   mut y =: Byte(6)
-   let z =: y + Int(y)
+TYPE CASTING
+    mut x =: Int(5)
+    mut y =: Byte(6)
+    let z =: y + Int(y)
+    mut person =: Person = Artist("Painter")
 
 
 ATOMIC EXPRESSION # Will Remove this and follow goroutines implementation # lock can still be used for mutex in goroutine implementation
@@ -1390,7 +1415,8 @@ TRY & ASSOCIATES
 
 
 ASSERTION
-    assert(x == nil)
+# syntax of macro still in works
+    @{assert x == nil}
     # definition of assert
     @macro
     assert(a):
@@ -1440,12 +1466,6 @@ COMPOUND HINT
         @elsif {plat = "Linux"}:
             print("This is a Linux Computer")
     ..
-
-
-NON-STANDARD STRING LITERAL HINT
-    byteArray =: ba"87004"
-    @strLiteral:
-        re: {ByteArray(_str)}
 
 
 METAVARS CONTEXT SPECIFIC ENVIRONMENT
@@ -1506,7 +1526,7 @@ MACROS !! Needs Work
     reverseExpression(ex):
         # TODO
     ..
-    if reverseExpression(x < y) : print
+    if @{reverseExpression x < y} : print
 
 
 COMPLEX, QUATERNION DECLARATION
@@ -1560,7 +1580,20 @@ CPLUSPLUS SYMBOL
 NON-STANDARD SYMBOL LITERAL HINT
     mut cxxCode = cpp{void main() {printf("Hello")}}
     @symLiteral:
-        cpp = {Cpp(_sym._value}
+        cpp = {Cpp(_value)}
+
+
+NON-STANDARD STRING LITERAL HINT
+    mut byteArray =: ba"87004"
+    @strLiteral:
+        re = {ByteArray(_value)}
+
+
+NON_STANDARD NUMERIC LITERAL HINT
+    mut price =: 1_359.99_$
+    @numLiteral:
+        $ = {Dollar(_value)}
+
 
 
 NUMERIC CLASS
@@ -1577,16 +1610,24 @@ RATIONAL CLASS
     4//2 == 0.5 # true
 
 
-RAW CLASS
+BITS TYPE
     # bits stored in multiples of 8
     let bits8 = Bits<8>
     let bits16 = Bits<16>
 
 
+BUFFER TYPE
+    # This might allow Array implementation to be separated from storage and to allow
+    # Arrays to be implemented completely in Pluto.
+    # It stores objects in adjacent memory
+    let intStore5 = Buf(16, 5) # first arg is alignment, secong arg is size
+
+
 INTEGER BITWISE OPERATORS
-    mut myVar = 2.&2 # and
-    mut myVar1 = 2.|2 # or
-    mut myVar3 = .~2 # exclusive or
+    mut myVar = 2:&2 # and
+    mut myVar1 = 2:|2 # or
+    mut myVar3 = :~2 # not
+    mut myVar3 = :^2 # exclusive or
 
 
 SHIFT OPERATORS
@@ -1639,7 +1680,7 @@ PREDEFINED TYPES # These types are optimized as part of the lang
 
 LOGICAL vs BITWISE OPERATORS
     ! & |
-    .~ .& .|
+    :~ :& :| :^
 
 
 KEYWORDS
@@ -1649,7 +1690,7 @@ KEYWORDS
     pro (0.4) protected (0.6.1) prot
     pack (0.4) package (0.6.1) pack
     pass (0.7.5)
-    class (0.4)
+    class (0.4), type()
     rt (0.7.2)
     def (Rev 0.5.2), def (0.8.2), func (0.8.2)
     let (Rev 0.5.2)
@@ -1693,6 +1734,14 @@ OPERATORS
     %
     --
     ++
+    .+
+    .-
+    .*
+    ./
+    .^
+    .%
+    .--
+    .++
     =
     =:
     <:
@@ -1705,6 +1754,13 @@ OPERATORS
     //=
     ^=
     %=
+    .+=
+    .-=
+    .*=
+    ./=
+    .//=
+    .^=
+    .%=
     ==
     !=
     ===
@@ -1724,9 +1780,10 @@ OPERATORS
     <=
     &
     |
-    ~
-    .|
-    .&
+    :~
+    :|
+    :&
+    :^
     >>
     <<
 -   '
@@ -1772,7 +1829,7 @@ NIL
 
 OBJECT HIERARCHY
 - Any -> Indie, Array, Func,
-- Array -> Dict, Tuple
+- DataType
 
 
 CONCURRENCY
@@ -1897,7 +1954,7 @@ PUNCTUATION
 
 
 BIG AIMS
-- If Pluto is written entirely statically, then most analyses should be done statically
+- If Pluto is written statically, then most of the analyses should be done statically
 - with benefits of optimisations (e.g. usingg traditional arrays). Only certain checks are
 - done at runtime.
 - Static ARC analysis. Be careful with concurrency.
@@ -1909,6 +1966,7 @@ IDE
 - Advanced Refactoring
 - Code Completion
 - Render/Plot View
+- Step-through Debugger
 - Profiler
 -------------------
 Network and Streams
@@ -1922,3 +1980,20 @@ Virtual Machine
 -------------------
 Compilers
 - Bytecode/AST Interpreter and JIT Compiler.
+
+
+QUIRKS
+- DataType vs Generics (dataType is a runtime object, eenerics is a static meta object. I want to merge them.)
+- Macro and its relationship wih the AST
+- Multi-line Expression
+- Returning list or iterator for stuffs like
+    mut x = [:50]
+- Whether nullable objects should be declared nullable, or all object should be nullable by default
+
+
+PROPOSED
+- DataType and Generics Merged # Needs Revision
+    type NumStore:
+        mut size = t
+        func (t <: DataType(Iteger), num =: 0)
+    mut x = NumStore(Int, 5)

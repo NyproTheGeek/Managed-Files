@@ -109,6 +109,16 @@ type Timeline:
 	mut sprite =: "" # if empty, then animation is applied on slot
 ..
 
+type ShearXTimeline [Timeline] :
+	mut frames =: Map<Int, own ScaleXKey> # frameNumber||scaleXKey
+	mut subLoops =: Map<Int, own SubLoop> # frameNumber||subLoop
+..
+
+type ShearYTimeline [Timeline] :
+	mut frames =: Map<Int, own ScaleYKey> # frameNumber||scaleYKey
+	mut subLoops =: Map<Int, own SubLoop> # frameNumber||subLoop
+..
+
 type ScaleXTimeline [Timeline] :
 	mut frames =: Map<Int, own ScaleXKey> # frameNumber||scaleXKey
 	mut subLoops =: Map<Int, own SubLoop> # frameNumber||subLoop
@@ -161,6 +171,16 @@ type SwapTimeline [Timeline]:
 
 # KEYS
 type Key
+
+type ShearXKey [Key]:
+	mut value =: Float
+	mut curve =: CurveGraph
+..
+
+type ShearYKey [Key]:
+	mut value =: Float
+	mut curve =: CurveGraph
+..
 
 type ScaleXKey [Key]:
 	mut value =: Float
@@ -216,5 +236,48 @@ type SwapKey [Key]:
 
 type TextureAtlas:
 	mut name =: Str
-	mut bitmap =: Vec4f [,]
+	mut bitmap =: Vec4f [|]
 ..
+
+#13/09/16
+type MainWindow [QMainWindow]:
+	mut splitView =: SplitView
+	mut dopeSheetData =: DopeSheetData
+	mut sceneViewData =: SceneViewData
+	mut modelViewData =: ModelViewData
+	mut modelListData =: ModelListData
+	func(parent =: ref QWidget.nil): super(parent)
+..
+
+type DopeSheetData
+
+type SceneViewData
+
+type ModelViewData
+
+type ModelListData
+
+type SplitView [QSplitter]:
+	func (parent =: ref QWidget.nil):
+		super(parent)
+	func (orientation =: Qt.Orientation, parent =: ref QWidget.nil):
+		super(orientation, parent)
+..
+
+type TabView [QTabWidget]:
+	func (parent =: ref QWidget.nil): super(parent)
+
+type Interface [QWidget]:
+	func (parent =: ref QWidget.nil): super(parent)
+
+type DopeSheetInterface [Interface]:
+	func (parent =: ref QWidget.nil): super(parent)
+
+type SceneViewInterface [Interface]:
+	func (parent =: ref QWidget.nil): super(parent)
+
+type ModelViewInterface [Interface]:
+	func (parent =: ref QWidget.nil): super(parent)
+
+type ModelListInterface [Interface]:
+	func (parent =: ref QWidget.nil): super(parent)

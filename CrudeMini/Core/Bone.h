@@ -14,7 +14,7 @@ class Bone
 public:
     Bone();
     std::string name;
-    std::weak_ptr<Skeleton> skel;
+    std::weak_ptr<Skeleton> skel; // cyclic ref here with Skeleton
     int drawOrder;
     QList<std::weak_ptr<Bone>> children;
     std::weak_ptr<Bone> baseParent;
