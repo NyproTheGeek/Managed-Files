@@ -5,13 +5,14 @@ Major Change:
     Restructuring for Multiple Dispatch
     Import is now module-based, rather than being type-based, due to the introduction of multiple dispatch
     A type's method may be defined outside the type's file
-    Added def to function declaration #18/08/16 Changed to func, which was I started with initially #29/06/16
-    Changing assignment operator back to good ol' way, binding to nil-and-one-other-type is still enforced 19/08/16 Nl is now a state #30/08/16
+    Added def to function declaration #18/08/16; changed to func, which was what I started with initially #29/06/16
+    Changing assignment operator back to = instead of :=
+    Binding to nil-and-one-other-type is still done implicitly 19/08/16; nil is now an object state #30/08/16
     The block punstuation is now $, it helps resolve some ambiguity in statements like repeat play() | while state == "Play" | x == y ? y | z
         repeat: play() $ while state == "Play" | x == y ? y $ z
     Added mut for mutable variable declaration; solves some scoping issues.
     Pluto is an interpreted statically-typed language that requires no type annotation. #31/08/16
-    ^^^Scratch that. Pluto is an interpreted hybrid language with a static and dynamic type system. #31/08/16
+    ^^^Scratch that. Pluto is an interpreted hybrid language with a static and dynamic type system. #31/08/16; Pluto is not necessarily interpreted. #22/09/16
 =#
 
 PLUTO's DESIGN PHILOSOPHY
@@ -24,7 +25,7 @@ PLUTO's DESIGN PHILOSOPHY
 
 DESCRIPTION
 Pluto is an interpreted language that supports optional typing without sacrificing performance as a result.
-Pluto is completely object-oriented and procedural at the same time. This is in part achieved by closely associating types with multiple dispatch in functions.
+Pluto supports both object-oriented and procedural programming. This is in part achieved by closely associating types with multiple dispatch in functions.
 Some of Pluto's features include list comprehenshion, generics, closure, lambdas, mutiple dispatch
 
 
@@ -38,7 +39,7 @@ MULTILINE COMMENTS
     I'm Pluto
     I'm cool
     =#
-    # Pluto's will support nested multiline comments :)
+    # Pluto will support nested multiline comments :)
 
 
 DOCUMENTATION
@@ -51,8 +52,8 @@ VARIABLE DECLARATION & INITIALIZATION
     mut x # is a mutable
     let y # is a constant
     func add(a, b): rt a + b # function parameters are implicitly mutable
-    func swap!(mut a, mut b): a, b = [b, a] # error! mut should not be specified in their declaration
-    mut e ; e = Car('Camaro') # semi-colon is used to separate two statements
+    func swap!(mut a, mut b): a, b = [b, a] # error! mut should not be explicitly specified in their declaration
+    mut e ; e = Car('Camaro') # semi-colon is used to separate statements
     mut y = 12f
     mut z = 'Hello'
     mut a =: Car('Camaro')
@@ -63,20 +64,20 @@ VARIABLE DECLARATION & INITIALIZATION
 
 
 SPECIFYING TYPES
-    mut p = Person("Bradley") # loosely-bound assignment, variable can be assigned another type later.
+    mut p = Person("Bradley") # loosely-bound assignment, variable can be assigned to another type later.
     mut p = Person # error! You can't do strict binding with '=' operator
     mut p =: Person # Strictly bound to Person and Person's subtypes.
     mut a =: Int[] # when used with array or dict it means the container must be populated with a particular type only.
     let d = "Hello, world!" # loosely-bound variables can also be constant, even though they are promoted to Strictly
-    mut r = 25, r =: 0.3 # error! loosely-bound variables cannot be canged later to strict variables and vice-versa
+    mut r = 25; r =: 0.3 # error! loosely-bound variables cannot be changed later to strict variables and vice-versa
 
 
 VARIABLES AND REFERENCES
-    # Value types such as Int, FLoat, et. are passed around by value, reference and container types are passed
-    # aroud by reference
+    # Value types such as Int, FLoat, etc. are passed around by value, reference and container types are passed
+    # around by reference
     # see pass table below
     mut pet = own getObject() # pet now holds a sole strong ref to the object returned
-    mut pet = iso getObject() # pet exclusively exclusively refers to the object returned (if it is a value object)
+    mut pet = iso getObject() # pet exclusively refers to the object returned (if it is a value object)
     let put =: val pet # assigned by value
     mut pot =: read pat # read is a type of ref that allow reading only from referenced object
     # side effect of read:
@@ -98,17 +99,18 @@ VARIABLES AND REFERENCES
 
 
 OPTIONAL TYPE DECLARATION
-   mut myNumber = Str|Int
-   mut myNumber = '01000999'
-   mut myNumber = 23
+    mut myNumber = Str|Int
+    mut myNumber = '01000999'
+    mut myNumber = 23
 
 
 CHAINED DECLARATION
-   mut a, b, c = arr[2:4]
-   mut x, y = [y, x]
-   let a, b, c, d = [1:4]
-   mut loopTimes loopCount backTrack =: Int # you can ommit the commas too
-   mut person =: Person = Artist("Painter")
+    mut x = 5, y = 6
+    mut x = y = 5
+    mut x, y = [y, x]
+    let a, b, c, d = [:4]
+    mut loopTimes loopCount backTrack =: Int # might remove
+    mut person =: Person = Artist("Painter")
 
 
 NUMERIC LITERALS
@@ -139,12 +141,12 @@ ACCESS MODIFIERS
     type prod Artist [Person]
 
 
-ACCESS PACKAGE ACCESS LEVEL # Might remove this, it looks dangerous!!!
+PACKAGE LEVEL ACCESS MODIFIERS # Might remove this, it looks dangerous!!! :P
     mut pack< date = Date
     mut pack>> isbn = Long
 
 
-ACCESS READ-ONLY WRITE-ONLY ACCESS
+READ-ONLY WRITE-ONLY ACCESS MODIFIERS
     rpriv, rpass, rpack, rprod # rpub and wpub useless
     wpriv, wpass, wpack, wprod
 
@@ -175,7 +177,7 @@ ARRAYS
    mut tin = 3 [Car('Camaro'), Car('Mustang'), Car('Maserrati')]
    let ted = [1, 2, 3, 4, 5]
    mut top = ted
-   mut go = 5 Vehicle[Car("Camaro"), SuperBike("Ducati Multistrada"), Plane("Boeing 747")] # covariance in container
+   mut go =: 5 Vehicle[Car("Camaro"), SuperBike("Ducati Multistrada"), Plane("Boeing 747")] # covariance in container
    mut go[1] = Car("Camaro")
    mut go[2:] = Car[('Mustang'), ('Maserrati')] # starts filling from index 2
 
@@ -251,6 +253,7 @@ DICTIONARIES
     dict3D["People", "Tony"] = [1, 2, 3]
     for kind, name, number thru dict3D:
         put("[kind]::[name]::[number], ")
+    # Note that 'for x thru interestingNumbers' will iterate over the entire elements in the array, while 'for x, y thru interestingNumbers' will iterate thru the key-value pairs in the array
 
 
 ARRAY SLICING
@@ -269,12 +272,6 @@ ACCESSING ARRAYS
     mut ages = attendanceList.[age] # returns a list of age fields in the list
 
 
-ARRAY OBJECT ARITHMETIC AND COMPARISON OPERATIONS
-    # Operations are element-wise
-    if arr1 == arr2: print(arr1)
-    let arr3 = arr1 / arr2
-
-
 MATRIX-VECTOR OPERATIONS # column major order
     mut mP = 2x3 [2, 4, 3 | 3, 1, 5] * [3, 10 | 4, 2 | 1, 7]
     mut mX =: Mat.identity(2, 2)
@@ -284,7 +281,7 @@ MATRIX-VECTOR OPERATIONS # column major order
     ]
 
     let mZ = mX / mY
-    mut mRows, mCols = m.size()
+    mut mRows, mCols = mZ.dimen()
     let mQ = mX’ # z is assigned transpose of matrix u
 
 
@@ -299,9 +296,9 @@ VECTORIZATION AND ARRAYS
 STRING TYPE
    mut myStr1 = "Hello"
    mut myStr2 = Str('Hi')
-   mut str = AStr("This is an ascii string") # ASCII string
+   mut str =: AStr("This is an ascii string") # ASCII string
    mut myStr3 = 'Halo'
-   mut str2 = Str
+   mut str2 =: Str
    let length = "Hello".len()
 
 
@@ -314,11 +311,11 @@ STRING INTERPOLATION
 
 
 STRING OPERATIONS PROPOSAL
-   'ab' + 'c' # = 'abc'
-   'abc' * 2 # = 'abcabc'
-   'abcabc' - 'ca' # = 'abbc'
-   'abcabc' / 'c' # = ['ab', 'ab']
-   ['ab', 'ab'] * 'c' # = 'abcab'
+   mut apple = 'ab' + 'c' # = 'abc'
+   mut mango = 'abc' * 2 # = 'abcabc'
+   mut grape = 'abcabc' - 'ca' # = 'abbc'
+   mut guava = 'abcabc' / 'c' # = ['ab', 'ab']
+   mut peach = ['ab', 'ab'] * 'c' # = 'abcab'
 
 
 NON-STANDARD STRING LITERAL
@@ -332,14 +329,13 @@ ESCAPE SEQUENCE
 
 
 MULTILINE STRINGS
-   let greeting =:
-   "Hello,"
-   " world!"
+    let greeting =: "Hello,"
+        " world!"
 
 
 VERBATIM STRING
-   '''Use \t for tab and \n for newline'''
-   """Use \t for tab and \n for newline"""
+    '''Use \t for tab and \n for newline'''
+    """Use \t for tab and \n for newline"""
 
 
 
@@ -356,10 +352,12 @@ MULTILINE EXPRESSIONS
         .split(/\s/) \
         .join \
         .filter(: _1 !~ \d)
-    # sometimes one would want to write a seris of expression where it is not expected.
-    # In such case, the list of expessions can be ncapsulated in a bracket.
-    func clean(input =: Str): input.filter do x : mut sticky y; y != x ? (y = x; true) :: false # idiomatic
 
+
+SANDWICHED STATEMENTS
+    # sometimes one would want to write a series of statement where it is not expected.
+    # In such case, the list of statements can be encapsulated in a bracket.
+    func clean(input =: Str): input.filter do x : mut sticky y; y != x ? (y = x; true) :: false # idiomatic
 
 
 IF SATEMENT
@@ -390,13 +388,31 @@ IF SATEMENT
     if let mySalary = getSalary()~, let myAllowance = getAllowance()~: letsParty()
 
 
-CONDITIONS
-    if x == 10: print("Hi")
-    if x > 0 & x < 10: print("Hello")
+CHAINED CONDITION (Oh My!)
+    if x > 0 & x < 10: print("Hello") # error! operand repetition redundancy
     # or
-    if x > 0 & < 10: print("Hello")
+    if x > 0 & < 10: print("Hello") # better when used with more than 3 unique operands
     # or
     if 0 < x < 10: print("Hello")
+    #......
+    x == y & x == z ? # error! operand repetition redundancy
+    # or
+    x == y == z ? # Ok
+    # or
+    x == y & == z ? # 0k, better when used with more than 3 unique operands
+    # or
+    x and y == z ? # Ok
+    #......
+    # 'and' and 'or' here are used in a different manner
+    # than in Python
+    if "two-syllable word" == pit and == pot:
+        print("That's weird")
+    # or better
+    if pit and pot == "two-syllable word":
+        print("That's weird")
+
+    if pit or (pot and pet) == "two-syllable word":
+        print("That's weird")
 
 
 FOR LOOP
@@ -406,25 +422,15 @@ FOR LOOP
         else :
             next
     ..
-    # thru a dictionary
-    mut heroes = (realName, supeheroName, age) [
-        'Peter Parker'   : 'Spider-man'     , 16 |
-        'Steve Rogers'   : 'Captain America', 32 |
-        'Tchaka Tchalla' : 'Black Panther'  , 29
-    ]
-    for a thru heroes.realName:
-        for b thru heroes.key(a):
-            print(b)
-
-    let interestingNumbers = (title, numberList) [
-        "Prime": 2, 3, 5, 7, 11, 13     |
-        "Fibonacci": 1, 1, 2, 3, 5, 8   |
-        "Square": 1, 4, 9, 16, 25
+    let interestingNumbers = [
+        "Prime", 2, 3, 5, 7, 11, 13     |
+        "Fibonacci", 1, 1, 2, 3, 5, 8   |
+        "Square", 1, 4, 9, 16, 25
     ]
     mut largest
-    for x thru interestingNumbers.title:
-        for y thru interestingNumbers.key(x):
+    for x, y thru interestingNumbers:
             if y > largest: largest = y
+    print(largest)
 
 
 HOLD VARIABLES IN LOOPS
@@ -434,11 +440,10 @@ HOLD VARIABLES IN LOOPS
         x++
     ..
     func recursive(y):
-        mut hold x = 24 # You can use hold variables in recursive functions
+        mut hold x = 24 # You can use hold variables in recursive functions too
         if y < 0: print(y)
         else: recursive(x - y)
     ..
-
 
 
 LOOP
@@ -473,19 +478,6 @@ REPEAT UNTIL LOOP
    repeat: print ("Hello ") $ until myBool
 
 
-CHAINED CONDITION
-    # 'and' and 'or' here are used in a different manner
-    # than in Python
-    if "two-syllable word" == pit and == pot:
-        print("That's wierd")
-    # or better
-    if pit and pot == "two-syllable word":
-        print("That's wierd")
-
-    if pit or (pot and pet) == "two-syllable word":
-        print("That's wierd")
-
-
 CONDITIONAL/TERNARY OPERATOR
     # ternary operator
     mut myVar1 = myBool == true ? 5 :: 6
@@ -514,18 +506,16 @@ WHERE
    if p.age == 20 => p.name == "Allen": p # not really useful here
    # same as
    if p.age == 20 & p.name == "Allen": p
-
-   for item thru library => item.title.startsWith("The"):
-       mut hold x = 0 ; print(x++)
+   for x, y thru books, a thru x => a.startsWith("The"): x
 
 
 FOR COMPREHENSION
    mut list = for x thru [1:30] => x % 2 == 0: x * 3
-   for b thru books, a thru btitle] => a.startsWith("The"): x
+   for x, y thru books, a thru x => a.startsWith("The"): x
 
 
 STEP
-    # Iterables that have step method
+    # Used with iterables that have step method
     for x thru [1:2:9]: # 1, 3, 5, 7, 9
         print(x)
     ..
@@ -616,7 +606,7 @@ RETURNING A VALUE
 
 
 EXPRESSION-ORIENTED
-    # Pluto is an epression-based language. If an exprssion evaluates to something, it is returned
+    # Pluto is an expression-based language. If an expression evaluates to something, it is returned
     let myBool = myName == "Nypro"?
     func add(a, b): rt a + b
     # or
@@ -663,8 +653,8 @@ CHAINED DECLARATION IN FUNCTION PARAMETER
 
 
 CONSTANT PARAMETER
-    # function parameters are mutable by default, but they can be made immutable by specfying let
-    func add(let a, let b): c = a + b ; rt c
+    # function parameters are mutable by default, but they can be made immutable by specifying let
+    func add(let a, let b): let c = a + b ; rt c
 
 
 ARGUMENT NAMING
@@ -697,7 +687,7 @@ VARIADIC PARAMETERS
 
 MUTATIVE FUNCTIONS
     func add(x, y): a + b
-    func swap!<T>(x y =: ref T): x, y = [y, x] # use exclamtion mark for functions
+    func swap!<T>(x y =: ref T): x, y = [y, x] # use exclamation mark for functions
     # that can mutate objects passed to them
     mut tip = add(2, 3)
     mut top = add(4, 5)
@@ -759,11 +749,11 @@ FUNCTION OBJECTS
 
 
 EVENTS
-   func add(a, b): a + b
-   add += subtract, divide, multiply
-   add -= multiply
-   mut xeno = add(1, 5) # normal function call
-   emit(add) # use emit keyword to event call a function
+    func add(a, b): a + b
+    add += subtract, divide, multiply
+    add -= multiply
+    mut xeno = add(1, 5) # normal function call
+    emit add(1, 3) # use emit keyword to event call a function
 
 
 CLOSURES
@@ -794,7 +784,7 @@ FUNCTION AS ARGUMENTS
    func add(a, b): a + b
    addThree(1, 2, 3, add) # passing and already-declared function
 
-   numberList.filter() do x: pivot > x # if a function has no argument, you can ommit the brackets before the do statement
+   numberList.filter() do x: pivot > x # if a function has no argument, you can omit the brackets before the do statement
    numberList.filter do x: pivot > x
 
 
@@ -819,7 +809,7 @@ LAMBDAS
     keyListener(func(): print("World")) # lambda
     keyListener(: print("World")) # shortened lambda using 'rt'
     arr.filter(func(a): pivot > a) # anonymous functions
-    arr.filter() do a: pivot > a # function argument
+    arr.filter do a: pivot > a # function argument
     arr.filter(: pivot > _1) # lambda
     numbers.filter(: _1 % _2 == 0).map(: _1 * _2).reduce(2, +) # lambda
     let reversed = sort(names, : _1 > _2 )
@@ -982,7 +972,7 @@ USING A FUNCTION AS METHOD
    func show(p =: Person): print("name: [.name], age: [.age]")
    mut nigel = Person("Nigel Nicargua")
    show(nigel)
-   mut nigel.show() # using show funtion like a method since Person is the first argument
+   mut nigel.show() # using show function like a method since Person is the first argument
    # you can also use it on objects directly
    mut a = Person("Nigel Nicargua").getDetail()
    mut b = "hello".upper()
@@ -1195,7 +1185,7 @@ COVARIANT OVERRIDE
 
 
 ABSTRACT TYPES
-   type abs Player # cannot be instantiated
+   type ab Player # cannot be instantiated
    func play(a =: Player)
    func rewind(a =: Player)
    func fastForward(a =: Player)
@@ -1243,7 +1233,7 @@ GENERICS
 
 
 DATATYPE OBJECTS
-    # Just as variables and function have types, types also have types. :/
+    # Just as variables and functions have types, types also have types. :/
     # The type of types like Int, Float, Str is DataType
     mut var = Car("Camaro")
     typeOf(var) # Car
@@ -1282,7 +1272,7 @@ ENUMS
 
 PATTERN MATCHING
     # EXAMPLE: How to compute a tree-like expression
-    type abs Tree
+    type ab Tree
     type Leaf<T>(value =: T) [Tree]
     type Node (l = Leaf, r = Tree) [Tree]
     match sum(t =: Tree):
@@ -1349,7 +1339,7 @@ OPERATOR OVERLOADING
 
 CUSTOM OPERATORS
     # Pluto, like Swift, allows you to create your own set of custom operators that are not
-    # provided by the language. The oprators you can string together include
+    # provided by the language. The operators you can string together include
     # + - * / = < > % ^ & | ! ?
     # you have to specify operator position, associativity and prcedence for custom operators
     [op: 180, left, postfix] # this operator has a predence level of 180, left associativity and is a postfix operator
@@ -1495,7 +1485,7 @@ LIST OF METAVARS
 
 
 VALUE METAVAR
-    # Returned value must be a prinmitive value
+    # Returned value must be a primitive value
     # This represents the objects value
     func _value(num =: MyNumber): rt num.value
     mut x = MyNumber(12)
@@ -1504,7 +1494,7 @@ VALUE METAVAR
 
 
 REFLECTION
-    # dynmically determining which class to use
+    # dynamically determining which class to use
     @if (stage = "runtime", condition = "Main.useOldClass == true"): # ??
         type Class:
             mut value = func set(x Str): _ = x $ func get(): rt _
@@ -1526,7 +1516,7 @@ MACROS !! Needs Work
     reverseExpression(ex):
         # TODO
     ..
-    if @{reverseExpression x < y} : print
+    if @{reverseExpression x < y} : print('O.O')
 
 
 COMPLEX, QUATERNION DECLARATION
@@ -1539,8 +1529,7 @@ MATHEMATICAL EXPRESSION
     let tip =: m{3x y z^2} # when there is no operator between 2 operands, multiplication is assumed
     mut pat = m{4y - 2x(z^2) getSalary()} # you can use functions and variables directly
     mut pet = m{4d 5f} # MathExpr doesn't support numeric literals with type prefix. 4d and 5f here means 4 * d * 5 * f
-    mut pot = m{5y [g
-    etValue[2]] 3e-1 + [4d]} # Use '[' and ']' to escape literals with fp type prefix or
+    mut pot = m{5y [getValue[2]] 3e-1 + [4d]} # Use '[' and ']' to escape literals with fp type prefix or
     # variables that use index operator. 4d here is a Double literal and getValue[2] gets the value in index 2.
 
 
@@ -1595,7 +1584,6 @@ NON_STANDARD NUMERIC LITERAL HINT
         $ = {Dollar(_value)}
 
 
-
 NUMERIC CLASS
     let x = UInt.max()
     let y = Int32.min()
@@ -1612,8 +1600,8 @@ RATIONAL CLASS
 
 BITS TYPE
     # bits stored in multiples of 8
-    let bits8 = Bits<8>
-    let bits16 = Bits<16>
+    let bits8 = Bits(8)
+    let bits16 = Bits(16)
 
 
 BUFFER TYPE
@@ -1721,6 +1709,7 @@ KEYWORDS
     nan (0.8)
     nil
     op (0.8.2)
+    abs, ab(0.8.2)
 
 
 
@@ -1989,6 +1978,7 @@ QUIRKS
 - Returning list or iterator for stuffs like
     mut x = [:50]
 - Whether nullable objects should be declared nullable, or all object should be nullable by default
+- Chained conditions can be written 4 ways
 
 
 PROPOSED
