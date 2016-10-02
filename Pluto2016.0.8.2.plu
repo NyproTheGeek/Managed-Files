@@ -372,6 +372,10 @@ IF SATEMENT
     else :
         print('invalid value')
     ..
+    if x == 3 => y == 2 => z == 1: print("I rock!") # chained condition,
+    # following condition is not evaluated unless preceding condition is true
+    # It is quite similar to & here but its essence is best discovered when used with for thru statements
+    # NIL #
     # checking if an object is not nil, requires
     # the '~' operator. This is, in part, due to the ambiguity
     # with Bool objects. "if bool: print(bool)" would have been
@@ -388,7 +392,7 @@ IF SATEMENT
     if let mySalary = getSalary()~, let myAllowance = getAllowance()~: letsParty()
 
 
-CHAINED CONDITION (Oh My!)
+MULTIPLE CONDITION (Oh My!)
     if x > 0 & x < 10: print("Hello") # error! operand repetition redundancy
     # or
     if x > 0 & < 10: print("Hello") # better when used with more than 3 unique operands
@@ -506,12 +510,12 @@ WHERE
    if p.age == 20 => p.name == "Allen": p # not really useful here
    # same as
    if p.age == 20 & p.name == "Allen": p
-   for x, y thru books, a thru x => a.startsWith("The"): x
+   for x, y thru books => a thru x => a.startsWith("The"): x # chained where
 
 
 FOR COMPREHENSION
    mut list = for x thru [1:30] => x % 2 == 0: x * 3
-   for x, y thru books, a thru x => a.startsWith("The"): x
+   for x, y thru books => a thru x => a.startsWith("The"): x
 
 
 STEP
