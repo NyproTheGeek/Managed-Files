@@ -372,7 +372,7 @@ IF SATEMENT
     else :
         print('invalid value')
     ..
-    if x == 3 => y == 2 => z == 1: print("I rock!") # chained condition,
+    if x == 3 => y == 2 => z == 1: print("I rock!") # relative chained conditions,
     # following condition is not evaluated unless preceding condition is true
     # It is quite similar to & here but its essence is best discovered when used with for thru statements
     # NIL #
@@ -792,24 +792,27 @@ FUNCTION AS ARGUMENTS
    numberList.filter do x: pivot > x
 
 
-ANONYMOUS TYPES
-   func keyListener(e =: Event): e.printText()
-   keyListener(
-      Event:
-         func printText():
-            print ('Hello, World')
-         ..
-      ..)
+ANONYMOUS OBJECTS/TYPES
+    MusicPlayer("user/lib/songs/music.mp3").play() # Mind you, unlike Java, this expression returns
+    # the return value of the method instead of the invoking object itselfs
+
+    ([Thread]: # Thread is abstract
+        func run():
+            print("This is a thread")).start()
+
+    func keyListener(p =: Person): e.save("Steve"); e.delete() # Person is not abstract
+    keyListener(
+        ([Person]:
+            func save(name):
+                .name = name
+                print('Hello [name]')
+            ..
+            func delete():
+                .name = "")
+    )
 
 
 LAMBDAS
-    func keyListener(e =: Event): e.printText()
-    keyListener(
-      Event:
-         func printText():
-            print ('Hello, ')
-         ..
-      ..)
     keyListener(func(): print("World")) # lambda
     keyListener(: print("World")) # shortened lambda using 'rt'
     arr.filter(func(a): pivot > a) # anonymous functions
@@ -933,6 +936,15 @@ TYPE DEFINITION
    ..
 
 
+METHODS BELOW TYPES
+    # if the method of a type is directly beneath its definition, then a . can be used to
+    # as a placeholder for the class
+    type Greeting
+    func greet(.)
+    func greet(., lang =: Language)
+    func greet(., cntry =: Country)
+
+
 CONSTRUCTOR
     type Person:
         mut name = Str
@@ -954,34 +966,37 @@ CONSTRUCTOR TYPES
     # Constructor classes have only one constructor and an optional set of parameters that are also the only fields of the class
     # These fields are mutable by default and are always public.
     type Person (name, age)
+    func show(.): print(.name, ' ', .age)
     mut dave = Person("Dave", 45)
     dave.age = "David"
     type Car (model make =: Str, year = : Int) [Vehicle]
 
 
 SELF REFERENCE
-   type Car:
-      mut name, model = Str
-      func (name =: Str):
-         .name = name # the self can be ommitted leaving the dot and the field
-      ..
-      func (name, model)
-   ..
-   # this is also applicable to methods where its is the type of the first parameter
-   func getDetails(car =: Car): rt [.name, .model]
-   func hasModel(car =: Car, model = Str): .model == model?
+    type Car:
+        mut name, model = Str
+        func (name =: Str):
+            .name = name # the self can be ommitted leaving the dot and the field
+        ..
+        func (name, model)
+    ..
+    # this is also applicable to methods where its is the type of the first parameter
+    func getDetails(c =: Car): rt [.name, .model]
+    func hasModel(., model =: Str): .model == model?
+    # you can also use self in a functional way
+    func showInfo(.): print(getDetails(self))
 
 
 USING A FUNCTION AS METHOD
-   func show(p =: Person): print("name: [.name], age: [.age]")
-   mut nigel = Person("Nigel Nicargua")
-   show(nigel)
-   mut nigel.show() # using show function like a method since Person is the first argument
-   # you can also use it on objects directly
-   mut a = Person("Nigel Nicargua").getDetail()
-   mut b = "hello".upper()
-   mut c = 25_000.divideBy(x) # Don't do this though. :)
-   mut d = (2f/4f).floor()
+    func show(p =: Person): print("name: [.name], age: [.age]")
+    mut nigel = Person("Nigel Nicargua")
+    show(nigel)
+    mut nigel.show() # using show function like a method since Person is the first argument
+    # you can also use it on objects directly
+    mut a = Person("Nigel Nicargua").getDetail()
+    mut b = "hello".upper()
+    mut c = 25_000.divideBy(x) # Don't do this though. :)
+    mut d = (2f/4f).floor()
 
 
 DESTRUCTORS
@@ -1060,38 +1075,39 @@ TYPE ALIAS
 
 METHOD CHAINING
 - Method chaining is automatic, no need to return self
-   type Math:
-      mut value = Float
-   ..
-   func add(a =: Math, b c =: Float) Float:
-      a.value = b + c
-   ..
-   func subtract(a =: Math, b c =: Float) Float:
-      a.value = b - c
-   ..
-   mut m = Math
-   m.add(1, 2).subtract(3, 4)
-   mut n = "This is the first string".&"This is another string".reverse().toUpper()
+    type Math:
+        mut value = Float
+    ..
+    func add(a =: Math, b c =: Float) Float:
+        a.value = b + c
+    ..
+    func subtract(a =: Math, b c =: Float) Float:
+        a.value = b - c
+    ..
+    mut m = Math
+    m.add(1, 2).subtract(3, 4)
+    mut n = "This is the first string".&"This is another string".reverse().toUpper()
 
 
 INHERITANCE # Not Finalized!
     # Note that inheritable methods need =: operator when specifying their first parameter
     type Animal
-    func move(a =: Animal)
+    func move(.):..
 
     type Bird [Animal]
     @mask
-    func move(a =: Bird): print("Soar!") # overides move method for Animal, a super method
-    func fly()
+    func move(.): print("Soar!") # overides move method for Animal, a super method
+    func fly():..
 
     type Horse [Animal]
     @mask
-    func move(a =: Horse): print("Gallop!") # overides move method for Animal, a super method
-    func gallop()
+    func move(.): print("Gallop!") # overides move method for Animal, a super method
+    func gallop():..
 
     type Pegasus [Bird, Horse] # inherits Bird and Horse classes
     @mask
-    func move(a =: Pegasus): print("Soar and Gallop!") # overides move method because of CONFLICT in  Bird and Horse
+    func move(.): print("Gallop and Soar!") # overides move method because of CONFLICT in  Bird and Horse
+    func gallopAndSoar(.):..
 
     mut eagle = Bird()
     mut horse = Horse()
@@ -1179,6 +1195,7 @@ VIRTUAL METHODS
     # constructors cannot be virtual and therefore use the same syntax for shortening initialisation
     @mask
     func respond(a =: ButtonListener) # error, a virtual super method can't be overriden by a virtual sub method
+    func respond(a =: Listener):.. # This is not a virtual function, it is an empty one
 
 
 COVARIANT OVERRIDE
@@ -1196,6 +1213,10 @@ ABSTRACT TYPES
    type CassettePlayer [Player]
    type DigitalPlayer [Player]
    # Note that an abstract type cannot be solo
+   type ab Thread
+   func run(.) # This is a virtual function
+   func stop(.):.. # This is an empty function
+   func execute(.): .run()
 
 
 DOWNCASTING
