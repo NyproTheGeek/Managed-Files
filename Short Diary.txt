@@ -70,3 +70,13 @@ So yesterday I realised how terribly slow I was working and always complaining a
 
 #20/09/16
 The night before yesterday, mum gave me the second 10K.
+
+#04/10/16
+I have collected 45k from the fund.
+
+#04/10/16
+I have decided to change my versioning system. It is counting too rapidly for an unimplemented language.
+So I have dialed Pluto 0.8.2 back to Pluto 0.0.82. The year annotation in the versioning system have also been removed.
+Pluto 0.1 will introduce the first implementation of the language. At 0.x stage of Pluto, a lot of breaking changes can be introduced.
+Pluto 1.0 will introduce the first stable implementation of the language. And from there, semantic versioning applies. MIN_VER will introduce minor changes, MAX_VER will introduce breaking changes.
+Taking note of this, today, Pluto is moving on to 0.0.83.
