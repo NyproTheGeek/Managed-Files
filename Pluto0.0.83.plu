@@ -128,10 +128,10 @@ VARIABLES AND REFERENCES
 
 CHAINED DECLARATION
     mut x = 5, y = 6 # Must be of the same type
-    mut x = y = 5
     mut x, y :: [1, 2]
     x, y = [y, x] # Swap operation
     let a, b, c, d = [:4]
+    mut x =: Array -> [1, 2, 3, 4], y =: Array
 
 
 CHAINED ASSIGNMENT
@@ -145,6 +145,7 @@ CHAINED ASSIGNMENT
     # Anonymous object
     func divideAList(num :: Int):
         (MyList = [1, 2, 3, 4]) /= num
+    mut x =: y =: 5
 
 
 NUMERIC LITERALS
@@ -835,8 +836,9 @@ LAMBDAS
 
 
 FUNCTION CHAINING
-    let x =: students.filterOutFailed().sortByGrade()
-    let y = add(4, 2) |>  subtract(_, 1) |> divide(10, _)
+    let x =: students.filterOutFailed()>>sortByGrade()
+    mut d :: 4(2).subtract(1, 2)>> divide(10, 5)
+    let y = add(4, 2) |> subtract(_, 1) |> divide(10, _)
 
 
 MATCH FUNCTION
@@ -1432,7 +1434,7 @@ CUSTOM OPERATORS
     # Pluto, like Swift, allows you to create your own set of custom operators that are not
     # provided by the language. The operators you can string together include
     # + - * / = < > % ^ & | ! ?
-    # you have to specify operator position, associativity and prcedence for custom operators
+    # you have to specify operator position, associativity and precedence for custom operators
     [op: 180, left, postfix] # this operator has a predence level of 180, left associativity and is a postfix operator
     func **(a =: Number): a.value ^ 2
 
@@ -1450,6 +1452,11 @@ TRY & ASSOCIATES
             if fnfe: printErr('Can\'t find file!')
             if ioobe: printErr('Out of index error!')
         ..
+        # ensure can be used in inner scope
+        let x = 3, y = 4, z = 5
+        use x, y:
+            let a =: x * y
+            ensure print("a goes out of scope here")
     ..
 
     try:
