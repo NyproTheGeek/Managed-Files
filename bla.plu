@@ -1,0 +1,167 @@
+# 05/10/16
+# Casting
+mut x =: Person -> Employee # Downcasting
+mut y =: MyInteger -> 5.0f # Casting
+mut z = ArrayList -> [1, 2, 3, 4] *= 3 # _setList
+
+# Instance Chained Call
+x.doThis()doThat()doAll()
+
+# Returned Chained Call
+add(1, 2).subtract(2).multiply(3)
+
+# Ternary Operator
+let x =: z == r ? 1  2
+# No ambiguity really, but it is almost unreadable
+mut x :: y :: a == b ? a :: b
+mut a :: hi == hello ? 3 :: 4, y :: 2
+
+# Coroutine Stream Operators
+func work(pipe x =: Bool):
+    print("working...")
+    time.sleep(1500)
+    print("done")
+    x << true
+..
+func main():
+    pipe done = Bool
+    run work(done)
+    << done
+..
+
+
+# 21/09/16
+# one-line madness Pluto0.8.2 just for fun
+# conditional sum function
+func sum(a, b, c): a and b == c ? 0 :: a == b ? c :: a == c ? b :: b == c ? a :: a + b + c
+# character duplicate clean function rewritten
+func clean(input =: Str): input.filter do x: mut sticky y; y != x ? (y = x; true) :: false
+# fibonacci function rewritten
+func fib(n): if n <= 1: 1 $ else: fib(n - 1) + fib(n - 2)
+# gcd function rewritten
+func gcd(n m =: UInt64): @{assert n and m == 0}; while m != 0: if m < n: m, n = [n, m] $ n
+# factorial function rewritten
+func factorial(num = Int): mut x = num; while num > 1: x *= num-- $ x
+# birthday function rewritten
+print([:4].map(:"Happy Birthday to" + (_1 != 2 ? "you!" :: "dear Haibeey")))
+
+
+# 21/09/16
+# conditional sum function : Java vs Pluto0.8.2
+int sum(int a, int b, int c){return a == b && b == c ? 0 : a == b ? c : a == c ? b : b == c ? a : a + b + c;}
+func sum(a, b, c): a and b == c ? 0 :: a == b ? c :: a == c ? b :: b == c ? a :: a + b + c
+
+
+# 20/09/16
+# GCD: Rust vs Pluto0.8.2
+# Rust
+fn gcd(mut n:u64, mut m:u64)->u64{
+    assert!(n != 0 && m != 0);
+    while m != 0{
+        if m < n{
+            let t = m; m = n; n = t;
+        }
+    }
+    n
+}
+# Pluto
+func gcd(n m =: UInt64):
+    @{assert n and m == 0}
+    while m != 0:
+        if m < n: m, n = [n, m]
+    n
+..
+
+#10/09/16
+# Haibeey
+print(list(map(lambda x: "Happy Birthday to " + ("you" if x != 2 else "dear Haibeey"), range(4)))) # Python3
+print(map(x -> "Happy Birthday to " * (x != 2 ? "you" : "dear Haibey"), 1:4)) # Julia
+print([:4].map(:"Happy Birthday to" + (_1 != 2 ? "you" || "dear Haibeey"))) # Pluto0.8.2
+
+#09/09/16
+# Orobo's Challenge
+func clean(input =: Str): "".concat(input.len() <= 1 ? input || input[0] == input[1] ? clean(input[1:]) || input[0] + clean(input[1:])) # java-like
+func clean(input =: Str): input.filter do x : mut sticky y; y != x ? (y = x; true) || false # idiomatic
+
+#08/09/16
+# Austinoski BDay
+import Gifts
+func main():
+    print("Happy Birthday Austin!")
+
+
+# 17/08/16
+type Ratio<T[Integer]>:
+    mut priv num, den = T
+    func (num, den := T):
+        num and den == 0 ? raise DivideByZeroErr()
+        mut div = gcd(den, num)
+        .num = num / div
+        .den = den / div
+    ..
+..
+
+func swap!<T>(a b = ref T):
+    a, b = b, a
+
+func coroutine():
+    for x thru [1:20]:
+        yield x
+
+func factorialRecursive(num = Int):
+    if num < 2: num
+    else: factorial(num - 1) * num
+..
+
+func factorial(num = Int):
+    mut x = num
+    while num > 1:
+        x = x * num--
+    x
+..
+
+# 21/08/16
+func show99bottlesOfBeer():
+    # 99 bottles of beer on the wall, 99 bottles of beer.
+    # Take one down and pass it around, 98 bottles of beer on the wall.
+    # ----------------------------------------------------------------
+    # 1 bottle of beer on the wall, 1 bottle of beer.
+    # Take one down and pass it around, no more bottles of beer on the wall.
+    # ----------------------------------------------------------------
+    # No more bottles of beer on the wall, no more bottles of beer.
+    # Go to the store and buy some more, 99 bottles of beer on the wall.
+    let a = "bottle"
+    let b = "of beer"
+    let c = "on the wall"
+    let d = "Take one down and pass it around"
+    let e = "no more"
+    let f = "Go to the store and buy some more"
+    for i thru [99:0]:
+        if i == 1:
+            print("[i] [a] [b] [c], [i] [a] [b].\n[d], [e] [a]s [b] [c].")
+        if i == 0:
+            print("N[e[2:]] [a]s [b] [c], [e] [a]s [b]\.\n[f], 99 [a]s [b] [c].")
+        print("[i] [a]s [b] [c], [i] [a]s [b].\n[d], [i - 1] [a]s [b] [c].")
+    ..
+..
+
+# 30/08/16
+func fib(n):
+    if n <= 1:
+        1
+    else:
+        fib(n - 1) + fib(n - 2)
+..
+
+
+# 17/08/16
+func main():
+    print("Hello, World!")
+    mut x, y = 7, 9
+    swap(x, y)
+    print(x, " ", y)
+    print(coroutine())
+    list(coroutine())
+    factorial(5)
+    factorialRecursive(7)
+..
