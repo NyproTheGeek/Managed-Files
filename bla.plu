@@ -3,6 +3,11 @@
 mut x =: Person -> Employee # Downcasting
 mut y =: MyInteger -> 5.0f # Casting
 mut z = ArrayList -> [1, 2, 3, 4] *= 3 # _setList
+# In a case where there is a possible downcast and a direct type cast
+# For example, if in the example below if Person has a _convert of
+# Employee and Employee is a subtype of Person, then the _convert is
+# chosen
+mut per =: Person -> Employee("Daniel", 25, "Game Programmer")
 
 # Instance Chained Call
 x.doThis()doThat()doAll()
@@ -11,7 +16,14 @@ x.doThis()doThat()doAll()
 add(1, 2).subtract(2).multiply(3)
 
 # Ternary Operator
-let x =: z == r ? 1  2
+let a =: z == r ? 1 __ 2
+let b = d > 6 ? 2 __ 4.5
+let a =: x and y == z ? Int.nil __ x == y ? z __ x == z ? y __ y == z ? x __ x + y + z
+# conditional statements and ternary operator statement should be bracketed when used in  arrays
+let hide binOpPrecedence =: [
+    1, (x == 0 : y == 2 ?) | 3, 5||
+    5, 6 | 7, (x == 0 ? 5 || 0) ||
+]
 # No ambiguity really, but it is almost unreadable
 mut x :: y :: a == b ? a :: b
 mut a :: hi == hello ? 3 :: 4, y :: 2
@@ -29,6 +41,127 @@ func main():
     << done
 ..
 
+# Semantic ideology of =>
+# has synonymous semantic representatio as &, but is used in more places like loops
+# case conditions in match functions.
+if x == 6 => r == 5
+# if x equals 6 where r == 5
+for a thru arr, d thru arr.list => d~ : print(d)
+# for every a in arr, loop thru every d in arr.list where d isn't null
+match check(s =: Int, test =: Int):
+    case 1 => s > test: print("Yay!")
+
+# Semantic ideology of ~
+char =: getChar()~'i'
+# if getChar not nil then pass value else pass 'i'
+if getChar()~: print("Hello")
+# if getChar nt nil then print 'Hello'
+
+# rt # rt operates at function level
+char =: getChar()~ rt 'i' # returns the fuction with value 'i'
+
+# Sandwiched statement
+char =: getChar()~(print("Too bad"); '')
+
+# Reassessing Access Modifiers
+# I'm gonna have to remove pack and prod
+# A priv structure cannot be accessed beyond a module.
+# A hide function or field cannot be accessed beyond its associated type, subtypes and their functions
+
+# Custom operator Overloading
+# You cannot overload punctuators and some other operators like '.' ':' '..' '=', '::', '=:', '<:', '>:', '===', '==:', '->', '>>', '<<'
+
+# Immutable Array Content
+let d =: 5 Int[1, 2, 3, 5, 6] # array can't grow, content can't change
+mut x =: let 5 Int[1, 2, 3, 5, 6] # array can grow, but content cannot be mutated
+
+# Multidimensional Arrays
+let hide boom =: [
+    1, (x == 0 : y == 2 ?) | 3, 5||
+    5, 6 | 7, (x == 0 ? 5 || 0) ||
+]
+
+# Compilation
+# Progressive code generation. bytecode (parse time) -> bytecode + machine code (run time) -> machine code (run time).
+# Compilation units are as small as each function.
+# Incremental build using dependency web
+
+# Constructor
+# A default constructor is different from an uninitialised state
+    mut s =: Str # uninitialised state, just a declaration.
+    mut r =: Str.nil # initialised to nil state.
+    mut t =: Str() # initialised using default constructor.
+
+# States
+# uninitialised state
+# nil state
+# valued state
+    mut s =: Str # uninitialised, just a declaration.
+    mut r =: Str.nil # initialised to nil state.
+    mut t =: Str() # initialised using default constructor
+# field can have default state though, even when the object is uninitialised
+    type MyStr:
+        mut value =: ""
+        func ():..
+        func (str =: Str):
+            value = str
+    ..
+
+# Type Checking, Checks the current type of an object.
+# === type exactly
+# =:: type exactly
+# ==: type and subtypes
+# =<: type's subtypes
+# =>: type's supertpes
+
+
+# Exceptions
+# It is a stack unwind mechanism and may not be used for error catching purpose only
+try parse(tokens)
+catch s =: SyntaxError:
+    print(s.errorMsg)
+    next
+catch n =: NewlineBounce:
+    next
+
+[try]
+print("mathopia >>> ")
+mut input =: scan() # scans the line
+parse(scan(input))
+catch s =: SyntaxError:
+    print(s.errorMsg)
+    next
+catch n =: NewlineBounce:
+    next
+
+
+# Return Type Annotation
+    func add(a, b): a + b # Function can return any type.
+    func add(a, b)Int: a + b # Function can only return an Int object or subypes of it.
+    func add(a, b)::Int: a + b # Function can only return an Int object.
+    # Different ways of returning a new object
+    rt let oldPerson =: getPerson()
+    rt oldPerson =: getPerson()
+    rt getPerson()
+
+
+# Global space
+let x = 1
+func show(x):
+    glob.x = x
+    print(glob.x)
+..
+
+# Nested for
+for x thru arr1 for y thru arr2: print(x, y)
+
+# Vectorized Function Call
+print(<=.(a - arr, b))
+
+# Including 'var' keyword which is the same as 'mut', var may replace mut in the long run
+var x = 5
+mut x = 5
+
 
 # 21/09/16
 # one-line madness Pluto0.8.2 just for fun
@@ -44,6 +177,7 @@ func gcd(n m =: UInt64): @{assert n and m == 0}; while m != 0: if m < n: m, n = 
 func factorial(num = Int): mut x = num; while num > 1: x *= num-- $ x
 # birthday function rewritten
 print([:4].map(:"Happy Birthday to" + (_1 != 2 ? "you!" :: "dear Haibeey")))
+
 
 
 # 21/09/16
