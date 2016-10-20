@@ -1,0 +1,25 @@
+// 17/10/16
+
+iden : [a-zA-Z][a-zA-Z]* ;
+num : ['-''+']?[0-9]? ;
+op : ;
+
+
+mod : mod0 | 'hide' | 'rhide' ;
+mod0 : 'priv' | 'pack' | 'rpriv' | 'rpack' | 'rprod' ;
+
+
+obj_decl : ;
+func_decl : ;
+closure_decl : ;
+type_decl : ;
+enum_decl : ;
+
+
+cond_expr : ;
+func_call : ;
+
+
+un_op : ;
+bin_op : ;
+tern_op : ;

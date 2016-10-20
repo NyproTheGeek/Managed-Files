@@ -15,18 +15,18 @@ x.doThis()doThat()doAll()
 # Returned Chained Call
 add(1, 2).subtract(2).multiply(3)
 
-# Ternary Operator
-let a =: z == r ? 1 __ 2
-let b = d > 6 ? 2 __ 4.5
-let a =: x and y == z ? Int.nil __ x == y ? z __ x == z ? y __ y == z ? x __ x + y + z
-# conditional statements and ternary operator statement should be bracketed when used in  arrays
-let hide binOpPrecedence =: [
-    1, (x == 0 : y == 2 ?) | 3, 5||
-    5, 6 | 7, (x == 0 ? 5 || 0) ||
-]
-# No ambiguity really, but it is almost unreadable
-mut x :: y :: a == b ? a :: b
-mut a :: hi == hello ? 3 :: 4, y :: 2
+# # Ternary Operator
+# let a =: z == r ? 1 __ 2
+# let b = d > 6 ? 2 __ 4.5
+# let a =: x and y == z ? Int.nil __ x == y ? z __ x == z ? y __ y == z ? x __ x + y + z
+# # conditional statements and ternary operator statement should be bracketed when used in  arrays
+# let hide binOpPrecedence =: [
+#     1, (x == 0 : y == 2 ?) | 3, 5||
+#     5, 6 | 7, (x == 0 ? 5 || 0) ||
+# ]
+# # No ambiguity really, but it is almost unreadable
+# mut x :: y :: a == b ? a :: b
+# mut a :: hi == hello ? 3 :: 4, y :: 2
 
 # Coroutine Stream Operators
 func work(pipe x =: Bool):
@@ -35,6 +35,7 @@ func work(pipe x =: Bool):
     print("done")
     x << true
 ..
+
 func main():
     pipe done = Bool
     run work(done)
@@ -75,11 +76,11 @@ char =: getChar()~(print("Too bad"); '')
 let d =: 5 Int[1, 2, 3, 5, 6] # array can't grow, content can't change
 mut x =: let 5 Int[1, 2, 3, 5, 6] # array can grow, but content cannot be mutated
 
-# Multidimensional Arrays
-let hide boom =: [
-    1, (x == 0 : y == 2 ?) | 3, 5||
-    5, 6 | 7, (x == 0 ? 5 || 0) ||
-]
+# # Multidimensional Arrays
+# let hide boom =: [
+#     1, (x == 0 : y == 2 ?) | 3, 5||
+#     5, 6 | 7, (x == 0 ? 5 || 0) ||
+# ]
 
 # Compilation
 # Progressive code generation. bytecode (parse time) -> bytecode + machine code (run time) -> machine code (run time).
@@ -98,7 +99,7 @@ let hide boom =: [
 # valued state
     mut s =: Str # uninitialised, just a declaration.
     mut r =: Str.nil # initialised to nil state.
-    mut t =: Str() # initialised using default constructor
+    mut t =: Str() # initialised using d efault constructor
 # field can have default state though, even when the object is uninitialised
     type MyStr:
         mut value =: ""
@@ -152,7 +153,7 @@ func show(x):
     print(glob.x)
 ..
 
-# Nested for
+# Nested for # 13/10/16
 for x thru arr1 for y thru arr2: print(x, y)
 
 # Vectorized Function Call
@@ -161,6 +162,80 @@ print(<=.(a - arr, b))
 # Including 'var' keyword which is the same as 'mut', var may replace mut in the long run
 var x = 5
 mut x = 5
+
+# Generators # 15/10/16
+func gen():
+    var sticky x = 20
+    yd x++
+..
+var a = gen()
+var b = gen()
+var c = re gen()
+
+# Indentation
+# Pluto0.0.83 supports both tabs and 4-space identation, but they must not be mixed.
+
+# Function objects
+var f = add
+var f =: Func
+var x = (=:Int, =:Int)::Int
+
+# Special Functions
+convert() var d =: Person -> Dragon()
+setIndex() arr[2] = 24
+setList() var arr = List -> [1, 2, 3, 4]
+setHList() var arr = List -> [1 2 3 4]
+getIndex()  var b = arr[1]
+getRange() for x thru arr[1:2:4]
+
+
+# Type Parameters Refined # 17/10/16
+func add(a=:$T, b=:T): a + b
+
+
+# Ternary Operator # 18/10/16
+    let a =: z == r ? 1 || 2
+    let b = d > 6 ? 2 || 4.5
+    let a =: x and y == z ? Int.nil || x == y ? z || x == z ? y || y == z ? x || x + y + z
+
+# Lists and Tables  # 18/10/16
+let hide boom =: [
+    [[1, x == 0 : y == 2 ? ], [3, 5]],
+    [[5, 6], [7, x == 0 ? 5 || 0 ]]
+]
+
+let list2D =: [,]
+
+list2D[2,3] = 25
+
+var table =: [
+    'a' : [1 3 5]
+    'b' : [2 4 6]
+]
+
+let x =: table['a']
+
+let d =: [
+    :[1, 2, 3]
+    :[5, 6, 7]
+]
+
+
+# Match Function # 19/10/16
+match test(a, b):
+    case 1 : print("Bang!")
+    case > 2 : print("Bang!")
+    case 3, 4 : print("Bang!")
+    case 5 => b == 2: print("Bang!")
+..
+
+# Symbols
+var ello = m{2x} # mathematical symbol
+var ello = t{- 5 {+ 2 5}}
+
+# ------------------------------------------------------------------------------------------
+
+
 
 
 # 21/09/16

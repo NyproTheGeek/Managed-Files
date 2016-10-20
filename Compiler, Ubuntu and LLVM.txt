@@ -1,0 +1,15 @@
+Compiler Design Lectures
+https://www.youtube.com/watch?v=mrNrifMWLms&list=PLFB9EC7B8FE963EB8&index=5
+
+Ubuntu on VMWare
+- Dont install any tools while installing ubuntu.
+- Don't hibernate while the vm is running
+- Change the screen res using this shell saved in a file
+	xrandr --newmode "1360x710"  173.00  1360 2048 2248 2576  710
+ 1083 1088 1120 -hsync +vsync
+	xrandr --addmode Virtual1 1360x710
+	xrandr --output Virtual1 --mode 1360x710
+- Make the shell an executable by typing into terminal
+	chmod +x 'path/to/setscreen.sh'
+- Set shell to run on startup by adding it to start up applications
+- Shared folder can only be work after downloading vm tools 
