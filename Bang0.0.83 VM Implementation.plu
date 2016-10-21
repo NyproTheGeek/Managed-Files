@@ -9,7 +9,7 @@ BASIC INSTRUCTIONS
 - add, sub, mul, div, mod
 - unm
 - eq, lt, le
-- bnot, bor, band, bexor
+- bnot, bor, band, bxor
 - jmp
 - rt
 - loadk

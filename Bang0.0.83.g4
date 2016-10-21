@@ -23,23 +23,23 @@ mod0: 'priv'|'pack'|'prod'|'rpriv'|'rpack'|'rprod';
 ref: 'read'|'ref'|'iso'|'own';
 ass: '='|'=:'|'::'|'<:'|'>:';
 
-m_obj_decl: ('var'|'let') mod? iden obj_rhs?;
-f_obj_decl: ('var'|'let') 'sticky'? iden obj_rhs?;
-l_obj_decl: ('var'|'let') 'hold'? iden obj_rhs?;
+m_obj_decl: ('var'|'let') mod? IDEN obj_rhs?;
+f_obj_decl: ('var'|'let') 'sticky'? IDEN obj_rhs?;
+l_obj_decl: ('var'|'let') 'hold'? IDEN obj_rhs?;
 obj_rhs: ;
 
-m_func_decl: ('func'|'match') mod? iden '!'? '(' param? ')' (('::'|'<:'|'>:')? iden)? ':'?;
-f_func_decl: ('func'|'match') iden '!'? '(' param? ')' (('::'|'<:'|'>:')? iden)? ':'?;
+m_func_decl: ('func'|'match') mod? IDEN '!'? '(' param? ')' (('::'|'<:'|'>:')? IDEN)? ':'?;
+f_func_decl: ('func'|'match') IDEN '!'? '(' param? ')' (('::'|'<:'|'>:')? IDEN)? ':'?;
 
 param: param0 (',' param0)*;
-param0: ('let'? iden)+ obj_rhs?;
+param0: ('let'? IDEN)+ obj_rhs?;
 
-type_decl: 'type' 'ab'? mod0? iden '(' param? ')' '[' iden (',' iden)* ']' ':'?;
-enum_decl: 'enum' mod0? iden '(' e_param? ')' '[' iden (',' iden)* ']' ':'?;
-module_decl: 'module' mod0? iden;
+type_decl: 'type' 'ab'? mod0? IDEN '(' param? ')' '[' IDEN (',' IDEN)* ']' ':'?;
+enum_decl: 'enum' mod0? IDEN '(' e_param? ')' '[' IDEN (',' IDEN)* ']' ':'?;
+module_decl: 'module' mod0? IDEN;
 
 e_param: e_param0 (',' e_param0);
-e_param0: iden ('(' param? ')')?;
+e_param0: IDEN ('(' param? ')')?;
 
 for_expr: ;
 cond_expr: ;
@@ -62,6 +62,6 @@ expr: ; // TODO Needs Work
 // t -> type parameter
 // ns -> non-standard
 // ml -> multi-line
-// (('do' (iden (',' iden)*)?)? ':')?
+// (('do' (IDEN (',' IDEN)*)?)? ':')?
 
 // >>> lambda, do_anon_func, bin_op, un_op, tern_op
