@@ -1,14 +1,40 @@
 # 20/10/16
 RUNTIME STRUCTURE
-Stack -> Stack[ Register [locals, globals, constants ], Code Fraction, Bukcket]
-Heap -> Bucket[ Objects/Arrays > 500B ]
-------> Globals[Types, Funcs{Multiple Dispatch}, Vars, Outers]
-------> Code Segment
+Stack
+    Stack{
+        Register{
+            locals,
+            globals,
+            constants
+        },
+        CodeFragment
+    }
+Heap
+    Globals{
+        globalObjects,
+        outerObjects
+    }
+    FuncMap::Map{
+        index,
+        bufferOfFunctions
+    }
+    Function{
+        masterTypeIndex,
+        bufferOfObjects
+    }
+    TypeMap::Map{
+        index,
+        bufferOfParentTypes
+    }
+    CodeSegment{
+        size,
+        bufferOfInstructions
+    }
 
 BASIC INSTRUCTIONS
 - add, sub, mul, div, mod
 - unm
-- eq, lt, le
+- eq, neq, lt, le, gt, ge
 - bnot, bor, band, bxor
 - jmp
 - rt
@@ -22,22 +48,36 @@ FUNCTION LOADING
 - globals
 - locals
 - constants
+- outerObjects
 
 PRIMITIVE OBJECTS
 - bool
 - int, i8, i16, i32, i64, uint, u8, u16, u32, u64
 - f32, f64
 - c64, c126
-- array
+- buffer
 
-PACKAGED OBJECTS
-- strings -> byte_size, cp_length, UTF-8
+PACKAGED OBJECTS (??)
+- strings -> byte_size, ascii_flag + cp_length, UTF-8
 - chars -> byte_size, UTF-32
 - lists
 - objects
 
-ARRAY
-- Hash Part | Array Part
+MAP
+- Hash Part | List Part
+    Map{
+        size,
+        bufferOfHashes,
+    }
+    Hash{
+        ptrToList,
+        ptrToVal,
+    }
+    List{
+        size,
+        bufferOfRLE,
+        bufferOfPointers,
+    }
+    Buffer{
 
-HEAP BUCKET
--
+    }

@@ -17,6 +17,10 @@ NS_SYMBOL: ;
 
 ML_COMMENT: '#='/*Characters*/?ml_comment?/*Characters*/?'=#'; // TODO Needs Work
 
+
+prog: ;
+
+
 mod: mod0|'hide'|'rhide';
 mod0: 'priv'|'pack'|'prod'|'rpriv'|'rpack'|'rprod';
 
