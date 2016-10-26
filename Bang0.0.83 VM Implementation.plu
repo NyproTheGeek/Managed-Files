@@ -1,48 +1,122 @@
 # 20/10/16
 RUNTIME STRUCTURE
-Stack
+Stacked
     Stack{
         Register{
             locals,
-            globals,
-            constants
-        },
-        CodeFragment
+            constants,
+            funcs
+        }
     }
-Heap
+Heaped
     Globals{
         globalObjects,
         outerObjects
     }
     FuncMap::Map{
         index,
-        bufferOfFunctions
+        vectorOfFunctions
     }
     Function{
-        masterTypeIndex,
-        bufferOfObjects
+        numberOfArgs,
+        vectorOfObjects,
+        vectorOfAttachedFunctions
     }
     TypeMap::Map{
         index,
-        bufferOfParentTypes
-    }
-    CodeSegment{
         size,
-        bufferOfInstructions
+        vectorOfParentTypes
+    }
+    Instructions1{
+        programPositionIndex,
+        vectorOfInstructions
     }
 
-BASIC INSTRUCTIONS
+ANY
+- Primitive Objects
+- Complex Objects
+- Maps
+- Buffers
+
+STRUCTURES
+    PrimitiveObjectX{
+        type,
+        refCount,
+        value
+    }
+    AnySizedComplexObject{
+        type,
+        size|isBuffered,
+        refCount,
+        [
+            primitiveObject,
+            *mapPtr,
+            *anyPtr,
+            buffer
+            ...
+        ]
+    }
+    BufferedComplexObject{
+        type,
+        size|isBuffered,
+        refCount,
+        buffer
+    }
+    Buffer{
+        type,
+        size,
+        *anyPtr[]
+    }
+    Map{
+        type,
+        size,
+        refCount,
+        [
+            hash,
+            hash,
+            ...
+        ]
+    }
+    Hash{
+        *anyPtr,
+        buffer
+    }
+    Stack{
+        [
+            *anyPtr,
+            primitiveObject  #=CONSTANTS=#,
+            ...
+        ]
+    }
+    Global{
+        [
+            *anyPtr,
+            primitiveObject #=CONSTANTS=#,
+            ...
+        ]
+    }
+
+MAP
+
+BASIC INSTRUCTIONS (25)
 - add, sub, mul, div, mod
+- padd, psub, pmul, pdiv, pmod
 - unm
 - eq, neq, lt, le, gt, ge
+- peq, pneq, plt, ple, pgt, pge
 - bnot, bor, band, bxor
 - jmp
-- rt
-- loadk
 - loadbool
-- move
+- mov, pmov
 - forloop
 - call
+- end
+- rt
+
+OPERATIONS
+- i64 for signed integer ops
+- u64 for unsigned integer ops
+- f64 for floating point ops
 
 FUNCTION LOADING
 - globals
@@ -63,21 +137,11 @@ PACKAGED OBJECTS (??)
 - lists
 - objects
 
-MAP
-- Hash Part | List Part
-    Map{
-        size,
-        bufferOfHashes,
-    }
-    Hash{
-        ptrToList,
-        ptrToVal,
-    }
-    List{
-        size,
-        bufferOfRLE,
-        bufferOfPointers,
-    }
-    Buffer{
 
-    }
+OPTIMISATIONS
+- type inference
+- constant folding
+
+
+FUTURE OPTIMISATIONS
+- Allocating and Managing Heap Buckets

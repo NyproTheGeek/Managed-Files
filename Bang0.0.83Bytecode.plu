@@ -1,0 +1,90 @@
+# 23/10/16
+
+func main():
+    var b = 50
+    add(b, 60)
+..
+func add(a, b):
+    a + b
+
+main (0)
+    - instrPos - (0)
+    - locals - (1)
+    - globals - (2) - [50, 60]
+    - funcs - (0)
+add (1)
+    - instrPos - (7)
+    - locals - (2)
+    - globals - (0)
+    - funcs - (0)
+
+---------------------
+    INSTRUCTIONS
+---------------------
+    mov R(0) R(1)
+    call F(1)
+        mov R(0) R(0)
+        mov R(1) R(2)
+    end
+    end
+---------------------
+    add R(0) R(1)
+    end
+---------------------
+
+BASIC OPCODES (25)
+- add, sub, mul, div, mod
+- padd, psub, pmul, pdiv, pmod
+- unm
+- eq, neq, lt, le, gt, ge
+- peq, pneq, plt, ple, pgt, pge
+- bnot, bor, band, bxor
+- jmp
+- loadbool
+- mov, pmov
+- forloop
+- call
+- end
+- rt
+
+# THE STATIC CHECKER
+- Checks ref passage at return.
+- Objects stored in maps cannot be refed.
+- Checks for static maps by understanding loop
+    #- A static map is a map whose size can be determined at compile-time and is guaranteed to remain so
+    #- Checking what was assigned to elements of a map.
+    #- Nesting is considered. A dynamic map may contain a static map.
+- Checks for non-deterministic returns.
+- Knows when a primitive object has references.
+- Knows when an possibly uninitialised object is being returned.
+- Map elements are always default initialised to nil.
+- Knows when a function is changing an outer object. Useful for datarace detection.
+- Bang doesn't allow data race possibilities.
+
+    # flexible name
+    var a = 23.5
+    mov R(0) R(1)
+    a = 20.8
+    pmov R(0) R(2)
+
+    # covariant name
+    var a =: Person('Aditya', 20)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    mov R(0) R(1)
+    -------------------------
+    a = if x == y? Person('Nypro', 24) || Employee('Clerk')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    eq R(2) R(3)
+    jmp L(1)
+        mov R(1) R(4)
+    mov R(1) R(5)
+    -------------------------
+    a = Employee('Clerk')
+    ^^^^^^^^^^^^^^^^^^^^^^^^^
+    mov R(0) R(1)
+
+    # strict name
+    var a :: Person('Aditya', 20)
+    mov R(0) R(1)
+    a = Person('Bantu', 27)
+    mov R(0) R(2)
