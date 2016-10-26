@@ -1,9 +1,9 @@
 '.source.pluto':
   'editor':
     'autoIndentOnPaste': false
-    'softTabs': true
+    'softTabs': false
     'tabLength': 4
     # 'foldEndPattern': '^\\s*"""\\s*$'
     'commentStart': '# '
-    'increaseIndentPattern': ':\\s*$|:\\=\\s*$|\\[\\s*$|\\{\\s*$'
-    'decreaseIndentPattern': '^\\s*(elsif|else|catch|ensure)\\b.*:|\\s+\\.\\.\\s*$|\\s+\\]$|\\s+\\}$' # while
+    'increaseIndentPattern': '(:|=|=:|::|<:|>:|\\\\|\\[[^\\]]*|\\{[^\\}]*|\\([^\\)]*)\\s*$'
+    'decreaseIndentPattern': '^(\\s*(elsif|elif|else|catch|ensure)\\b.*:|\\s+\\.{2}|\\s+\\]|\\s+\\}|\\s*\\}|\\s*\\]|\\s*\\))\\s*$' # while

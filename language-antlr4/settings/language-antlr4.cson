@@ -1,5 +1,5 @@
-#22/08/16
-'.source.ebnf':
+#18/10/16
+'.source.antlr4':
   'editor':
     'autoIndentOnPaste': false
     'softTabs': true

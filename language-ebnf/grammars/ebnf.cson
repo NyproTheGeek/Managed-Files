@@ -27,7 +27,7 @@ repository:
         patterns: [
             begin: "\\(\\*"
             end: "\\*\\)"
-            name: "comment.block.pluto"
+            name: "comment.block.ebnf"
         ]
 
     string:
@@ -83,11 +83,11 @@ repository:
 
             }
             {
-                match: "\\,|;|\\[|\\]|\\{|\\}|-"
+                match: "\\[|\\]|\\{|\\}|-"
                 name: "constant.numeric.ebnf"
             }
             {
-                match: "\\|"
+                match: "\\,|;|\\|"
                 name: "entity.name.function.ebnf"
             }
         ]

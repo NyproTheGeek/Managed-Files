@@ -1,0 +1,143 @@
+#18/10/16
+
+fileTypes: [
+  "g4"
+]
+name: "ANTLR4"
+
+patterns: [
+    {
+        include: "#string"
+    }
+    {
+        include: "#keyword"
+    }
+    {
+        include: "#comment"
+    }
+    {
+        include: "#head"
+    }
+    {
+        include: "#punctuator"
+    }
+    {
+        include: "#symbol"
+    }
+    {
+        include: "#raw_braces"
+    }
+]
+repository:
+    comment:
+        patterns: [
+            #  SINGLE-LINE COMMENT
+            {
+                begin: "//"
+                beginCaptures:
+                    "0":
+                        name: "punctuation.definition.comment.g4"
+                end: "$"
+                name: "comment.line.g4"
+            }
+            # MULTILINE COMMENT
+            {
+                begin: "/\\*"
+                end: "\\*/"
+                name: "comment.block.g4"
+            }
+        ]
+
+    string:
+        patterns: [
+            # SINGLE-LINE SINGLE-QUOTE STRING
+            {
+                begin: "'"
+                end: "'"
+                name: "string.quoted.single.g4"
+                pattern:[
+                    {
+                        include: "#string_escaped_chars"
+                    }
+                ]
+            }
+            # DOUBLE-QUOTE STRING
+            {
+                begin: '"'
+                end: '"'
+                name: "string.quoted.double.g4"
+                pattern:[
+                    {
+                        include: "#string_escaped_chars"
+                    }
+                ]
+            }
+        ]
+    string_escaped_chars:
+        patterns: [
+            {
+                match: "\\\\."
+                name: "constant.character.escape.g4"
+            }
+        ]
+    keyword:
+        patterns: [
+            {
+                match: '\\b(?:grammar)\\b',
+                name: 'support.class.g4'
+            }
+            {
+                match: '\\-\\>\\s*(?:[a-zA-Z0-9]+)',
+                name: 'support.class.g4'
+            }
+        ]
+
+    head:
+        patterns: [
+            # PARSER NON-TERMINALS
+            {
+                match: "(?:[a-z][A-Za-z_0-9]*)\\s*\\:"
+                name: "variable.language.g4"
+            }
+            # LEXER NON-TERMINALS
+            {
+                match: "\\b[A-Z][A-Za-z_0-9]*\\:\\b"
+                name: "storage.type.g4"
+            }
+        ]
+
+    punctuator:
+        patterns: [
+            {
+                match: "\\?|\\*|\\+"
+                name: 'support.class.g4'
+            }
+        ]
+
+    symbol:
+        patterns: [
+            {
+                match: "\\(|\\)|\\{|\\}|-"
+                name: "constant.numeric.g4"
+            }
+            {
+                match: "\\,|;|\\|"
+                name: "entity.name.function.g4"
+            }
+        ]
+    raw_braces:
+        patterns:[
+            {
+                begin: '\\[.*'
+                beginCaptures:
+                    "1":
+                        name: "constant.numeric.g4"
+                end: '\\]'
+                endCaptures:
+                    "1":
+                        name: "constant.numeric.g4"
+            }
+        ]
+
+
+scopeName: "source.antlr4"

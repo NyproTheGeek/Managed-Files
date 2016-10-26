@@ -10,7 +10,7 @@ fileTypes: [
     "plu", "pluto"
 ]
 foldingStartMarker: ":"
-foldingStopMarker: "\\.\\."
+foldingStopMarker: "\\.\\.\\s*$"
 name: "Pluto"
 patterns: [
     {
@@ -67,9 +67,25 @@ repository:
         ]
     hints:
         patterns:[
+            # HINTS
             {
                 match: "\\@(?:[A-za-z_][A-za-z_0-9]*)"
                 name: 'support.function.macro.pluto'
+            }
+            {
+                begin: "\\@\\{\\s*[a-zA-Z_0-9]+\\s"
+                beginCaptures:
+                    "0":
+                        name: 'support.function.macro.pluto'
+                end: "\\}"
+                endCaptures:
+                    "0":
+                        name: 'support.function.macro.pluto'
+                patterns: [
+                    {
+                        include: "$self"
+                    }
+                ]
             }
         ]
     brackets:
@@ -105,7 +121,8 @@ repository:
         patterns: [
             # REAL NUMBERS
             {
-                match: "\\b(?:[+-]?(?:[0-9]_?)*\\.(?:[0-9]_?)+(?:e[+-](?:[0-9]?)+)?[df]?|[+-]?(?:[0-9]_?)+[a-z]*[0-9]*)\\b"
+                match: "\\b(?:[+-]?(?:[0-9]_?)*\\.(?:[0-9]_?)+(?:e[+-](?:[0-9]?)+)?(?:_[a-zA-z$][a-zA-z0-9$]*)?|[+-]?(?:[0-9]_?)+(?:[a-zA-z$][a-zA-z0-9$]*)?)\\b" # The non-std literal can have characters that are supported by identifiers in their labels
+                # "\\b(?:[+-]?(?:[0-9]_?)*\\.(?:[0-9]_?)+(?:e[+-](?:[0-9]?)+)?[df]?|[+-]?(?:[0-9]_?)+[a-z]*[0-9]*)\\b"
                 name: "constant.numeric.pluto"
             }
             # OTHER NUMBERS
@@ -132,28 +149,28 @@ repository:
                 name: 'variable.other.pluto'
             }
             # TYPES
-            {
-                match: '\\b(?:AStr|Str|Char|Byte|SByte|Int|Int32|Int64|Int16|UInt|UInt32|UInt64|UInt16|Float|Double|Float16|Float32|Float64|Comp|Comp128|Quat|Quat256|BigInt|BigFloat|Ratio|Bool|Any|Func|Array|Dict|Indie|Symbol|DataType|Expr)\\b',
-                name: 'support.type.pluto'
-            }
+            # {
+            #     match: '\\b(?:AStr|Str|Int|I32|I64|I16|I8|UInt|U32|U64|U6|U8|F16|F32|F64|Comp|Comp128|Quat|Quat256|BigInt|BigFloat|Ratio|Bool|Any|Func|Array|Dict|Indie|Symbol|DataType|Expr)\\b',
+            #     name: 'support.type.pluto'
+            # }
             # LANG VARIABLES
             {
-                match: '\\b(?:self|super|sub)\\b',
-                name: 'variable.language.pluto'
+                match: '\\b(?:self|super|sub|glob)\\b',
+                name: 'support.function.pluto' # 'variable.language.pluto'
             }
             # CONTROL FLOW
             {
-                match: '\\b(?:for|if|else|elsif|rt|while|repeat|match|case|until|do|use|loop|label|op|block|try|except|ensure|raise|err|next|break|skip|step|yield|take|run|select|import|module)\\b',
+                match: '\\b(?:for|if|\\?|opt|else|elsif|elif|rt|yd|while|repeat|match|case|until|do|use|loop|label|op|block|try|catch|ensure|raise|err|next|break|skip|step|take|select|import|module)\\b',
                 name: 'keyword.control.pluto'
             }
             # MODIFIERS
             {
-                match: '\\b(?:sticky|abs|solo|const|priv|pack|pass|prod|prot|rpriv|rpack|rpass|rprod|wpriv|wpack|wpass|wprod|hold|nan|lock|iso|val|ref|own|read|to|from)\\b',
+                match: '\\b(?:sticky|ab|solo|const|priv|pack|pass|prod|prot|rpriv|rpack|rpass|rprod|wpriv|wpack|wpass|wprod|hold|nan|lock|iso|val|ref|own|read|hide)\\b',
                 name: 'storage.modifier.pluto'
             }
             # CATEGORIES
             {
-                match: '\\b(?:type|func|enum|pipe|let|mut|mod|as)\\b',
+                match: '\\b(?:type|func|enum|pipe|let|mut|var|mod|as)\\b',
                 name: 'storage.type.pluto'
             }
             # CLASSES
@@ -163,7 +180,7 @@ repository:
             }
             # FUNCTIONS
             {
-                match: '\\b(?:set|get|print|printx|printErr|scan|list|listx|show|showx)\\b',
+                match: '\\b(?:set|get|print|put|printErr|scan|emit|run|re)\\b',
                 name: 'support.function.pluto'
             }
             # OTHERS
@@ -200,7 +217,7 @@ repository:
                 # name: "variable.language.pluto"
                 # I seriously don't know what is wrong with the above regex, but it is the solution to the problem
                 # I'm having with the method below.
-                match: "(?:[A-za-z_][A-za-z_0-9]*|\\)|\"|\')?\\.([A-za-z_][A-za-z_0-9]*)\\b"
+                match: "(?:[A-za-z_][A-za-z_0-9]*|\\)|\"|\')?\\.([A-Za-z_][A-Za-z_0-9]*)\\b"
                 captures:
                     "1":
                         name: "variable.language.pluto"
@@ -222,12 +239,12 @@ repository:
                 }
                 # UNARY OPERATORS
                 {
-                    match: '(?:-|\\+|\\?|′|\\=|\\\\|/|\\*|\\%|\\^|:=)'
+                    match: '(?:-|\\+|--|\\+\\+|\\.-|\\.\\+|\\.--|\\.\\+\\+|\\?)'
                     name: 'keyword.operator.pluto'
                 }
                 # BINARY OPERATORS
                 {
-                    match: '(?:--|\\+\\+|\\+=|-=|\\*=|%=|\\^=|/=|//=)'
+                    match: '(?:\\=|\\*|/|\\%|\\^|//|\\.\\*|\\./|\\.\\%|\\.\\^|\\.//|\\+=|-=|\\*=|/=|%=|\\^=|//=|\\.\\+=|\\.-=|\\.\\*=|\\./=|\\.%=|\\.\\^=|\\.//=)'
                     name: 'keyword.operator.pluto'
                 }
                 # CONDITIONAL OPERATORS
@@ -237,7 +254,7 @@ repository:
                 }
                 # BITWISE OPERATORS
                 {
-                    match: '(?:\\~|\\.\\||\\.\\&|\\.\\^)'
+                    match: '(?:\\:~|\\:\\||\\:\\&|\\:\\^)'
                     name: 'keyword.operator.pluto'
                 }
                 # SHIFT OPERATORS
@@ -380,7 +397,7 @@ repository:
         patterns: [
             {
                 match: "\\\\(\\[|\\t|\\n|\"|\'|#|\\\\)" # \\.(\\[|t|n|\"|\'|#)
-                name: "constant.character.escape.julia"
+                name: "constant.character.escape.pluto"
             }
             ]
     string_interpolate:
