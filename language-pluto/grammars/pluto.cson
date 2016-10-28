@@ -160,7 +160,7 @@ repository:
             }
             # CONTROL FLOW
             {
-                match: '\\b(?:for|if|\\?|opt|else|elsif|elif|rt|yd|while|repeat|match|case|until|do|use|loop|label|op|block|try|catch|ensure|raise|err|next|break|skip|step|take|select|import|module)\\b',
+                match: '\\b(?:for|if|\\?|opt|else|elsif|elif|rt|yd|while|repeat|match|case|alt|until|do|use|loop|label|op|block|try|catch|ensure|raise|err|next|break|skip|step|take|select|import|module)\\b',
                 name: 'keyword.control.pluto'
             }
             # MODIFIERS
@@ -170,7 +170,7 @@ repository:
             }
             # CATEGORIES
             {
-                match: '\\b(?:type|func|enum|pipe|let|mut|var|mod|as)\\b',
+                match: '\\b(?:type|func|enum|flo|let|mut|var|mod|as)\\b',
                 name: 'storage.type.pluto'
             }
             # CLASSES
@@ -180,7 +180,7 @@ repository:
             }
             # FUNCTIONS
             {
-                match: '\\b(?:set|get|print|put|printErr|scan|emit|run|re)\\b',
+                match: '\\b(?:set|get|print|put|printErr|scan|emit|run)\\b',
                 name: 'support.function.pluto'
             }
             # OTHERS

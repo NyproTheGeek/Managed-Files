@@ -25,7 +25,7 @@ Heaped
     TypeMap::Map{
         index,
         size,
-        vectorOfParentTypes
+        vectorOfParentTypes 
     }
     Instructions1{
         programPositionIndex,

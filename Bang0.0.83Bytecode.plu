@@ -33,19 +33,16 @@ add (1)
 ---------------------
 
 BASIC OPCODES (25)
-- add, sub, mul, div, mod
-- padd, psub, pmul, pdiv, pmod
-- unm
-- eq, neq, lt, le, gt, ge
-- peq, pneq, plt, ple, pgt, pge
-- bnot, bor, band, bxor
+- mov, p_mov
+- add, sub, mul, div, mod, unm, p_add, p_sub, p_mul, p_div, p_mod, p_unm
+- eq, neq, lt, le, gt, ge, p_eq, p_neq, p_lt, p_le, p_gt, p_ge
+- bnot, bor, band, bxor, p_bnot, p_bor, p_band, p_bxor
+- cast, p_cast
+- shl, shr, p_shl, p_shr
 - jmp
-- loadbool
-- mov, pmov
-- forloop
+- index
 - call
-- end
-- rt
+- ret
 
 # THE STATIC CHECKER
 - Checks ref passage at return.
@@ -61,30 +58,85 @@ BASIC OPCODES (25)
 - Knows when a function is changing an outer object. Useful for datarace detection.
 - Bang doesn't allow data race possibilities.
 
-    # flexible name
-    var a = 23.5
-    mov R(0) R(1)
-    a = 20.8
-    pmov R(0) R(2)
 
-    # covariant name
-    var a =: Person('Aditya', 20)
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-    mov R(0) R(1)
-    -------------------------
-    a = if x == y? Person('Nypro', 24) || Employee('Clerk')
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-    eq R(2) R(3)
-    jmp L(1)
-        mov R(1) R(4)
-    mov R(1) R(5)
-    -------------------------
-    a = Employee('Clerk')
-    ^^^^^^^^^^^^^^^^^^^^^^^^^
-    mov R(0) R(1)
+BYTECODE EXAMPLES
+# flexible name
+var a = 23.5
+mov R(0) R(1)
+a = 20.8
+pmov R(0) R(2)
 
-    # strict name
-    var a :: Person('Aditya', 20)
-    mov R(0) R(1)
-    a = Person('Bantu', 27)
-    mov R(0) R(2)
+# covariant name
+var a =: Person('Aditya', 20)
+^^^^^^^^^^^^^^^^^^^^^^^^^
+mov R(0) R(1)
+-------------------------
+a = if x == y? Person('Nypro', 24) || Employee('Clerk')
+^^^^^^^^^^^^^^^^^^^^^^^^^
+eq R(2) R(3)
+jmp L(1)
+    mov R(1) R(4)
+mov R(1) R(5)
+-------------------------
+a = Employee('Clerk')
+^^^^^^^^^^^^^^^^^^^^^^^^^
+mov R(0) R(1)
+
+# strict name
+var a :: Person('Aditya', 20)
+mov R(0) R(1)
+a = Person('Bantu', 27)
+mov R(0) R(2)
+
+-------(1)-------
+func main():
+    var x = 20
+    var y = x - 15
+    add(x, y * 5)
+..
+func add():
+    a + b
+^^^^^^^^^^^^^^^^^
+call F(1)
+    p_mov R(1) R(2)
+    p_sub R(3) R(1) R(4)
+    p_mov R(6) R(1)
+    p_mul R(7) R(3) R(5)
+    up S(2)
+    call F(2)
+        p_add R(0) R(1) R(2)
+    ret R(0)
+end
+-------(2)-------
+if x < y :
+    print("Hello")
+else:
+    print("Hi")
+^^^^^^^^^^^^^^^^^
+p_gt R(1) R(2)
+jmp I(4) # When jumping calls are just one instructions
+    mov R(4) R(3)
+    up S(1)
+    call F(11)
+        ...
+    ret R(?)
+mov R(4) R(3)
+up S(1)
+call F(11)
+    ...
+ret R(?)
+-------(3)-------
+func task(flo x):
+    for i thru [1:10]:
+        x += 1
+        << x
+    ..
+..
+func main():
+    flo x = 5
+    run task(x)
+    y << x
+    z << x
+..
+^^^^^^^^^^^^^^^^^
+// TODO
