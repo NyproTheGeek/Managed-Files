@@ -1,13 +1,13 @@
 # 05/10/16
-# Casting
-mut x =: Person -> Employee # Downcasting
-mut y =: MyInteger -> 5.0f # Casting
-# mut z = ArrayList -> [1, 2, 3, 4] *= 3 # _setList OUTDATED
-# In a case where there is a possible downcast and a direct type cast
-# For example, if in the example below if Person has a _convert of
-# Employee and Employee is a subtype of Person, then the _convert is
-# chosen
-mut per =: Person -> Employee("Daniel", 25, "Game Programmer")
+# # Casting
+# mut x =: Person -> Employee # Downcasting
+# mut y =: MyInteger -> 5.0f # Casting
+# # mut z = ArrayList -> [1, 2, 3, 4] *= 3 # _setList OUTDATED
+# # In a case where there is a possible downcast and a direct type cast
+# # For example, if in the example below if Person has a _convert of
+# # Employee and Employee is a subtype of Person, then the _convert is
+# # chosen
+# mut per =: Person -> Employee("Daniel", 25, "Game Programmer")
 
 # Instance Chained Call
 x.doThis()doThat()doAll()
@@ -156,7 +156,7 @@ func show(x):
 ..
 
 # Nested for # 13/10/16
-for x thru arr1 for y thru arr2: print(x, y)
+# for x thru arr1 for y thru arr2: print(x, y)
 
 # Vectorized Function Call
 print(<=.(a - arr, b))
@@ -172,7 +172,7 @@ func gen():
 ..
 var a = gen()
 var b = gen()
-var c = re gen()
+var c = run gen()
 
 # Indentation
 # Pluto0.0.83 supports both tabs and 4-space identation, but they must not be mixed.
@@ -180,7 +180,7 @@ var c = re gen()
 # Function objects
 var f = add
 var f =: Func
-var x = (=:Int, =:Int)::Int
+var x = (Int, Int)::Int
 
 # Special Functions
 convert() var d =: Person -> Dragon()
@@ -226,15 +226,15 @@ let d =: [
 # Match Function # 19/10/16
 match test(a, b):
     case 1 : print("Bang!")
-    alt > 2 : print("Bang!")
-    alt 3, 4 : print("Bang!")
+    elif > 2 : print("Bang!")
+    elif 3, 4 : print("Bang!")
     case 5 => b == 2: print("Bang!")
     else: print("Bang!")
 ..
 
 # Symbols
-var ello = m{2x} # mathematical symbol
-var ello = t{- 5 {+ 2 5}}
+# var ello = m{2x} # mathematical symbol
+var ello = ast{- 5 {+ 2 5}}
 
 # SETLIST # 22/10/16
 var n =: MyNum = [1, 2, 3, 4]
@@ -246,6 +246,97 @@ var z = *!6
 var a = *^7
 var b = a*>7
 var c = b*<7
+
+# UNINDENTED BLOCK SPECIFIERS
+- label
+- mod
+- skip
+
+# LIST NEGATIVE INDEX
+var array = [1:20]
+array[-1] # references the last index
+
+# CATCH # 03/11/16
+func foo(a):
+    try:
+        bar(1, 3)
+    catch (b::Banana|Guava):
+        case === Banana: log(b.msg)
+        case === Guava: log(b.msg)
+    ..
+    rt a
+..
+
+# TUPLES # 04/11/16
+var x, y = 5, 6
+var a, b = ,,[5, 6] # splatting an array
+var f = []: 2, 3 # slurping a tuple
+
+match (a, b):
+    case 'Hello', 'World': print(a, b)
+
+if a, b == 1, 2: print('Hello')
+
+# MATHEMATICAL EXPRESSION # 04/11/16
+var f = 2.5
+var i = 2f^3/(f-2)
+
+# COVARIANT TYPE SPECIFICATION # 04/11/16
+var f = Float: 2.3
+var i = Int
+var l = List: [1, 2, 3, 4]
+func add(a b = Int: 0): a + b
+let a = Person:('Sven Rafsmord', 12)
+let e = Car:('Camaro')
+# Possible Ambiguity
+if let x = Int: 5 # error!! There is no mbiguity since an if variable has to be initialised.
+if let x = Int: 5:.. # good
+
+# TYPE CASTING # 04/11/16
+var pers =: Person: Employee("Daniel", 25, "Game Programmer")
+
+# CHAINED CONDITIONS # 04/11/16
+if x < y & y < z:.. # notice!
+if x < y < z:..
+
+if x == y & y == z:.. # notice!
+if x and y == z:..
+if x == y == z:..
+
+if x == y & y < z:.. # notice!
+if x == y and < z:..
+
+if x == y & a == b:.. # good. unique operands
+
+# NO BREAK # 04/11/16
+for x thru list:
+    if x < y:
+        break
+nobreak:
+    return y
+return -1
+
+# USEFUL FUNCTIONS < ITERATION FUNCTIONS # 04/11/16
+for i, color thru enumerate(colors):
+    print(i, color)
+
+for color thru reversed(colors):
+    print(color)
+
+# DEDENT # 04/11/16
+if a < b: print(a) \\ else: print(b)
+
+# CONTEXT MANAGERS # 05/11/16
+
+# NUMBER LITERALS # 05/11/16
+var x = 5_000_000_f
+var d = .56
+var d = 1_000
+
+# REFERENCES # 05/11/16
+var bone = Bone
+bone.parent = wref getSkeleton('Captain Jack Sparrow')
+var bone = 
 
 # ------------------------------------------------------------------------------------------
 

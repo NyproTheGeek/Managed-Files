@@ -1,70 +1,40 @@
 # 23/10/16
-
-func main():
-    var b = 50
-    add(b, 60)
-..
-func add(a, b):
-    a + b
-
-main (0)
-    - instrPos - (0)
-    - locals - (1)
-    - globals - (2) - [50, 60]
-    - funcs - (0)
-add (1)
-    - instrPos - (7)
-    - locals - (2)
-    - globals - (0)
-    - funcs - (0)
-
----------------------
-    INSTRUCTIONS
----------------------
-    mov R(0) R(1)
-    call F(1)
-        mov R(0) R(0)
-        mov R(1) R(2)
-    end
-    end
----------------------
-    add R(0) R(1)
-    end
----------------------
-
-BASIC OPCODES (25)
-- mov, p_mov
-- add, sub, mul, div, mod, unm, p_add, p_sub, p_mul, p_div, p_mod, p_unm
-- eq, neq, lt, le, gt, ge, p_eq, p_neq, p_lt, p_le, p_gt, p_ge
-- bnot, bor, band, bxor, p_bnot, p_bor, p_band, p_bxor
-- cast, p_cast
-- shl, shr, p_shl, p_shr
-- jmp
-- index
-- call
-- ret
-
-# THE STATIC CHECKER
-- Checks ref passage at return.
-- Objects stored in maps cannot be refed.
-- Checks for static maps by understanding loop
-    #- A static map is a map whose size can be determined at compile-time and is guaranteed to remain so
-    #- Checking what was assigned to elements of a map.
-    #- Nesting is considered. A dynamic map may contain a static map.
-- Checks for non-deterministic returns.
-- Knows when a primitive object has references.
-- Knows when an possibly uninitialised object is being returned.
-- Map elements are always default initialised to nil.
-- Knows when a function is changing an outer object. Useful for datarace detection.
-- Bang doesn't allow data race possibilities.
-
+BASIC OPCODES ()
+- mov_v, mov_r, p_mov_v, p_mov_r, n_mov_v, n_mov_r
+- add, sub, mul, div, mod, exp, root, unm
+- incr, decr, step
+- cast
+- true, false
+- eq_, neq_, lt_, le_, gt_, ge_
+- and_, or_
+- bnot, bor, band, bxor
+- shl, shr
+- jmp_, jmpback_ # instruction
+- call #=No Params=#, call_, n_call_
+- stepback, stepback_ # stack
+- dispatch, dispatch_, n_dispatch, n_dispatch_
+- tmatch1, tmatch2, tmatch3, tmatch3_
+- try_, catch_
+- throw, rethrow
+- tcheck_
+- frommap_, frombuf_, fromstr_, fromchars_, fromcomp_
+- igetkey, igetkey_, sgetkey, sgetkey_, n_getkey, n_getkey_
+- getindex, getindex_, n_getindex, n_getindex_
+- update # refd object index R(ObjToUpdate) R(ObjToUpdateFrom)
+- print, scan,
+- openfile, readfile, writefile, closefile
+- ret_v, ret_r
+- clear # stack
+- exit
+# n -> notsureoftype; p -> forprimitives; v -> passedbyvalue; r -> passed by ref
+# n_mov means not sure of the types, so types of ABC need to be checked
 
 BYTECODE EXAMPLES
 # flexible name
 var a = 23.5
 mov R(0) R(1)
 a = 20.8
-pmov R(0) R(2)
+p_mov R(0) R(2)
 
 # covariant name
 var a =: Person('Aditya', 20)
@@ -98,12 +68,13 @@ func add():
     a + b
 ^^^^^^^^^^^^^^^^^
 call F(1)
-    p_mov R(1) R(2)
-    p_sub R(3) R(1) R(4)
-    p_mov R(6) R(1)
-    p_mul R(7) R(3) R(5)
-    up S(2)
-    call F(2)
+    mov_v R(1) R(2)
+    sub_v R(3) R(1) R(4)
+    mov_v R(6) R(1)
+    mul_v R(7) R(3) R(5)
+    stepback S(2)
+    call_v F(2)
+    dispatch I(1)
         p_add R(0) R(1) R(2)
     ret R(0)
 end
@@ -140,3 +111,70 @@ func main():
 ..
 ^^^^^^^^^^^^^^^^^
 // TODO
+
+
+OPTIMISATIONS
+- Type inference
+- Constant folding
+
+NEAR IMPLEMENTATIONS
+- Coroutines with fibers abd threads
+- Enums and DataType objects
+
+FUTURE IMPLEMENTATIONS
+Detecting Cyclic Ref Using a Relationship Cyclic Tree
+- Object -> [parents] [children] [siblings] [level] (all ordered aphanumerically)
+- When an object points to its siblings or its parent siblings, then it is rouge object likely to cause a cyclic ref.
+- Traverse the structure starting from the rouge object using a depth-first approach. Test all possible branches (infinite lookahead) and see if any of the encountered node is a parent of the rouge object. Once the trasversal goes below the rouge objects level, it is stopped and the next branch is tested.
+Improving Automatic Reference Counting
+- Counting refs at compile-time and determining objects destruction points while considering concurrency.
+- Detecting a cyclic ref at compile-time and determining destruction points
+Supporting More Primitive Types
+- i8, u8, i16, u16, f32, f64, etc.
+Improved Static Checker
+Tail CALL Optimisation
+Unicode String Support
+Skip and Dynamic Instruction
+
+
+
+STATIC CHECKER
+- Checks ref passage at return.
+- Objects stored in maps cannot be refed.
+- Checks for static maps by understanding loop
+    #- A static map is a map whose size can be determined at compile-time and is guaranteed to remain so
+    #- Checking what was assigned to elements of a map.
+    #- Nesting is considered. A dynamic map may contain a static map.
+- Checks for non-deterministic returns.
+- Knows when a primitive object has references.
+- Knows when an possibly uninitialised object is being returned.
+- Map elements are always default initialised to nil.
+- Knows when a function is changing an outer object. Useful for datarace detection.
+- Bang alerts on data race possibilities.
+- Knows the type of an object at any point in time. Some times the type may be non-deterministic.
+- Knows if an object is a possible null at any point in time.
+
+
+STATIC WARNING
+- When an object with non-deterministic type accesses a function or object that is not common to its types.
+- When an object is declared but not accessed.
+- When two coroutines access the same non-flo object with at least one of the coroutines writing to it.
+- When you call a function with arguments that can (potentially) cause an alias ambiguity call at runtime.
+- When a covariantly-typed object is assigned a non-deterministic object where only some of the types are of equvalent type or subtype.
+- When a strictly-typed object is assigned a non-deterministic object where only some of the types are of equvalent type.
+
+STATIC ERROR
+- When an object accesses a field name or function name its type did not provide.
+- When a covariantly-typed object is assigned object from another type that is not a subtype. Or from a non-deterministic object whose types are not a subtype or equivalent type.
+- When a strictly-typed object is assigned object from another type. Or from a non-deterministic object whose types are not of equivalent type.
+- When a function without a bang signature writes to a referenced object passed in.
+- When you call a bang function without annotating with a bang.
+- When there is any form of reference cycle. Object reference cycle, function call cycle and type inheritance cycle.
+
+RUNTIME ERROR
+- When an object accesses a field index or function index its type did not provide.
+
+GUARANTEES
+- If you throw an exception in a destructor, the object will be destroyed first.
+- If you throw an exception in a cpnstructor, the object will be destroyed first.
+- Local automatic objects will be destroyed when the function returns.

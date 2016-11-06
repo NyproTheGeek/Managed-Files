@@ -1,0 +1,256 @@
+# 03/11/16
+VM IMPLEMENTATION
+- The last evaluated object is stored in returned objects until a return/throw command is encountered.
+STATIC DISPATCH
+- All of an objects possible types at any 'particular time' are gathered statically and this is used to filter the multiple dispatch at compile time.
+
+func bar(x, y):
+	if x < y:
+		throw Banana('Banana caught!')
+..
+
+func foo():
+	try:
+		bar(1, 3)
+		var a = 6
+	catch (b::Banana|Guava):
+		case === Banana: print(b.msg)
+		case === Guava: print(b.msg)
+	..
+..
+
+foo:
+stepback ; 1
+	p_mov_v x 1
+	p_mov_v y 3
+	stepback ; 2
+	call ; bar ; bar_layout
+	p_mov_v y 6
+	jmp ; 6 # jumping the catch
+	catch b tx # cached thrown object
+		tcheckst b ; Banana ; 2
+			print b.msg
+			println
+			jmp ; 5 # jumping the tcheck and throw
+		tcheckst b ; Guava ; 2
+			print b.msg
+			println
+			jmp ; 2 # jumping the throw # can also jump to ensure
+	throw b
+_ret
+bar:
+	_gt x y ; xxxx
+		throw b
+_ret
+
+	---------------
+	STACK HIERARCHY
+	foo ← [P1] current_stack_size();
+	try ← [P2] current_stack_size() | catch_instruction_pos();
+	bar ← [P3] current_stack_size();
+	----------------
+	THROWN OBJECTS
+	a
+	b # Implicit Nil Checker
+	----------------
+	RETURNED OBJECTS
+	a
+	----------------
+
+######################################################################
+# 05/11/16
+func arith(a, b):
+	var c = (a * b) + (a / b) - b
+
+func solve():
+	var d = 5
+	var e = arith(1, d)
+
+solve:
+	p_mov_v a 1
+	p_mov_v b d
+	stepback ; 2
+	call ; arith ; arith_layout
+	p_mov_v e t0 # cached returned object
+_ret
+arith:
+	mul t1 a b c
+	div t2 a b c
+	add t3 t1 t2
+	sub c t3 b
+_ret
+######################################################################
+# 05/11/16
+func sth():
+	for i thru [1:10]:
+		if i % 2 == 0:
+			print(i)
+		elsif i > 8:
+			print(i + 2)
+	..
+..
+
+sth:
+ 	p_mov_v i 1
+	_le i 10 ; 8
+		mod t1 i 2
+		_eq t1 0 ; 2
+			print i
+			println
+		_gt i 8 ; 3
+			add t1 i 2
+			print t1
+			println
+	jmpback ; 7
+_ret
+
+######################################################################
+# 05/11/16
+func main():
+	var a = [1, 2, 3, 4]
+	var b = a[2:4]
+	var c = b[3]
+
+main:
+	mov_r a t1
+	mkmap t1 
+	_le k1 k2 ; 
+		# setindex a @ t2 from b @ k1
+		setmapindex
+		
+		
+
+######################################################################
+# 05/11/16
+func add(a = MyInt, b = MyInt):..
+func add(a = MyInt, b :: MyStr):..
+func add(a :: MyStr, b = MyInt):..
+
+func drake():
+	var x = 50
+	let y = x - 6
+	add(x, y)
+
+drake:
+	p_mov_v x 50
+	sub t1 x 6
+	p_mov_v y t1
+	p_mov_v a x
+	p_mov_v b y
+	stepback ; 2
+	tcheckcv a ; MyInt ; 7
+		tcheckcv b ; MyInt ; 3
+			call ; add1 ; add1_layout
+			jmp ; 9 # jump the throw
+		tcheckst b ; MyStr ; 3
+			call ; add2 ; add2_layout
+			jmp ; 6 # jump the throw
+	tcheckst a ; MyStr ; 4
+		tcheckcv b ; MyInt ; 3
+			call ; add3 ; add3_layout
+			jmp ; 2 # jump the throw
+	throw f
+_ret
+add1: # MyInt, MyInt
+_ret
+add2: # MyInt, ::MyStr
+_ret
+add3: # ::MyInt, MyStr
+_ret
+
+#############################################
+#############################################
+INSTRUCTIONS
+
+# MOV
+p_mov_v a b
+p_mov_r a b
+p_mov_wr a b
+mov_v a b
+mov_r a b
+mov_wr a b
+u_mov_v a b # unsure of type or nil state
+u_mov_r a b # unsure of type or nil state
+u_mov_wr a b # unsure of type or nil state
+# ADD, SUB, MUL, DIV, MOD, EXP, ROOT, UNM
+add a b c
+sub a b c
+mul a b c
+div a b c
+mod a b c
+exp a b c
+root a b c
+unm a b
+# CAST
+cast a b
+# INCR, DECR, STEP
+incr a
+decr a
+step a b
+# EQ, NEQ, LT, LE, GT, GE
+eq a b c
+neq a b c
+lt a b c
+le a b c
+gt a b c
+ge a b c
+_eq a b ; number
+_neq a b ; number
+_lt a b ; number
+_le a b ; number
+_gt a b ; number
+_ge a b ; number
+# TRUE, FALSE
+true a
+false a
+# AND OR
+and a b c
+or a b c
+# BNOT, BAND, BOR, BXOR,
+bnot a b c
+band a b c
+bor a b
+bxor a b
+# SHL, SHR
+shl a b c
+shr a b c
+# UPDATE
+upd a b
+# TCHECK
+tcheckst a ; Type ; number
+tcheckcv a ; Type ; number
+# CALL, RUN
+call ; Function ; FunctionLayout
+run ; Function ; FunctionLayout
+# STEPBACK
+stepback ; number
+# LEN
+len a b
+# CATCH
+catch a b  # automatic stepback for just one object
+# THROW
+throw a
+# JMP, JMPBACK
+jmp ; number
+jmpback ; number
+# RET
+ret a
+_ret
+# PRINT, SCAN
+print a
+println a
+scan a
+# OPENF, READF, WRITEF, CLOSEF
+openf a
+readf a
+writef a
+closef a
+# EXIT
+exit a # error code
+
+OPCODE STRUCTURE
+8
+8, 8
+8, 8, 8
+8, 8, 8, 8
+32

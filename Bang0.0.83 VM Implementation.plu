@@ -25,123 +25,100 @@ Heaped
     TypeMap::Map{
         index,
         size,
-        vectorOfParentTypes 
+        vectorOfParentTypes
     }
     Instructions1{
         programPositionIndex,
         vectorOfInstructions
     }
 
-ANY
-- Primitive Objects
-- Complex Objects
-- Maps
-- Buffers
-
-STRUCTURES
-    PrimitiveObjectX{
-        type,
-        refCount,
-        value
-    }
-    AnySizedComplexObject{
-        type,
-        size|isBuffered,
-        refCount,
-        [
-            primitiveObject,
-            *mapPtr,
-            *anyPtr,
-            buffer
-            ...
-        ]
-    }
-    BufferedComplexObject{
-        type,
-        size|isBuffered,
-        refCount,
-        buffer
-    }
-    Buffer{
-        type,
-        size,
-        *anyPtr[]
-    }
-    Map{
-        type,
-        size,
-        refCount,
-        [
-            hash,
-            hash,
-            ...
-        ]
-    }
-    Hash{
-        *anyPtr,
-        buffer
-    }
-    Stack{
-        [
-            *anyPtr,
-            primitiveObject  #=CONSTANTS=#,
-            ...
-        ]
-    }
-    Global{
-        [
-            *anyPtr,
-            primitiveObject #=CONSTANTS=#,
-            ...
-        ]
-    }
-
-MAP
-
-BASIC INSTRUCTIONS (25)
-- add, sub, mul, div, mod
-- padd, psub, pmul, pdiv, pmod
-- unm
-- eq, neq, lt, le, gt, ge
-- peq, pneq, plt, ple, pgt, pge
-- bnot, bor, band, bxor
-- jmp
-- loadbool
-- mov, pmov
-- forloop
-- call
-- end
-- rt
-
-OPERATIONS
-- i64 for signed integer ops
-- u64 for unsigned integer ops
-- f64 for floating point ops
 
 FUNCTION LOADING
 - globals
 - locals
 - constants
-- outerObjects
+- outers
 
-PRIMITIVE OBJECTS
+ANY
+-
+
+PRIMITIVES
 - bool
 - int, i8, i16, i32, i64, uint, u8, u16, u32, u64
 - f32, f64
-- c64, c126
-- buffer
 
-PACKAGED OBJECTS (??)
-- strings -> byte_size, ascii_flag + cp_length, UTF-8
-- chars -> byte_size, UTF-32
-- lists
-- objects
+BASE OBJECTS
+- buffers (iso)
+- maps
+- hashes
+- strings -> type + ascii_flag, byte_size, cp_length, UTF-8
+- chars -> type + ascii_flag, byte_size, UTF-32
+- primitiveObject
+- complexObject
 
+TYPE FIELD
+- unsigned 32-bit
+- Primitive - [R(Type) 1()]
+    1(Object|Value) 1(Dynamic) 1(Strict|Covariant)  1(Nil|Valued) 3(Primitive)
+- Complex - [R(Type) 1()]
+    1(Object) 1(Dynamic) 1(Strict|Covariant) 1(Nil|Valued) 3(Complex)
+- Map - [R(Type) 1()]
+    1(Object) 1(Dynamic) 1(Strict|Covariant)  1(Nil|Valued) 3(Complex)
+- Hash - [R(Type) 1()]
+    1(Object) 1(Dynamic) 1(Strict|Covariant)  1(Nil|Valued) 3(PrimitiveHash|ComplexHash|HybridHash)
+- Buffer - [R(Type) 1()]
+    1(Object) 1(Dynamic) 1(Strict|Covariant)  1(Nil|Valued) 3(PrimitiveBuffer|ComplexBuffer)
+- Str - [R(Type) 1(Ascii|Unicode)]
+    1(Object) 1(Dynamic) 1(Strict|Covariant)  1(Nil|Valued) 3(Complex)
+- Chars - [R(Type) 1(Ascii|Unicode)]
+    1(Object) 1(Dynamic) 1(Strict|Covariant)  1(Nil|Valued) 3(Complex)
 
-OPTIMISATIONS
-- type inference
-- constant folding
+STRUCTURES
+-
+
+THREAD STACK SIZES
+- Stack_1 -> 2Kb
+- Stack_2 -> 4Kb
+- Stack_3 -> 12Kb
+- Stack_4 -> 48Kb
+- Stack_5 -> 240Kb
+- Stack_6 -> 480Kb
+- Stack_7 -> 1.44Mb
+- Stack_8 -> 5.76Mb
+- Stack_9 -> 28.8Mb
+- Stack_10 -> 57.6Mb
 
 
 FUTURE OPTIMISATIONS
-- Allocating and Managing Heap Buckets
+- Allocating and managing heap buckets
+- Tail call optimizations
+    func fac(n):
+        if n < 2: rt 1
+        else: n * fac(n-1)
+    ..
+    # ITERATION
+    func fac(n):
+        label top:
+        var acc = 1
+        if n < 2: rt acc
+        acc = n * acc
+        n = n - 1
+        next top # for expressiveness only. next only works for loops.
+    ..
+    # -----------------
+    func foo(a, b):
+        if b == 1: rt a
+        else: rt foo(a * a + a, b)
+    ..
+    # ITERATION
+    func foo(a, b):
+        label top:
+        if b == 1: rt a
+        else:
+            a = a * a + a
+            b = b - 1
+            next top # for expressiveness only. next only works for loops.
+        ..
+    ..
+
+- Making fibers and threads work together
