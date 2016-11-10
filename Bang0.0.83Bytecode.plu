@@ -135,6 +135,8 @@ Improved Static Checker
 Tail CALL Optimisation
 Unicode String Support
 Skip and Dynamic Instruction
+Dynamic Function List
+- Support for passing functions to function objects by value. The passed function is copied and stored in a dynamic list
 
 
 

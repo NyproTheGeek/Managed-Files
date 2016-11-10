@@ -143,7 +143,7 @@ repository:
                 match: '\\b(?:true|false|nil)\\b',
                 name: 'constant.language.pluto'
             }
-            # META VAIABLES
+            # META VARIABLES
             {
                 match: '\\b(?:_[A-Za-z0-9]*)\\b',
                 name: 'variable.other.pluto'
@@ -160,12 +160,12 @@ repository:
             }
             # CONTROL FLOW
             {
-                match: '\\b(?:for|if|\\?|opt|else|elsif|elif|rt|yd|while|repeat|match|case|alt|until|do|use|loop|label|op|block|try|catch|ensure|raise|err|next|break|skip|step|take|select|import|module)\\b',
+                match: '\\b(?:for|nobreak|if|\\?|opt|else|elsif|elif|rt|yd|while|repeat|match|case|alt|until|do|use|loop|label|op|block|try|catch|ensure|throw|err|next|break|skip|step|take|select|import|module)\\b',
                 name: 'keyword.control.pluto'
             }
             # MODIFIERS
             {
-                match: '\\b(?:sticky|ab|solo|const|priv|pack|pass|prod|prot|rpriv|rpack|rpass|rprod|wpriv|wpack|wpass|wprod|hold|nan|lock|iso|val|ref|own|read|hide)\\b',
+                match: '\\b(?:sticky|ab|solo|const|priv|pack|pass|prod|prot|rpriv|rpack|rpass|rprod|wpriv|wpack|wpass|wprod|hold|nan|lock|iso|val|ref|wref|own|read|hide)\\b',
                 name: 'storage.modifier.pluto'
             }
             # CATEGORIES
@@ -217,7 +217,7 @@ repository:
                 # name: "variable.language.pluto"
                 # I seriously don't know what is wrong with the above regex, but it is the solution to the problem
                 # I'm having with the method below.
-                match: "(?:[A-za-z_][A-za-z_0-9]*|\\)|\"|\')?\\.([A-Za-z_][A-Za-z_0-9]*)\\b"
+                match: "\\.([A-Za-z_][A-Za-z_0-9]*)\\b"
                 captures:
                     "1":
                         name: "variable.language.pluto"

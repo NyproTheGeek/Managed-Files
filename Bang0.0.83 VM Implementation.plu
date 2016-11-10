@@ -1,36 +1,8 @@
 # 20/10/16
 RUNTIME STRUCTURE
 Stacked
-    Stack{
-        Register{
-            locals,
-            constants,
-            funcs
-        }
-    }
+
 Heaped
-    Globals{
-        globalObjects,
-        outerObjects
-    }
-    FuncMap::Map{
-        index,
-        vectorOfFunctions
-    }
-    Function{
-        numberOfArgs,
-        vectorOfObjects,
-        vectorOfAttachedFunctions
-    }
-    TypeMap::Map{
-        index,
-        size,
-        vectorOfParentTypes
-    }
-    Instructions1{
-        programPositionIndex,
-        vectorOfInstructions
-    }
 
 
 FUNCTION LOADING
@@ -59,19 +31,21 @@ BASE OBJECTS
 TYPE FIELD
 - unsigned 32-bit
 - Primitive - [R(Type) 1()]
-    1(Object|Value) 1(Dynamic) 1(Strict|Covariant)  1(Nil|Valued) 3(Primitive)
+    1(Nil|Valued) 4(PrimitiveValue|PrimitiveObject)
 - Complex - [R(Type) 1()]
-    1(Object) 1(Dynamic) 1(Strict|Covariant) 1(Nil|Valued) 3(Complex)
+    1(Nil|Valued) 4(Complex)
 - Map - [R(Type) 1()]
-    1(Object) 1(Dynamic) 1(Strict|Covariant)  1(Nil|Valued) 3(Complex)
+    1(Nil|Valued) 4(Complex)
 - Hash - [R(Type) 1()]
-    1(Object) 1(Dynamic) 1(Strict|Covariant)  1(Nil|Valued) 3(PrimitiveHash|ComplexHash|HybridHash)
+    1(Nil|Valued) 4(PrimitiveHash|ComplexHash|HybridHash)
 - Buffer - [R(Type) 1()]
-    1(Object) 1(Dynamic) 1(Strict|Covariant)  1(Nil|Valued) 3(PrimitiveBuffer|ComplexBuffer)
+    1(Nil|Valued) 4(PrimitiveBuffer|ComplexBuffer)
+- Tuple - [R(Type) 1()]
+    1(Nil|Valued)  4(PrimitiveTuple|ComplexTuple)
 - Str - [R(Type) 1(Ascii|Unicode)]
-    1(Object) 1(Dynamic) 1(Strict|Covariant)  1(Nil|Valued) 3(Complex)
+    1(Nil|Valued) 4(Complex)
 - Chars - [R(Type) 1(Ascii|Unicode)]
-    1(Object) 1(Dynamic) 1(Strict|Covariant)  1(Nil|Valued) 3(Complex)
+    1(Nil|Valued) 4(Complex)
 
 STRUCTURES
 -

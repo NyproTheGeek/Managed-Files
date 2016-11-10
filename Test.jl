@@ -19,3 +19,14 @@ function fibonacci(n)
 end
 
 println( fibonacci(10) )
+
+# 09/11/16
+y = 5
+
+x = fibonacci(7) * y
+
+function task()
+    println("Fibonacci 7: ", x)
+end
+
+task()

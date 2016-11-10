@@ -1727,15 +1727,15 @@ SHIFT OPERATORS
 
 
 BINARY LITERALS
-    mut myVar = 0b11001001
+    mut myVar = 0b11001001 # deprecated
 
 
 HEXADECIMAL LITERALS
-    let myVar = 0x5eff77
+    let myVar = 0x5eff77 # deprecated
 
 
 OCTAL LITERALS
-    mut myVar = 0o56773
+    mut myVar = 0o56773 # deprecated
 
 
 UTF-8 CHARACTERS

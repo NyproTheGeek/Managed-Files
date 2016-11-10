@@ -3,7 +3,104 @@ VM IMPLEMENTATION
 - The last evaluated object is stored in returned objects until a return/throw command is encountered.
 STATIC DISPATCH
 - All of an objects possible types at any 'particular time' are gathered statically and this is used to filter the multiple dispatch at compile time.
+######################################################################
+# 07/11/16
+type Person:
+	var name = Str
+	var age = Int
+	func self(name, age)
+..
 
+type Employee[Person]:
+	var job, company = Str
+	func self()
+	func self(super(name, age), job, company)
+..
+
+func getDetails(person = Person):
+	self.name, self.age
+
+func main():
+	var someone = Employee:(
+		"David Copenhagen",
+		45,
+		"Managing Director",
+		"Pharmadise, Inc."
+	)
+	let name, age = dave.getDetails()
+	let david = Employee()name(name)age(age)
+	try:
+		let a = 5.0
+		let b = 2.0
+		let c = a.div(b)
+	catch err = DivByZeroEx:
+		print('Attempt to divide by zero!')
+..
+
+type DivByZeroEx[Exception]:
+	func self(super(msg))
+
+func div(num den = Int):
+	if den == 0: throw DivByZeroEx
+	num / den
+..
+
+>HEADER
+	signature = 'ASTC' # 4Bytes
+	encoding = 1 # 1Byte # UTF-8
+	version = [
+		major : 0 # 1Byte
+		minor : 0 # 1Byte
+		patch : 83 # 1Byte
+	]
+	fileSize = 1_000 # 4Byte
+>TYPES
+	typeSize = 1_000 # 4Byte
+	type = [
+		id = 11 # 4Byte
+		name = [
+			length = 8 # 4Byte
+			content = 'Employee'
+		]
+		ancestorsSize = 3 # 4Byte
+		ancestors = [
+			ancestorID : 1 # 4Byte
+			ancestorID : 2 # 4Byte
+			ancestorID : 10 # 4Byte
+		]
+		contentSize = 1_000 # 4Byte
+		var = [
+			type = x'FA637E89' # list
+			value =
+		]
+	]
+>FUNCTIONS
+	functionSize = 1_000
+	function = [
+	]
+>GLOBALS
+>INSTRUCTIONS
+
+#########################OBJECTS############################################\
+	LIST
+var = [
+	type = t'LIST'
+	dimen = 2
+	dimenSizes = [
+		extent : 20
+		extent : 15
+	]
+	var = [
+		type : t''
+	]
+]
+
+
+
+
+
+######################################################################
+# 03/11/16
 func bar(x, y):
 	if x < y:
 		throw Banana('Banana caught!')
@@ -37,11 +134,11 @@ stepback ; 1
 			println
 			jmp ; 2 # jumping the throw # can also jump to ensure
 	throw b
-_ret
+ret__
 bar:
-	_gt x y ; xxxx
+	gt__ x y ; xxxx
 		throw b
-_ret
+ret__
 
 	---------------
 	STACK HIERARCHY
@@ -50,8 +147,10 @@ _ret
 	bar ← [P3] current_stack_size();
 	----------------
 	THROWN OBJECTS
-	a
-	b # Implicit Nil Checker
+	a # Nil Exception
+	b # Cast Exception
+	c
+	... # others
 	----------------
 	RETURNED OBJECTS
 	a
@@ -72,13 +171,13 @@ solve:
 	stepback ; 2
 	call ; arith ; arith_layout
 	p_mov_v e t0 # cached returned object
-_ret
+ret__
 arith:
 	mul t1 a b c
 	div t2 a b c
 	add t3 t1 t2
 	sub c t3 b
-_ret
+ret__
 ######################################################################
 # 05/11/16
 func sth():
@@ -92,33 +191,52 @@ func sth():
 
 sth:
  	p_mov_v i 1
-	_le i 10 ; 8
+	le__ i 10 ; 8
 		mod t1 i 2
-		_eq t1 0 ; 2
+		eq__ t1 0 ; 2
 			print i
 			println
-		_gt i 8 ; 3
+		gt__ i 8 ; 3
 			add t1 i 2
 			print t1
 			println
 	jmpback ; 7
-_ret
+ret__
 
 ######################################################################
 # 05/11/16
 func main():
 	var a = [1, 2, 3, 4]
-	var b = a[2:4]
-	var c = b[3]
+	var b = val a[2:4] # this a list object, not an index object
+	var c = b[2]
+
+k1 {2} # begin index of a
+k2 {4} # end index of a
+k3 {1} # begin index of b
+k4 {2}
+a {[]}
+b {[]}
+c
+t1 {[1, 2, 3, 4]}
+t2
+t3
 
 main:
 	mov_r a t1
-	mkmap t1 
-	_le k1 k2 ; 
-		# setindex a @ t2 from b @ k1
-		setmapindex
-		
-		
+	mklist t1 # set temp as list before future assignment
+	le__ k1 k2 ; 9
+		setlist_ b t2
+		igetindex ; k3
+		setlist_ a t3
+		igetindex ; k1
+		p_mov_v t2 t3
+		incr k3
+		incr k1
+	jmpback ; 8
+	setlist_ a t1
+	igetindex ; k4
+	p_mov_v c t1
+ret__
 
 ######################################################################
 # 05/11/16
@@ -150,18 +268,17 @@ drake:
 			call ; add3 ; add3_layout
 			jmp ; 2 # jump the throw
 	throw f
-_ret
+ret__
 add1: # MyInt, MyInt
-_ret
+ret__
 add2: # MyInt, ::MyStr
-_ret
+ret__
 add3: # ::MyInt, MyStr
-_ret
+ret__
 
 #############################################
+			INSTRUCTIONS [XX]
 #############################################
-INSTRUCTIONS
-
 # MOV
 p_mov_v a b
 p_mov_r a b
@@ -181,12 +298,14 @@ mod a b c
 exp a b c
 root a b c
 unm a b
-# CAST
-cast a b
+# CONCAT
+concat a b c
 # INCR, DECR, STEP
 incr a
 decr a
 step a b
+# CAST
+cast a b ; combo
 # EQ, NEQ, LT, LE, GT, GE
 eq a b c
 neq a b c
@@ -194,15 +313,12 @@ lt a b c
 le a b c
 gt a b c
 ge a b c
-_eq a b ; number
-_neq a b ; number
-_lt a b ; number
-_le a b ; number
-_gt a b ; number
-_ge a b ; number
-# TRUE, FALSE
-true a
-false a
+eq__ a b ; number
+neq__ a b ; number
+lt__ a b ; number
+le__ a b ; number
+gt__ a b ; number
+ge__ a b ; number
 # AND OR
 and a b c
 or a b c
@@ -214,8 +330,31 @@ bxor a b
 # SHL, SHR
 shl a b c
 shr a b c
-# UPDATE
-upd a b
+# MK
+mklist a
+mkbuffer a
+mkstr a
+mkchars a
+mktuple a
+mktype a
+# SET
+setlist_ a b
+setbuffer_ a b
+setstr_ a b
+setchars_ a b
+settuple_ a b
+setcomplex_ a b
+# KEYS, INDICES
+igetkey ; number
+igetkey_ ; number
+sgetkey ; number
+sgetkey_ ; number
+u_getkey ; number
+u_getkey_ ; number
+igetindex ; number
+igetindex_ ; number
+u_getindex ; number
+u_getindex_ ; number
 # TCHECK
 tcheckst a ; Type ; number
 tcheckcv a ; Type ; number
@@ -226,16 +365,15 @@ run ; Function ; FunctionLayout
 stepback ; number
 # LEN
 len a b
-# CATCH
+# CATCH, THROW
 catch a b  # automatic stepback for just one object
-# THROW
 throw a
 # JMP, JMPBACK
 jmp ; number
 jmpback ; number
 # RET
 ret a
-_ret
+ret__
 # PRINT, SCAN
 print a
 println a
@@ -254,3 +392,19 @@ OPCODE STRUCTURE
 8, 8, 8
 8, 8, 8, 8
 32
+
+
+# SETBUFFERS, etc.
+setlist_ list pos # saves pointer to an index of a list on stack for temp operation
+igetkey_ ; 5
+sgetkey_ ; 'name'
+igetkey_ ; 3
+n_getkey ; b
+#=============#
+setbuffer_ buffer pos
+igetindex_ ; 1
+igetindex_ ; 2
+n_getindex ; b
+#=============#
+setstr_ str pos
+igetindex ; 5

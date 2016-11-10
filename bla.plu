@@ -87,11 +87,11 @@ mut x =: let 5 Int[1, 2, 3, 5, 6] # array can grow, but content cannot be mutate
 # Compilation units are as small as each function.
 # Incremental build using dependency web
 
-# Constructor
-# A default constructor is different from an uninitialised state
-    mut s =: Str # uninitialised state, just a declaration.
-    mut r =: Str.nil # initialised to nil state.
-    mut t =: Str() # initialised using default constructor.
+# # Constructor
+# # A default constructor is different from an uninitialised state
+#     mut s =: Str # uninitialised state, just a declaration.
+#     mut r =: Str.nil # initialised to nil state.
+#     mut t =: Str() # initialised using default constructor.
 
 # States
 # uninitialised state
@@ -222,6 +222,12 @@ let d =: [
     [5, 6, 7]
 ]
 
+let z = [
+    a : 5
+    b : 6
+    c : 7
+]
+
 
 # Match Function # 19/10/16
 match test(a, b):
@@ -267,10 +273,16 @@ func foo(a):
     rt a
 ..
 
-# TUPLES # 04/11/16
+# TUPLES # 04/11/16 # Edited 06/11/16
 var x, y = 5, 6
-var a, b = ,,[5, 6] # splatting an array
-var f = []: 2, 3 # slurping a tuple
+let d = [getTuple()] # packing a tuple
+let arr = [for x thru [1:10]: 5x] # packing a generator
+var tup = ,,getList() # unpacking a list
+var tep = ,,generate() # unpacking a generator
+let prop = get(): prop
+    set(a, b): prop = a * b
+prop = 1, 2
+x, prop = 1, (2, 3)
 
 match (a, b):
     case 'Hello', 'World': print(a, b)
@@ -284,13 +296,22 @@ var i = 2f^3/(f-2)
 # COVARIANT TYPE SPECIFICATION # 04/11/16
 var f = Float: 2.3
 var i = Int
-var l = List: [1, 2, 3, 4]
+var l = Int:[1, 2, 3, 4]
 func add(a b = Int: 0): a + b
 let a = Person:('Sven Rafsmord', 12)
 let e = Car:('Camaro')
 # Possible Ambiguity
 if let x = Int: 5 # error!! There is no mbiguity since an if variable has to be initialised.
 if let x = Int: 5:.. # good
+# Inconsistencies
+let x = Int[4, 3, 5] # error! now a wrong syntax
+var u = [4, 3, 5] # dynamic
+var u = Int:[4, 3, 5] # covariant
+var u = Map = [4, 3, 5] # setList
+var d = Car('Camaro') # dynamic
+var x = Car:('Camaro') # covariant
+var e :: Car:('Camaro') # strict
+
 
 # TYPE CASTING # 04/11/16
 var pers =: Person: Employee("Daniel", 25, "Game Programmer")
@@ -330,16 +351,100 @@ if a < b: print(a) \\ else: print(b)
 
 # NUMBER LITERALS # 05/11/16
 var x = 5_000_000_f
-var d = .56
+var d = 0.56
 var d = 1_000
 
 # REFERENCES # 05/11/16
 var bone = Bone
 bone.parent = wref getSkeleton('Captain Jack Sparrow')
-var bone = 
+var bane = iso Bing
+var dune = ref getNumber()
 
-# ------------------------------------------------------------------------------------------
+# GENERICS # 06/11/16
+type Stack:
+    var objects = $T[]
 
+func main():
+    var boo = Value{Int}
+
+# MAP OBJECT VS INDEX OBJECT # 06/11/16
+var list = [1, 2, 3, 4, 5]
+var dee = list[5:3:4] # this is an index ref object
+var boo = val list[2:3:4] # this is a map object
+
+# DESTRUCTORS # 06/11/16
+type Class:
+    func self() # constructor
+    func self(~) # normal destructor
+    func self(!) # exception destructor
+
+# SUPER # 06/11/16
+type Employee[Person]:
+	var job, company = Str
+	func self(super(name, age), job, company)
+
+var emp = Empoyee:(
+    "David Copenhagen",
+    45,
+    "Managing Director",
+    "Pharmadise, Inc."
+)
+
+# EXPLICIT SELF # 07/11/16
+func toStr(person = Person):
+	"[self.name]: [self.age]"
+
+func verbose(person = Person):
+	"[person.name] is aged [person.age]"
+
+func verbose(=) # error! no longer supported
+
+# CONSTRUCTORS # 07/11/16
+func self(name, age)
+func self(super(name, age), work, company)
+
+# OBJECT REF CHAINING # 07/11/16
+let dave = Employee()name('David Copenhagen')age(65)
+
+
+# DESIGN PATTERNS # 08/11/16
+type Singleton:
+	var hide sticky count = Int:0
+	var hide sticky single = Singleton
+	func self(): # constructors can return sticky field of same type
+		if count == 0:
+			count++
+			rt ref single = Singleton(1)
+		else:
+			rt ref single
+	..
+	func hide self(mock)
+..
+
+# MACROS: SYMETRIC BINARY FUNCTIONS # 08/11/16
+@symetric
+func +(s = Str, i = Int): s + i
+
+# OTHER RADIX # 08/11/16
+let a = b"010002"
+let a = x"FE0223"
+let a = o"563507"
+
+# ASTRO # 08/11/16
+I'm renaming Pluto from Bang to Astro, with an .ast file extention.
+
+# TYPE HIERARCHY # 09/11/16
+Any -> Indie, Array, Func, DataType
+Array -> List, Buffer, Tuple, Str, Chars
+
+------------------------------------------------------------------------------------------
+# 08/11/16
+# Bang0.0.83
+func divideSelf(num = Int):
+    toStr(num)
+        .split()
+        .noneMatch(:toInt([1]) == 0 | num % toInt([1]) != 0)
+..
 
 # 21/09/16
 # one-line madness Pluto0.8.2 just for fun
@@ -383,12 +488,21 @@ func gcd(n m =: UInt64):
         if m < n: m, n = [n, m]
     n
 ..
+# Bang 0.0.83 # 07/11/16
+func gcd(n m = UInt):
+    @assert n and m == 0
+    while m != 0:
+        if m < n: m, n = n, m
+    n
+..
 
 #10/09/16
 # Haibeey
 print(list(map(lambda x: "Happy Birthday to " + ("you" if x != 2 else "dear Haibeey"), range(4)))) # Python3
 print(map(x -> "Happy Birthday to " * (x != 2 ? "you" : "dear Haibey"), 1:4)) # Julia
 print([:4].map(:"Happy Birthday to" + (_1 != 2 ? "you" || "dear Haibeey"))) # Pluto0.8.2
+# Bang 0.0.83 # 07/11/16
+print([:4].map(:"Happy Birthday to" + ([1] != 2 ? "you!" || "dear Haibeey")))
 
 #09/09/16
 # Orobo's Challenge
