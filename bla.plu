@@ -12,7 +12,7 @@
 # Instance Chained Call
 x.doThis()doThat()doAll()
 
-# Returned Chained Call
+# Returned Chained Call # OUTDATED
 add(1, 2).subtract(2).multiply(3)
 
 # # Ternary Operator
@@ -45,7 +45,7 @@ func main():
 # Semantic ideology of =>
 # has synonymous semantic representatio as &, but is used in more places like loops
 # case conditions in match functions.
-if x == 6 => r == 5
+if x == 6 where r == 5
 # if x equals 6 where r == 5
 for a thru arr, d thru arr.list => d~ : print(d)
 # for every a in arr, loop thru every d in arr.list where d isn't null
@@ -99,7 +99,7 @@ mut x =: let 5 Int[1, 2, 3, 5, 6] # array can grow, but content cannot be mutate
 # valued state
     mut s =: Str # uninitialised, just a declaration.
     mut r =: Str.nil # initialised to nil state.
-    mut t =: Str() # initialised using d efault constructor
+    mut t =: Str() # initialised using default constructor
 # field can have default state though, even when the object is uninitialised
     type MyStr:
         mut value =: ""
@@ -180,7 +180,7 @@ var c = run gen()
 # Function objects
 var f = add
 var f =: Func
-var x = (Int, Int)::Int
+var x = func (Int, Int)::Int
 
 # Special Functions
 convert() var d =: Person -> Dragon()
@@ -215,7 +215,7 @@ var map =: [
     b : [2 4 6]
 ]
 
-let x =: table['a']
+let x =: table[a]
 
 let d =: [
     [1, 2, 3]
@@ -397,7 +397,7 @@ func toStr(person = Person):
 func verbose(person = Person):
 	"[person.name] is aged [person.age]"
 
-func verbose(=) # error! no longer supported
+func verbose(::) # error! no longer supported
 
 # CONSTRUCTORS # 07/11/16
 func self(name, age)
@@ -437,6 +437,80 @@ I'm renaming Pluto from Bang to Astro, with an .ast file extention.
 Any -> Indie, Array, Func, DataType
 Array -> List, Buffer, Tuple, Str, Chars
 
+# REVERTING to Old ASSIGNMENT 10/11/16
+var name = Str:('Dave Mack') # constructor or a tuple
+var age = Int:(5, 6) # a tuple of ints or a tuple cast
+#### NOW #####
+var name =: Str('Dave Mack')
+var name =: Str = ('Dave Mack') # tuple casting
+var age =: Int = [1, 2, 3, 4]
+var age =: Int[1, 2, 3, 4]
+var age =: Int = 5.0
+
+# MANAGEMENT FUNCTIONS # 10/11/16
+type Person:
+    var name, race =: Str
+    var age =: Int
+    func self(set(name, age))
+    func self(self(name, age), race)
+    func set(name, age) # management function
+..
+
+
+# ANONYMOUS TYPES # 10/11/16
+type [Thread]:
+    func run(th =: Thread):
+        playSong()
+    func stop(th =: Thread):
+        stpSong()
+.start()
+
+
+# CONSTRUCTORS/DESTRUCTORS  # 12/11/16
+type Car:
+    var model =: Str
+    var year =: Int
+..
+func Car(model =: Str, age =: Int): # Constructor
+    var x =: Car.new # A costructor can only create a new object of it's wn type
+    x.name = name
+    x.age = age
+    rt x
+..
+# Destructors of a type can only be defined within the same module as the type
+func Car(~) # Normal Destructor
+func Car(!) # Exception Destructor
+
+type Person:
+    var name, gender =: Str
+    var age =: Int
+..
+func Person(setMain(name, age))
+func Person(self(name, age), gender)
+func setMain(p =: Person, name =: Str, age =: Int): p.name = name; p.age =age
+
+# PRINT FUNCTION  # 12/11/16
+println('Hello, World!')
+
+# BASE TYPES HIERARCHY  # 13/11/16
+Any - Indie Func Array DataType
+Array - List Buffer Tuple AbStr
+AbStr - Str Chars
+
+# MATCH FUNCTION # 13/11/16
+match test(a = Int):
+    when 1 : print("1") # when has an autmatic break
+    case 2 : print("2") # no break
+    case 3 : print("3") # no break
+    else 4 : print("4") # default
+..
+# this also applies to select
+
+# INHERITANCE # 13/11/16
+type Employee <: Person
+
+# LAMBDAS
+array.filter(:[1] % 2 == 0)
 ------------------------------------------------------------------------------------------
 # 08/11/16
 # Bang0.0.83

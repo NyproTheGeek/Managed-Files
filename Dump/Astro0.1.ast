@@ -1,0 +1,714 @@
+# Astro 0.1 # 14/11/16
+# @INC means 'implementation not complete'
+
+SINGLE-LINE COMMENTS
+	# Hello, World!
+
+MULTILINE COMMENTS
+	#=
+		I’m Astro.
+		And I Rock.
+	=#
+
+VARIABLE DECLARATION & DEFINITION
+	var a
+	var b = 5
+	let c =: 'OroboGenius'
+	let d :: false
+	var e = 5, f = 6
+
+FUNCTION DEFINITION (1)
+	func add(a, b):
+		rt a + b
+	..
+	var sum = add(25, 52)
+
+EXPRESSION-ORIENTED
+	var isNyproCrazy =: faveHobby == 'CountingBirds'
+
+	func add(a, b):
+		a + b
+	..
+
+	nypro.hieght = add(aditya.height, -tripleo.height)
+
+SPECIFYING TYPES
+	var number = 5
+	let name =: Str
+	var task :: Str('Create a programming language')
+	var identification =: Str|Int
+	var address =: Int = 506
+
+BUILT-IN TYPES
+	var currentDebt =: UInt = -2_000_000
+	var index =: Int = 10
+	let pi =: Float = 3.141592653589793
+	let dogBreed =: Str = 'German Shepherd'
+	var dreamLaptop =: Chars = 'Alienware M18'
+	var listOfGroceries =: ['Oranges', 'Cabages', 'Tomatos', 'Bananas']
+	var favoriteActors =: Buffer{Int, 3}
+	var head, body =: '<header></header>', '<body></body>'
+
+VALUES & REFERENCES
+	var number = 502
+	var account =: getAccount('Dumbledore')
+	manager.account = wref account
+	var newAccount = val account
+	var pointer = ref number
+	let myAccount = iso Account('Nypro')
+
+	func getAmount():
+		rt read amount
+
+	func swap!(a =: ref, b =: ref):
+		a, b = b, a
+
+NUMBERS
+	var index = 5
+	var axis = -3
+	let meters = 0.25e-5
+	let salary = 10_000
+	var color = x`6FFF00
+	var opCode = b`10110001
+	var interest = o`566768p+12
+
+ACCESS MODIFIERS
+	var money = 0
+	var priv laptopModel :: 'HP Pavilion'
+	let pack pi =: 3.141592653589793
+	type prod Company # @INC
+	func pass println(p =: Person): # @INC
+		println('name: [p.name], age: [p.age]')
+
+ACCESS MODIFIER BLOCK
+	mod let priv:
+		kmPerMiles :: 1.61
+		radPerDeg :: 180 / pi
+	mod var:
+		area =: Float
+		index =: Int
+	..
+
+READ-ONLY/WRITE-ONLY ACCESS MODIFIERS # @INC
+	rpub, rpriv, rpack, rpass, rprod
+	wpub, wpriv, wpack, wpass, wprod
+
+TUPLES
+	var name, age = 'Emeka Okorafor', 27
+	name, age = age, name
+	let index, car = 15, ('Ferrari', 1995)
+
+PROPERTIES
+	var property = (hieght, width):
+			rt hieght * width
+
+	var name, property = 'Tunde Alayande', (5, 6)
+
+LISTS
+	var unorderedList = [7, 3, 8, 5, 4, 0, 9, 1, 2, 6]
+	var contestants =: Str['Steve', 'Aditya', 'Sizwe', 'Pierre']
+	var disqualified =: contestants[1:3]
+	var reversed =: contestants[-1:]
+	let myGarage =: Car[('Mustang'), ('Eleanor'), ('Bugatti'), ('Lamborghini')]
+	let yearSalary :: 12 Int[]
+	yearSalary[1:6] = [2_000, 2_000, 2_500, 2_500, 2_750, 2_750]
+	var matrix =: 2*2[
+		[1, 0]
+		[0, 1]
+	]
+	var column2 = matrix[1:,2]
+	var matA = 2*3[,]
+	matA[:,:] = [
+		[1 6 3]
+		[3 7 4]
+	]
+	let subset =: mat4[1:, 1:2]
+	var matB = matA * 2
+	var matA = matB .* matC
+
+DICTIONARIES
+	let testScores = [
+		class1 : [0, 15, 30, 15, 76, 50]
+		class2 : [45, 50, 83, 9, 39, 81]
+	]
+	var class1Scores = testScores[class1]
+
+RANGES
+	var numberList = [1:5]
+	var evenList = [2, 4 : 20]
+	var alphabetList = ['a':'Z']
+	var normalizedList = [0.0:1.0]
+
+GENERATORS # @INC
+	var array = 0:10
+	for i thru 0:2:15:
+		println(i)
+
+PACKING & UNPACKING
+	var generator = 0:20
+	var array = [0:20]
+	var tuple = ,,array
+	var generator = thru array
+	var indexer = array[1:]
+
+STRINGS
+	let language =: 'Astro'
+	let year =: 2015
+	var story =: '[language] was started in [year]'
+	var verbatimString = raw'Use '\t' to represent tab'
+	let unlockBitCode =: b`01100010
+
+	var concatenate = 'ab' + 'c' # 'abc'
+	var multiply = 'ab' * 2 # 'abcabc'
+	let subtract = 'abcac' - 'ca' # 'abc'
+	let divide = 'abcdeabc' / 'de' # ['abc', 'abc']
+	let escapeSequences = '\t \n \' \" \[ \# \\'
+
+	var greeting =:
+		'Hello, '
+		'World!'
+
+MULTILINE EXPRESSIONS # @INC
+	var zero = (25-(2^4/4)
+		*(9+(-36/4))+25)
+
+	var noRepeatSum =: x and y == z ? x || x == y ? y + z \
+		|| x == z ? z + y || y == z ? z + x || x + y + z
+
+	# exceptions
+	if x < y
+	& a == b:
+		runTask()
+
+	myName
+		.strip!()
+		.reverse!()
+
+SANDWICHED EXPRESSIONS
+	var faveSoccerClub =:
+		(game == 'Manchester United' ? println('You suck!'); game)
+	println('Hello, ', (println('World!') ; ''))
+
+IF STATEMENT
+	if isAdrianRich:
+		spendAll('on parties')
+	elif isOroboRich:
+		spendAll('on legos')
+	elif isSyconRich:
+		spendAll('on suits')
+	else:
+		cry('we are broke')
+	..
+
+	if phoneNumber == null:
+		useEmail()
+
+	if copy = getCopy():
+		println(copy)
+
+
+NULL STATE
+	var tasks = null
+	var messages =: Str[].null
+	var average =: Float.null
+
+	var balance = remote.account('Deadpool').balance() ~ 0
+	var nypro = search('Nypro') ~ println('Nypro does not exist!')
+
+	if feeds: println('no feeds')
+
+	if isRecieving == null:
+		println('remote server stopped recieving')
+
+CONDITIONS
+	if x < y & y < z: runTask() # deprecation warning!
+	if x < y < z: runTask()
+
+	if x == y & y == z: runTask() # deprecation warning!
+	if x and y == z: runTask()
+	if x == y == z: runTask()
+
+	if x == y & y < z: runTask() # deprecation warning!
+	if x == y and < z: runTask()
+
+	if x == y & a == b: runTask()
+
+FOR LOOP
+	for i thru 1:10:
+		println(i)
+	let interestingNumbers =:[
+		prime : [2 3 5 7 11 13]
+		fibonacci : [1 1 2 3 5 8]
+		square : [1 2 4 9 25 36]
+	]
+	for kind, number thru interestingNumbers:
+		println('[kind]: [number]')
+
+	for up, down thru 1:20, 20:1:
+		println('[up] <-> [down]')
+
+	for upper thru 1:20 for lower thru 1:20: # @INC
+		println('[upper] : [lower]')
+
+	var oddList = [for i thru 1:20 where i % 2 != 0: x]
+
+HOLD VARIABLES
+	for color thru colors:
+		var hold i = 1
+		println(i, color); i++
+	..
+
+	func sum(list):
+		var hold index = 1
+		if x.len() < 1:
+			rt 0
+		else:
+			list[index] + sum(list[index++:])
+	..
+
+LABELS # @INC
+	label class:
+	for class thru classes:
+		for student thru students:
+			if student.position == 'captain':
+				record.save(student.name)
+				next class
+			..
+		..
+	..
+
+IN & NOT IN
+	if student.name in defaulterList:
+		println('[student.name] hasn\'t paid yet. Contact parents')
+	if 'ps4' not in birthdayPresents:
+		println('Aaargh! Everyone hates me')
+
+WHERE # @INC
+	if person in auditionRoster where person.mark > 40.0:
+		acceptanceList.add(name)
+	for book thru library where book.title.contains('adventure'):
+		personalLibrary.add(book)
+
+WHILE LOOP
+	while true:
+		print('>>> ')
+		var input = scan()
+		var ast = parse(input)
+		var bytecodes = compile(ast)
+		var result = interpret(bytecodes)
+		println(nl, result)
+	..
+
+	redo:
+		lines += gen.readLine()
+	while gen.hasNext()
+
+TERNARY OPERATOR
+	var absValue = a > 0 ? a || -a
+	song in playlist ? playSong()
+
+BLOCKS ON ONE LINE
+	func div(a, b): a / b
+
+	if studio.isLive(): blockAccess() \\ else: openAccess()
+
+FUNCTION DEFINITION (2) # @INC
+	func mul(a b =: Int)=:Int: a * b
+
+	func join(s1 s2 =: Str, joiner =: ''):
+		s1 + joiner + s2
+
+	func arithMean(numbers =: Float...):
+		var total = 0
+		for number in numbers:
+			total += number
+		total / numbers.length
+	..
+
+	func callCount():
+		var sticky count =: 0 # @INC
+		println('Call count [count]')
+	..
+
+	func sum(list):
+		var hold index = 1 # @INC
+		if x.len() < 1:
+			rt 0
+		else:
+			list[index] + sum(list[index++:])
+	..
+
+	func swap!(a b =: ref): a, b = b, a
+	swap!(task1, task2)
+
+	func getDetails(u =: User): self.name, self.age
+	func getDetails(): 'Mr Nobody', 0
+	var name, age = getDetails()
+
+	var details =: getDetails
+	var details2 =: getDetails(=:User)
+
+	var binaryOp =: (=:Number, =:Number)=:Number
+	var initServer =: Func
+
+FUNCTIONS AS ARGUMENTS
+	var pplBelow25 = census.filter() do person:
+			person.age < 25
+		..
+	let scoreListWithExtraMarks = scoreList.map(func (score): score + 5)
+	let scoreListWithExtraMarks = scoreList.map(:[1] + 5)
+
+CLOSURE
+	func generateDBConnector(host username password =: Str):
+		func makeDBConection():
+			rt db.connect(host, username, password)
+		makeDBConection
+	..
+	var dbCallback = generateDBConnector('localhost', 'nypro', 'willdiearobot')
+
+	func basicOps(number):
+		var calc = 0
+		func ():
+			calc += number
+			calc *= number
+			calc /= number
+			calc -= number
+		..
+		calc
+	..
+
+OUTER VARIABLES
+	let state = 'Idle'
+	func changState(state =: Str):
+		if state != null:
+			activateState(state)
+		else:
+			activateState(outer.state)
+	..
+
+EVENTS # @INC
+	func remove(list =: [], index =: Int):
+		list -= list[index]
+
+	remove += refreshUI
+	emit movieList.remove(2)
+
+	remove(=:[], =:Int) += refreshUI
+
+USEFUL FUNCTIONS # @INC
+	typeOf(24)
+	len('Hello, world!')
+	var colorAndIndex = [enumerate(colors)]
+	1:20
+		.map(:2[1])
+		.filter(:[x] % 2 == 1)
+		.each(:print([1], ', '))
+	printf('The cricumference of a circle with radius 5 is %f', pi * 5^2)
+
+MATCH FUNCTIONS
+	match opCodeDispatch(opCode =: Str, args =: [], index result =: Int):
+		when 'ADD' : result = args[index] + args[index++]
+		when 'SUB' : result = args[index] - args[index++]
+		when 'MUL' : result = args[index] * args[index++]
+		when 'DIV' : result = args[index] / args[index++]
+		case 'EQ' : args[index] == args[index+1] ? index += 3; next
+		when 'JUMP' : index += args[index += 2]
+		else: println('Opcode error!')
+	..
+
+COROUTINES # @INC
+	func main():
+		flo a, b =: Str
+		run func ():
+			time.sleep(1000)
+			a << 'One'
+		..
+		run func ():
+			time.sleep(1000)
+			b << 'Two'
+		..
+		select :
+			when a : println(<< a)
+			when b : println(<< b)
+		..
+	..
+
+TYPE DEFINITION
+	type Car:
+		var maker, model, year =: Str
+	..
+	func Car(name =: Str):
+		self.new(name)
+	..
+	# construtors that call new can only be defined in the same
+	# package as the type. Same applies to destructors.
+	func Car(maker, model, year)
+	func Car(~) # normal # @INC
+	func Car(!) # exception # @INC
+
+	type Person(name, age)
+	var p =: Person('John Connor', 23)
+
+	type Lamp(color)
+	var yellowLamp =: Lamp('Yellow')
+	var blueLamp =: Lamp # no object created
+	blueLamp.color = 'Blue' # object created
+
+FIELD ACCESS MODIFIERS
+	type Singleton:
+		var hide sticky count =: Int = 0
+		var hide sticky single =: Singleton
+		var value = Int
+	..
+	func priv Singleton():
+		if self.count == 0:
+			count++
+			rt single = self.new(value)
+		..
+		single
+	..
+
+	func Singleton(value =: Int):
+		var x :: Singleton()
+		x.value = value
+	..
+
+FUNCTION == METHODS (UFCS)
+	func show(p =: Person):
+		println(self.name, self.age)
+
+	var nigel =: ('Nigel Nicargua', 48)
+
+	nigel.show()
+	show(nigel)
+
+INHERITANCE # @INC
+	type Animal
+	func sound(animal =: Animal):
+		println('Nothing')
+
+	type Bird <: Animal
+	func sound(bird =: Bird):
+		println('Chirp!')
+
+	type Horse <: Animal:
+	func sound(horse =: Horse):
+		println('Neigh!')
+
+	type Pegasus <: Horse, Bird:
+	func sound(pegasus =: Pegasus):
+		Horse.sound(pegasus)
+
+	type Person:
+		var name, age
+
+	func Person(name, age):
+		var x = self.new()
+		setPerson!(x, name, age)
+	..
+
+	func setPerson!(person, name, age):
+		person.name = name
+		person.age = age
+		person
+	..
+
+	type Employee <: Person:
+		var job, company
+	func Employee(name, age, job, company):
+		self.new(super:(name, age), job, company) # construction merging
+
+ABSTRACT TYPES # @INC
+	type ab Player
+	func play(pl =: Player)
+	func rewind(pl =: Player)
+	func fastForward(pl =: Player)
+
+	type DigitalPlayer <: Player
+	func play(dpl =: DigitalPlayer):
+		initPlaylist()
+		startPlaylist()
+	..
+
+	type ab Tree
+	type Leaf(value =: $T) <: Tree
+	type Node(l = Leaf, r = Tree) <: Tree
+
+	match sum(t =: Tree):
+		when =:: Leaf: t.value
+		when =:: Node: sum(t.l) + sum(t.r)
+	..
+	var x = Node(Leaf(1), Node(Leaf(2), Leaf(3)))
+
+ANONYMOUS OBJECTS # @INC
+	(type <: Thread:
+		func start():
+			println('Thread started!')
+	).start()
+
+TYPE CHECKING
+	if myCar =:: Car:
+		println('myCar is a Car')
+
+    if myCar ==: Car:
+      println('myCar is a Car or its subtype')
+
+    if myCar =>: Car:
+      println('myCar is a supertype of Car')
+
+    if phone !:: Phone:
+        println("phone is not a Phone")
+
+METHOD CHAINING
+	var result =: 8.add(6).subtract(4).multiply(2)
+	profile.open().deleteMessages().close()
+
+COVARIANCE  # @INC
+	type Person(name, age)
+	type Employee(super:(name, age), job) <: Person
+	type Teacher(super:(name, age), course) <: Person
+
+	func show(p =: Person):
+		println(p.name, p.age)
+
+	show(Person('Tony Stark', 36))
+	show(Employee('Peter Parker', 17, 'Photographer'))
+	show(Teacher('Diana Lane', 12, 'Biology'))
+
+	var people =: Person[Teacher(), Employee(), Employee(), Tecaher()]
+
+TYPE CASTING
+	var clampedRadian :: Int -> 2pi
+	func cast(emp :: Employee, pers =: Person):
+		self.name, self.age = pers.name, pers.age
+
+	var deitel =: Person('Paul Deitel', 57)
+	var editor =: Employee -> dietel
+
+NAME ALIASES
+	Float as Meter
+	calculateAreaOfTriangle as areaOfTriangle
+	myIncrediblePlaylistOfSongs as songList
+
+MODULES AND IMPORTS
+	module Algebra
+
+	import Math
+	let piInverse = 1 / Math.pi
+
+	import Math: pi, gcd, abs
+	let rulerLength = abs(ruler.end1 - ruler.end2)
+
+	import Math:
+		Rational as Ratio,
+		chebyshevCoefficient as chebCoef
+	..
+
+	import Math: *
+
+GENERICS # @INC
+	func add(a b c =: $T):
+		a + b + c
+
+	type MyList:
+		var list =: $T[]
+
+	func append(ml =: MyList, item = T):
+		self.list += item
+
+	var image =: $U<:Image{T}
+	let identifier =: $T::Str|Int
+	let parent =: $T>:Bone
+
+DATATYPE OBJECTS # @INC
+	var number =: DataType(Number)
+	func secToMin(dt =: DataType(Number), sec =: Float):
+		if sec =<: dt:
+			sec / 60
+	..
+
+	secToMin(number, 25)
+	secToMin(Float, 6.5)
+
+	if nummber == Number: println('Not surprising')
+
+ENUMS
+	enum Days:
+		Sunday, Monday, Tuesday, Wednesday, Thursday, Friday
+
+	using Days: *
+
+	match todo(day =: Days):
+		when Sunday: sleep()
+		when Monday: work()
+		when Friday: tgif()
+	..
+
+	hiding Days: *
+
+	enum Number: IntegerNumber(i =: Integer), RealNumber(r =: Real)
+
+OPERATOR OVERLOADING # @INC
+	var hybrid =: Person -> Dragon()
+	array[1] = 24
+
+	cast()
+	setIndex()
+	setList()
+	getIndex()
+
+	func +(x =: Number, y = Number): x.value + y.value
+
+TRY CATCH ENSURE
+	try: file.open().println([1:500])
+	catch(fnfe =: FileNotFoundEx, ioobe =: IndexOutOfBoundEx):
+		when fnfe: printErr('Can\'t find file!')
+		when ioobe: printErr('Out of index error!')
+	ensure: println("a goes out of scope here")
+
+	if num and den == 0:
+		throw DomainException()
+
+MACROS # @INC
+	var half =: @reverseExpression 2 / 4
+
+	@assert numerator and denominator == null
+
+
+OTHER LITERALS # @INC
+	let fraction =: 2//3
+	var agePattern =: /\d{2}/
+	if age =~ agePattern:
+		println('Age entered successfully!')
+	var symbol =: {+ 2 {+ 4 5}}
+
+BUFFER TYPE
+	let int5 = Buffer{Int}(5) # buffer object is always iso!
+
+INTEGER BITWISE OPERATORS
+	var x = 2!&5 # and
+	var y = 3!|6 # or
+	var z = !~6 # not
+	var a = !^7 # exclusive or
+	var b = a!>7 # bit shift left
+	var c = b!<7 # bit shift right
+
+PREDEFINED TYPES # @INC
+Any
+DataType
+Func
+Indie
+Array
+Number
+Real
+Integer
+Bool
+Int, UInt
+Float
+Buffer
+AbStr
+Str, Chars
+Cmp64, Cmp128
+Generator
+
+# END

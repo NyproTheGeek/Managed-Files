@@ -2,17 +2,7 @@ Revised 02/10/16
 # 0.0.83
 #=
 Major Change:
-    Restructuring for Multiple Dispatch
-    Import is now module-based, rather than being type-based, due to the introduction of multiple dispatch
-    A type's method may be defined outside the type's file
-    Added def to function declaration #18/08/16; changed to func, which was what I started with initially #29/06/16
-    Changing assignment operator back to = instead of :=
-    Binding to nil-and-one-other-type is still done implicitly 19/08/16; nil is now an object state #30/08/16
-    The block punstuation is now $, it helps resolve some ambiguity in statements like repeat play() | while state == "Play" | x == y ? y | z
-        repeat: play() $ while state == "Play" | x == y ? y $ z
-    Added mut for mutable variable declaration; solves some scoping issues.
-    Pluto is an interpreted statically-typed language that requires no type annotation. #31/08/16
-    ^^^Scratch that. Pluto is an interpreted hybrid language with a static and dynamic type system. #31/08/16; Pluto is not necessarily interpreted. #22/09/16
+
 =#
 
 PLUTO's DESIGN PHILOSOPHY
@@ -43,24 +33,24 @@ MULTILINE COMMENTS
 
 
 DOCUMENTATION
-   # <code> Car </code>  class is deprecated # xml
-   # [ code: 'Car' ] class is deprecated # deplu
-
+   ## <code> Car </code>  class is deprecated # xml
+   ##= [ code: 'Car' ] class is deprecated # deplu
+   =##
 
 VARIABLE DECLARATION & INITIALIZATION
     # Unlike Python, Pluto requires explicit variable declaration before usage
-    mut x # is a mutable
+    var x # is a mutable
     let y # is a constant
     func add(a, b): rt a + b # function parameters are implicitly mutable
-    func swap!(mut a, mut b): a, b = [b, a] # error! mut should not be explicitly specified in their declaration
-    mut e ; e = Car('Camaro') # semi-colon is used to separate statements
-    mut y = 12f
-    mut z = 'Hello'
-    mut a =: Car('Camaro')
-    mut b = Car('Camaro').setDate(2014)
-    mut n = getCar('Camaro')
-    mut o = add(2, 4)
-    mut p = List<Car>(3) # generics
+    func swap!(var a, var b): a, b = [b, a] # error! var should not be explicitly specified in their declaration
+    var e ; e = Car('Camaro') # semi-colon is used to separate statements
+    var y = 12f
+    var z = 'Hello'
+    var a =: Car('Camaro')
+    var b = Car('Camaro').setDate(2014)
+    var n = getCar('Camaro')
+    var o = add(2, 4)
+    var p = List{Car}(3) # generics
 
 
 FUNCTION DEFINITION (1)
@@ -70,7 +60,7 @@ FUNCTION DEFINITION (1)
 
 EXPRESSION-ORIENTED
     # Pluto is an expression-based language. If an expression evaluates to something, it is returned
-    let myBool = (myName == "Nypro"?)
+    let myBool = myName == "Nypro"
     func add(a, b): a + b
     # sometimes rt is needed to return an evaluation immediately
     # to prevent execution spilling back into parent block when not needed
@@ -84,30 +74,31 @@ EXPRESSION-ORIENTED
 
 
 SPECIFYING TYPES
-    mut p = Person("Bradley") # loosely-bound assignment, variable can be assigned to another type later.
-    mut p = Person # error! You can't do strict binding with '=' operator
-    mut p =: Person # Strictly bound to Person and Person's subtypes.
-    mut p :: Person # Strictly bound to Person only.
-    mut a =: Int[] # The container can only be populated with instances of Int or its subtype.
-    mut b :: Int[] # The container can only be populated with instances of Int.
+    var p = Person("Bradley") # loosely-bound assignment, variable can be assigned to another type later.
+    var p = Person # error! You can't do strict binding with '=' operator
+    var p =: Person # Strictly bound to Person and Person's subtypes.
+    var p :: Person # Strictly bound to Person only.
+    var a =: Int[] # The container can only be populated with instances of Int or its subtype.
+    var b :: Int[] # The container can only be populated with instances of Int.
     let d = "Hello, world!" # loosely-bound variables can also be constant, even though they are promoted to Strictly
-    mut r = 25; r =: 0.3 # error! loosely-bound variables cannot be changed later to strict variables and vice-versa
+    var r = 25; r =: 0.3 # error! loosely-bound variables cannot be changed later to strict variables and vice-versa
 
 
 OPTIONAL TYPE DECLARATION
-    mut myNumber :: Str|Int
-    mut myNumber = '01000999'
-    mut myNumber = 23
+    var myNumber :: Str|Int
+    var myNumber = '01000999'
+    var myNumber = 23
 
 
 VARIABLES AND REFERENCES
     # Value types such as Int, FLoat, etc. are passed around by value, reference and container types are passed
     # around by reference
     # see pass table below
-    mut pet :: own getObject() # pet now holds a sole strong ref to the object returned
-    mut pet = iso getObject() # pet exclusively refers to the object returned (if it is a value object)
+    var pat :: ref getObject() # pat holds strong ref to the object returned
+    var pet :: wref pet # pet holds weak ref to the object returned
+    var pet = iso getObject() # pet exclusively refers to the object returned (if it is a value object)
     let put =: val pet # assigned by value
-    mut pot =: read pat # read is a type of ref that allow reading only from referenced object
+    var pot =: read pat # read is a type of ref that allow reading only from referenced object
     # side effect of read:
     # if later in the future a variable is changed to read, it will lead to having to change code that have assigned to it, which can be a lot. :'(
     let pit :: val put
@@ -115,70 +106,55 @@ VARIABLES AND REFERENCES
         c = a - b
         rt ref c
     ..
-    mut dean = val subtract(x, y) # gets a copy
+    var dean = val subtract(x, y) # gets a copy
     let cop = subtract(x, y) # gets a ref
     func add(a b = ref):
         rt val a + b
     let alm = ref add(val x, val y) # warning, return a val to a ref
     swap!(val a, val b)
-    # there is nothing like ref iso or ref own, there is however val iso and val own.
-    mut x = ref iso getName() # error!
-    mut y = val own getName() # ok, y gets a copy of name and owns it.
+    var x = ref iso getName() # error!
+    var y = val wref getName() # ok, y gets a weak ref of name.
 
 
 CHAINED DECLARATION
-    mut x = 5, y = 6 # Must be of the same type
-    mut x, y :: [1, 2]
-    x, y = [y, x] # Swap operation
-    let a, b, c, d = [:4]
-    mut x =: Array -> [1, 2, 3, 4], y =: Array
+    var x = 5, y = 6 # Must be of the same type
+    var x, y :: [1, 2]
+    x, y = y, x # Swap operation
+    let a, b, c, d = ,,[:4]
+    var x =: Array -> [1, 2, 3, 4], y =: Array
 
 
 CHAINED ASSIGNMENT
     # Covariant assignment
-    mut person =: Person = Artist("Dan", 21, "Painter")
+    var person =: Person = Artist("Dan", 21, "Painter")
     # Type casting
-    mut num =: MyNumber = 25.34f
+    var num =: MyNumber = 25.34f
     # Its is advised to always bracket expressions with more than one assignment operator
     # _setList() call
     let list =: List = (MyList = [1, 2, 3])
     # Anonymous object
     func divideAList(num :: Int):
         (MyList = [1, 2, 3, 4]) /= num
-    mut x =: y =: 5
+    var x =: y =: 5 pass
 
 
 NUMERIC LITERALS
-    mut d = 2 # Int
-    let r = 2.5 # Double
-    let e = 2f # Float
-    let m = 3d # DoubleS
-    let y = 4_567.32f # Float
-    mut x = 1_000_000 # Int
-    let y = 1_999.99 # Double
-    mut v = 12_000_i32 # Int32
-    mut w = 145_ui18 # UInt16
-    mut z = .1 # Double
-    mut p = .2e-2f # Float
-    mut d = 1.56_f32 # Float
+    var d = 2_u # UInt64
+    var x = 1_000_000 # Int64
+    var z = 0.1 # FLoat64
 
 
 ACCESS MODIFIERS
     # No public modifer, members are all public by default
-    mut priv a = 10 # accessible only within the module
-    mut pack b :: 'HELLO' # accessible within the file level
-    mut pass c =: true # synon with Java's protected
-    mut prod d :: 5f # synon with C#'s internal # I'm contemplating on its removal
+    var priv a = 10 # accessible only within the module
+    var pack b :: 'HELLO' # accessible within the file level
+    var pass c =: true # synon with Java's protected
+    var prod d :: 5f # synon with C#'s internal # I'm contemplating on its removal
     # access modifiers can be used with types and functions too
     func pack addPerson()
     func pass getNumber()
     type priv Company
-    type prod Artist [Person]
-
-
-PACKAGE LEVEL ACCESS MODIFIERS # Might remove this, it looks dangerous!!! :P
-    mut pack< date :: Date
-    mut pack>> isbn = Long
+    type prod Artist <: Person
 
 
 READ-ONLY WRITE-ONLY ACCESS MODIFIERS
@@ -188,178 +164,175 @@ READ-ONLY WRITE-ONLY ACCESS MODIFIERS
 
 ACCESS MODIFIER BLOCK
     # modifier block is the only block in Pluto that may not be indented and it doesn't create a scope
-    mod let priv:
-    mut x = 4.5f
-    mut y :: 2.5f
-    mut z = 0.0f
-    ..
-    # you can also chain modifier blocks together
-    mod let priv:
-    mut x = 4.5f
-    let y = 2.5f
-    mut z = 0.0f
-    mod pass:
-    mut name = getName()
-    let age = getAge()
-    ..
+	mod let priv:
+		x = 4.5
+		y :: 2.5
+		z = 0.0
+	..
+	# you can also chain modifier blocks together
+	mod let priv:
+		x = 4.5
+		y = 2.5
+		z = 0.0
+	mod pass:
+		name = getName()
+		age = getAge()
+	..
 
 
-ARRAYS
-   #  An array can grow.
-   mut fin = Car[('Camaro'), ('Mustang')]
-   mut fan =: [Car('Camaro'), Bike('Ducati')]
-   mut gin = 3 Car[] ; mut gin = Car[('Camaro'), ('Mustang'), ('Maserrati')]
-   mut tin =: 3 [Car('Camaro'), Car('Mustang'), Car('Maserrati')]
+TUPLES
+    var x, y = 5, 6
+    let d = [getTuple()] # packing a tuple
+    let arr = [for x thru [1:10]: 5x] # packing a generator
+    var tup = ,,getList() # unpacking a list
+    var tep = ,,generate() # unpacking a generator
+    let prop =
+        get(): prop
+        set(a, b): prop = a * b
+    prop = 1, 2
+    x, prop = 1, (2, 3)
+
+LISTS
+   var fin = Car[('Camaro'), ('Mustang')]
+   var fan =: [Car('Camaro'), Bike('Ducati')]
+   var gin = 3 Car[] ; var gin = Car[('Camaro'), ('Mustang'), ('Maserrati')]
+   var tin =: 3 [Car('Camaro'), Car('Mustang'), Car('Maserrati')]
    let ted :: [1, 2, 3, 4, 5]
-   mut top = ted
-   mut go =: 5 Vehicle[Car("Camaro"), SuperBike("Ducati Multistrada"), Plane("Boeing 747")] # covariance in container
-   mut go[1] = Car("Camaro")
-   mut go[2:] = Car[('Mustang'), ('Maserrati')] # starts filling from index 2
+   var top = ted
+   var go =: 5 Vehicle[Car("Camaro"), SuperBike("Ducati Multistrada"), Plane("Boeing 747")] # covariance in container
+   var go[1] = Car("Camaro")
+   var go[2:] = Car[('Mustang'), ('Maserrati')] # starts filling from index 2
 
-   mut pot = Array
+   var pot = Array
    # or better
-   mut pot = []
+   var pot = []
 
-   mut pit = Array<Int, 3> # an Int array with the size of three
+   var pit = Array{Int, 3} # an Int array with the size of three
    # or better
-   mut pit = 3 Int []
+   var pit = 3 Int []
 
-   mut pet = [5] # this is an array with one element, 5
+   # Immutable List Content
+   let array = 5 Int [1, 2, 3, 4, 5] # List can't grow, content can't change
+   var list = 5 Int [1, 2, 3, 4, 5] # List can grow, content can change
+
+   var pet = [5] # this is an array with one element, 5
    let put = 5 []
-   let pat = 4 [1, 2, 3, 4]
+   let four = 4
+   let pat = four Int [1, 2, 3, 4]
 
    let pat.foldleft(0, func (a, b): rt a + b) # (((0 + 1) + 2) + 3) + 4 = 10
-   mut mat = getArray()
-   mut net = getArray() # error, array not exposed, so '[]' must be used
-   print(go) # list elements row-wise
-   print(go[_col]) # list elements col-wise
-   mut dean = Array
-   mut dean = [10, 8, 6 ,4, 2]
+   var mat = getArray()
+   var net = getArray() # error, array not exposed, so '[]' must be used
+   var dean = Array
+   var dean = [10, 8, 6 ,4, 2]
 
 
-MULTIDIMENSIONAL ARRAY
-    mut arr2D = [|]
-    mut arr3D = [||]
-    mut arr = 2x2 [1, 2 | 3, 4]
-    let arr = 2x2x2 Int [1, 2 | 2, 3 || 4, 5 | 6, 7]
-    mut arr = [1, 2 | 3, 4]
-    mut d =: List<List<Int>> ; #= better =# mut x =: Int[|] # A multidimensional array is a dictionary
-    mut d = Map<Int, Str> ; #= better =# mut x = Int Str [|]
-    print(arr [:])
-    print(arr[2, ]) # print columns in row 2
-    print(arr[, 2]) # print rows in col 2
-    mut arr = [1, 2] # vcat
+MULTIDIMENSIONAL LIST
+    var arr2D = [,]
+    var arr3D = [,,]
+    var arr = 2*2 [[1, 2] [3, 4]]
+    var d = Map{Int, Str}; #= or =# var x = Int:Str [,]
+    println(arr[:])
+    println(arr[2,:]) # print columns in row 2
+    println(arr[:,2]) # print rows in col 2
+    var arr = [1, 2] # vcat
     # 1 2
-    mut arr = [1, 2 | 3, 4] # vhcat
+    var arr = [[1, 2] [3, 4]] # vhcat
     # 1 2
     # 3 4
-    mut arr = [1 2] # hcat # might change the to just vhcat
+    var arr = [1 2] # hcat # might change the to just vhcat
     # 1
     # 2
-    mut arr = [1 2 | 3 4] # hvcat # might change the to just vcat and vhcat
+    var arr = [[1 2] [3 4]] # hvcat # might change the to just vcat and vhcat
     # 1 3
     # 2 4
 
 
 DICTIONARIES
-    # A multidimensional array is automatically a dictionary
-    mut tuple = ['Tola', 1.2]
-    let candidate = [
-        1, 'Aditya' |
-        2, 'Nypro'
+    var dict3D = [
+        people :[
+            tony: [4, 5, 6]
+            brad: [1, 2, 3]
+        ]
+        animals:[
+            bingo: [1, 5, 6]
+            servo: [3, 6, 9]
+        ]
     ]
-    print(candidate.key(1)) # Aditya
-    print(candidate[1]) # 1, "Aditya"
-    let aditya = Str Int Int ["Aditya Singh", 19, 6.2]
-    let aditya = Str Int Int ["Aditya Singh", 19, 6.2]
-    for index, name thru candidate:
-        print("[index] : [candidate]")
-    # Dictionaries of higher dimension (greater than 2)
-    mut dict3D = [
-        "People",
-            "Tony", 4, 5, 6 |
-            "Brad", 1, 2, 3 ||
-        "Animals",
-            "Bingo", 1, 5, 6 |
-            "Servo", 3, 6, 9 ||
-    ]
-    dict3D["People", "Tony", 1] = 5
-    dict3D["People", "Tony"] = [1, 2, 3]
+    dict3D[people, tony, 1] = 5
+    dict3D[people, tony] = [1, 2, 3]
     for kind, name, number thru dict3D:
-        put("[kind]: [name]: [number], ")
-    # Note that 'for x thru interestingNumbers' will iterate over the entire elements in the array, while 'for x, y thru interestingNumbers' will iterate thru the key-value pairs in the array
+        print("[kind]: [name]: [number], ")
 
 
-ARRAY SLICING
-   arr :: [1, 2, 3, 4, 5, 6]
-   print(arr[1:3]) # first index to the third
-   put(arr[:5]) # first index to the 5th index
-   print(arr[3:_last]) # 3rd index to the last
-   print(arr[-3:]) # from the 3rd index starting from the back
-   newArr = arr[:] # all elements
-   print(arr[_last:]) # print from behind
-
-
-ACCESSING ARRAYS
-    mut attendanceList = Student[("Dave", 25), ("Tony", 45), ("Spencer", 18)]
-    mut names =: attendanceList.[name] # returns a list of name fields in the list
-    mut ages = attendanceList.[age] # returns a list of age fields in the list
+LIST ACCESS
+   var array :: [1, 2, 3, 4, 5, 6]
+   var view =: array[1:4] # view becomes a generator to array
+   var slice =: val array[1:4] # slice gets a copy of the array's content.
+   println(array[1:2:6]) # first index to the third, while skiping every second index
+   print(array[:5]) # first index to the 5th index
+   println(array[3:-1]) # 3rd index to the last
+   println(array[-3:]) # from the 3rd index starting from the back
+   var newArray = array[:] # all elements
+   println(array[-1:]) # print from behind
 
 
 MATRIX-VECTOR OPERATIONS # column major order
-    mut mP = 2x3 [2, 4, 3 | 3, 1, 5] * [3, 10 | 4, 2 | 1, 7]
-    mut mX =: Mat.identity(2, 2)
-    mut mY = 2x4 Int [ # might change the to just vhcat
-        1 1 1 0 |
-        0 1 1 1 |
+    var mP = 2*3 [2, 4, 3 | 3, 1, 5] * [3, 10 | 4, 2 | 1, 7]
+    var mX =: Mat.identity(2, 2)
+    var mY = 2*4 Int [ # might change the to just vhcat
+        [1 1 1 0]
+        [0 1 1 1]
     ]
 
     let mZ :: mX / mY
-    mut mRows, mCols = mZ.dimen()
+    var mRows, mCols = mZ.dimen()
     let mQ = mX’ # z is assigned transpose of matrix u
 
 
 VECTORIZATION AND ARRAYS
     # Element-wise operations
-    mut mA =: [2, 4, 3 | 3, 1, 5]
-    mut mB =: [3, 10 | 4, 2 | 1, 7]
-    mut mC = mA .* mB # element-wise multiplication
+    var mA =: [[2, 4, 3] [3, 1, 5]]
+    var mB =: [[3 10] [4 2] [1 7]]
+    var mC = mA .* mB # element-wise multiplication
     let mD =: mA ./ mB ./ mC
 
 
 STRING TYPE
-   mut myStr1 = "Hello"
-   mut myStr2 = Str('Hi')
-   mut str =: AStr("This is an ascii string") # ASCII string
-   mut myStr3 = 'Halo'
-   mut str2 =: Str
+   var myStr1 = "Hello"
+   var myStr2 = Str('Hi')
+   var str =: AStr("This is an ascii string") # ASCII string
+   var myStr3 = 'Halo'
+   var str2 =: Str
    let length = "Hello".len()
 
 
 STRING INTERPOLATION
-   mut name = 'Pluto'
-   mut time =: 2015
-   mut msg =: '[name] is a language started in [time]'
-   mut hello = 'Hello #= Beautiful =# World'
-   print("This is a number: ", 4)
+   var name = 'Pluto'
+   var time =: 2015
+   var msg =: '[name] is a language started in [time]'
+   var hello = 'Hello #= Beautiful =# World'
+   println("This is a number: ", 4)
 
 
 STRING OPERATIONS PROPOSAL
-   mut apple = 'ab' + 'c' # = 'abc'
-   mut mango = 'abc' * 2 # = 'abcabc'
-   mut grape = 'abcabc' - 'ca' # = 'abbc'
-   mut guava = 'abcabc' / 'c' # = ['ab', 'ab']
-   mut peach = ['ab', 'ab'] * 'c' # = 'abcab'
+   var apple = 'ab' + 'c' # = 'abc'
+   var mango = 'abc' * 2 # = 'abcabc'
+   var grape = 'abcabc' - 'ca' # = 'abbc'
+   var guava = 'abcabc' / 'c' # = ['ab', 'ab']
+   var peach = ['ab', 'ab'] * 'c' # = 'abcab'
 
 
 NON-STANDARD STRING LITERAL
    let byteArr = ba"87004" # 8, 7, 0, 0, 4 represent the actual byte to be placed in memory
-   mut byteArr = bv"data\xff" # converts the values d, a, t, a, \xff into binary that fits in a byte
+   var byteArr = bv"data\xff" # converts the values d, a, t, a, \xff into binary that fits in a byte
    let specVersion = ver"0.8.2"
+   let hex =: x'efa039'
 
 
 ESCAPE SEQUENCE
-- \[ \t \n \" \' \# \. \\
+- \[ \t \n \"" \'' \# \. \\
+
 
 
 MULTILINE STRINGS
@@ -372,113 +345,115 @@ VERBATIM STRING
     """Use \t for tab and \n for newline"""
 
 
-
 MULTILINE EXPRESSIONS
     # expressions that are not naturally enclosed like arrays or function calls can be continued
     # on separate lines by enclosing the whole expression in a bracket
     # or by ending each line with a backslash before continuing the expression on the next line.
-    mut yay = (2 * (a / 2)
+    var yay = (2 * (a / 2)
         + b)
     # or
     let mune = length == 1 ? 25 \
-        :: 0
-    mut d = "I am a star 28" \ # even for expressions like this you have to use '\'
-        .split(/\s/) \
-        .join \
-        .filter(: _1 !~ \d)
-
+        || 0
 
 SANDWICHED STATEMENTS
     # sometimes one would want to write a series of statement where it is not expected.
     # In such case, the list of statements can be encapsulated in a bracket.
-    func clean(input =: Str): input.filter do x : mut sticky y; y != x ? (y = x; true) :: false # idiomatic
+    func clean(input =: Str): input.filter do x : var sticky y; y != x ? (y = x; true) || false # idiomatic
 
 
 IF SATEMENT
     if myMoney == 1_000_000:
-        print("Yay! I'm rich!")
+        println("Yay! I'm rich!")
     ..
-    if x == 3 : print('Hello') ..
+    if x == 3 : println('Hello') ..
     if x == 1 :
-        print(x)
+        println(x)
     elsif x == 2 :
-        print(x)
+        println(x)
     else :
-        print('invalid value')
+        println('invalid value')
     ..
-    if x == 3 => y == 2 => z == 1: print("I rock!") # relative chained conditions,
-    # following condition is not evaluated unless preceding condition is true
-    # It is quite similar to & here but its essence is best discovered when used with for thru statements
-    # NIL #
-    # checking if an object is not nil, requires
-    # the '~' operator. This is, in part, due to the ambiguity
-    # with Bool objects. "if bool: print(bool)" would have been
-    # ambigous otherwise. Not knowing whether it checks for not-nil
-    # or it checks for true
+    if x == 3 where y == 2 & z == 1: println("I rock!")
     if x: # if x is not nil or false
-        print('x has a value')
+        println('x has a value')
     ..
-    if x~: # if x is not nil
-        print('x has a value')
+    if x != nil: # if x is not nil
+        println('x has a value')
     ..
-    if x =: getX()~: print("x is not nil")  # if variables are implicitly mutable
-    if !let x =: getX()~: print("x is nil")
+    if x =: getX()~ != nil: println("x is not nil")  # if variables are implicitly mutable
+    if !let x =: getX()~: println("x is nil")
     if let mySalary = getSalary()~, let myAllowance = getAllowance()~: letsParty()
 
 
 CHAINED CONDITION (Oh My!)
-    if x > 0 & x < 10: print("Hello") # error! operand repetition redundancy
-    # or
-    if x > 0 & < 10: print("Hello") # Ok
-    #......
-    x == y & y == 5 ? # error! operand repetition redundancy
-    # or
-    x == y & == 5 ? # 0k
-    # or
-    x and y == 5 ? # Ok
-    #......
     # 'and' and 'or' here are used in a different manner
     # than in Python
-    if "two-syllable word" == pit and == pot:
-        print("That's weird")
-    # or better
-    if pit and pot == "two-syllable word":
-        print("That's weird")
+    if x < y & y < z:.. # notice!
+    if x < y < z:..
 
-    if pit or (pot and pet) == "two-syllable word":
-        print("That's weird")
+    if x == y & y == z:.. # notice!
+    if x and y == z:..
+    if x == y == z:..
 
-    if x > y and z
-    if x > y & > z
+    if x == y & y < z:.. # notice!
+    if x == y and < z:..
+
+    if x == y & a == b:.. # good. unique operands
 
 
 FOR LOOP
     for i thru [1:10]: # for variables are implicitly hold and always mutable
         if  i % 2 == 0 :
-            print('[i] is an even number')
+            println('[i] is an even number')
         else :
             next
     ..
     let interestingNumbers = [
-        "Prime", 2, 3, 5, 7, 11, 13     |
-        "Fibonacci", 1, 1, 2, 3, 5, 8   |
-        "Square", 1, 4, 9, 16, 25
+        Prime: [2, 3, 5, 7, 11, 13]
+        Fibonacci: [1, 1, 2, 3, 5, 8]
+        Square: [1, 4, 9, 16, 25, 36]
     ]
-    mut largest
+    var largest
     for x, y thru interestingNumbers:
             if y > largest: largest = y
-    print(largest)
+    println(largest)
+
+    # Nested for loop
+    for x thru [1:10]:
+        for y thru [1:10]:
+            println('x: [x], y: [y]')
+    # Better way
+    for x thru [1:10] for y thru [1:10]:
+        println('x: [x], y: [y]')
+    # Parallel for loop
+    for x, y thru [1:10], [10:1]:
+        println('x: [x], y: [y]')
+
+NO BREAK
+    for x thru list:
+        if x < y:
+            break
+    nobreak:
+        return y
+    return -1
+
+
+GENERATORS, LIST AND TUPLES
+    # for loops are generatrs and their results does not create a list or a tuple
+    var x = for i thru [1:10]: 4i # error! # in the furture the variable becomes a a generator holding the operation
+    var x = [for i thru [1:10]: 4i] # creates an array from the generator
+    var x = ,,for i thru [1:10]: 4i # creates a tuple from the generator
 
 
 HOLD VARIABLES IN LOOPS
     for x thru [1:50]:
-        mut hold x = 1
-        print(x * y)
+        var hold x = 1
+        println(x * y)
         x++
     ..
     func recursive(y):
-        mut hold x = 24 # You can use hold variables in recursive functions too
-        if y < 0: print(y)
+        var hold x = 24 # You can use hold variables in recursive functions too
+        if y < 0: println(y)
         else: recursive(x - y)
     ..
 
@@ -507,105 +482,110 @@ REPEAT WHILE LOOP
 
 UNTIL LOOP # useful because you know the terminating condition but I might remove it tho (??)
    until myBool == true:
-      print("Hello ")
+      println("Hello ")
    ..
 
 
 REPEAT UNTIL LOOP
-   repeat: print ("Hello ") $ until myBool
+   repeat: print ("Hello ") \\ until myBool
 
 
 CONDITIONAL/TERNARY OPERATOR
     # ternary operator
-    mut myVar1 = myBool == true ? 5 :: 6
-    func divide(num, denom): rt denom == 0 ? nan :: num / denom
-    mut salary = (workYears > 5 ? 10_000 :: 1_000) * rank # when conditional ternary expression appears
+    var myVar1 = myBool == true ? 5 || 6
+    func divide(num, denom): rt denom == 0 ? nan || num / denom
+    var salary = (workYears > 5 ? 10_000 || 1_000) * rank # when conditional ternary expression appears
     # within another expression, it must be bracketed
     # conditional operator
-    mut state = isSick == true? # evaluation returns either true or false, not to be used in an if condition
-    if isSick == true? : print("go to the doctor") # error! redundancy
-    func clean(input =: Str): input.filter do x : mut sticky y; y != x ? (y = x; true) :: false # idiomatic
+    var state = isSick == true
+    if isSick == true : println("go to the doctor") # error! redundancy
+    func clean(input =: Str): input.filter do x : var sticky y; y != x ? (y = x; true) || false # idiomatic
 
 
 RANGE
    let x, y, z = [1:3]
-   for x thru [1:(20 - 1)]: print(x)
+   for x thru [1:(20 - 1)]: println(x)
    let x = ['a':'z'].append(['A':'Z'])
 
 
 THRU
-   for x thru [1:20 - 1)]: print(x)
-   mut y = for x thru [1:30]: x # a for comprehension that returns a list of 1 to 30 same as
-   mut y = [1:30]
+   for x thru [1:20 - 1)]: println(x)
+   var y = [for x thru [1:30]: -2x] # a for comprehension that returns a list of 1 to 30 same as
+   var y = [1:30]
+   # sometimes u need to access just a field in each element of a list
+   var d = [thru attendanceList.name]
 
 
 WHERE
-   if p.age == 20 => p.name == "Allen": p # not really useful here
+   if p.age == 20 where p.name == "Allen": p # not really useful here
    # same as
    if p.age == 20 & p.name == "Allen": p
-   for x, y thru books => a thru x => a.startsWith("The"): x # chained where
+   for x, y thru books for a thru x where a.startsWith("The"): x # chained where
 
 
 FOR COMPREHENSION
-   mut list = for x thru [1:30] => x % 2 == 0: x * 3
-   for x, y thru books => a thru x => a.startsWith("The"): x
-
+   var list = for x thru [1:30] where x % 2 == 0: x * 3
+   for x, y thru books for a thru x where a.startsWith("The"): x
+   var array = [for x thru [1:10]: 3x]
 
 STEP
     # Used with iterables that have step method
     for x thru [1:2:9]: # 1, 3, 5, 7, 9
-        print(x)
+        println(x)
     ..
 
 
 IN
-    mut x = 3
+    var x = 3
     if x in [1:10]:
-        print(x)
+        println(x)
     ..
 
 
 NOT IN
-    mut arr = for x thru [1:30] => x not in [2:5]: x * 3
+    var arr = for x thru [1:30] where x not in [2:5]: x * 3
 
 
 NIL STATE AND OPERATOR
     # There are two states an object can have, valued state or nil state. An object with valued state can
     # contain primitive values or other objects, but an object with a nil state only has nil.
-    mut name = nil # Flexible variables can be assigned nil
-    let name =: Str.nil # Strictly bound variables cannot, the nil must be of a particular object
-    mut penny = purse.change()~0 # This expression returns 0 if returned value from purse.change() is in a nil object
-    mut pay = (jobHours~0) * 50 # when nil operator appears within an expression it should be bracketed
+    var name = nil # flexible variable initialised to nil
+    var state =: Str # covariant variable uncreated
+    let name =: Str.nil # covariant variable explicitly initialised to nil
+    var penny = purse.change() ~ 0 # This expression returns 0 if returned value from purse.change() is in a nil object
+    var pay = (jobHours~0) * 50 # when nil operator appears within an expression it should be bracketed
     let balance = remote.(account~Account("Empty")).getBalance() # Needs to be handled if returned nil is not of a particular object
+    let balance = remote.getAccount('Barney') ~ println('Hello') # when nil is returned, a msg is printed, but since print returns nothing, the nil is retained.
+    var z = game() ~ rt 'Bad' # this return from the function
 
 
 ONE-LINE BLOCK
-   func addTwo(a b =: Int) Int:
+   func addTwo(a b =: Int)=:Int:
       print (a + b)
       rt a + b
    ..
    func addThree(a b c =: Int): print (a + b + c) ; rt a + b + c
    if x == y
-   if x == y: print(x)
-   if x == y: print(x) $ else : print(y)
-   if state == "Play": play() $ if state == "Stop": stop()
+   if x == y: println(x)
+   if x == y: println(x) \\ else : println(y)
+   if state == "Play": play() \\ if state == "Stop": stop()
 
 
 NAMELESS BLOCK
    func doSth():
-       mut x, y, z = [1, 2, 3]
+       var x, y, z = [1, 2, 3]
        use x, y: # can only access x znd y
-           print("[x] : [y]")
+           println("[x] : [y]")
    ..
    func doSth():
-       mut x, y, z = [1, 2, 3]
+       var x, y, z = [1, 2, 3]
        use: # cannot access variabes from outer scope
-           print("[x] : [y]") # error!
+           println("[x] : [y]") # error!
    ..
    func doSth():
-       mut x, y, z :: [1, 2, 3]
+       var x, y, z :: [1, 2, 3]
        func(): # can only access any variable from outer scopes
-           print("[x] : [y]") # error!
+           println("[x] : [y]") # error!
    ..
 
 
@@ -613,7 +593,7 @@ LABELS
    [label: outer]
    for i thru [1:10]:
       for j thru range(10) :
-         print('i : [i] j : [j]')
+         println('i : [i] j : [j]')
          if j == 5:
             next outer
          ..
@@ -623,46 +603,60 @@ LABELS
 
 SKIPPING BLOCKS
    [skip : 3]
-   if x == 5 : print('Hello') # block is skipped after the it has been executed 3 times.
+   if x == 5 : println('Hello') # block is skipped after the it has been executed 3 times.
 
 
 FUNCTION DEFINITION (2)
-   func add(a =: Int, b =: Int) Int: # a return type can be specified after the parameer bracket
+   func add(a =: Int, b =: Int)=:Int: # a return type can be specified after the parameer bracket
       rt a + b
    ..
    # a parameter can have default value. Before nko
-   func add(a :: 0, b :: 0) Int:
+   func add(a :: 0, b :: 0)=:Int:
       rt a + b
    ..
 
 
 RETURNING A VALUE
-   func add(a =: Int, b =: Int) Int:
+   func add(a =: Int, b =: Int)=:Int:
       rt a + b
    ..
+   func add(a =: Int, b =: Int)::Int: rt a + b
 
 
 STICKY LOCAL VARIABLES
   # I like sticky local variables because it brings variables closer to where they are needed
-   func add(a =: Int) Int:
+   func add(a =: Int)=:Int:
       sticky sum = a # this variable will maintain its state whenever add function is called
       rt sum += a
    ..
 
 
-GLOBAL FUNCTIONS
-   # Pluto comes with some helpful global methods
-   mut str = "Hello"
-   len(str)
-   typeMin(25)
-   typeOf(Int)
+USEFUL FUNCTIONS
+    # Pluto comes with some helpful global methods
+    var str = "Hello"
+    len(str)
+    typeMin(25)
+    typeOf(Int)
+    enumerate()
+        for i, color thru enumerate(colors):
+            println(i, color)
+    reversed()
+
+
+HIDDEN VARIABLES
+    var gl = 5
+    func doSomething():
+        var gl = 5
+        outer.gl = 'Hi'
+        println(outer.gl)
+    ..
 
 
 CHAINED DECLARATION IN FUNCTION PARAMETER
    func add(a, b): a + b # parameters a and b are deferred-inferred, their types will be inferred when they are called.
    func add(a, b :: Int): rt a + b # a is deferred-inferred, b is Int
    func add(a b =: Int): rt a + b # both a and b are Int, = is left associative here
-   func add4(a b, c d =: Int) Int: # a and b are deferred-inferred, c and d are Int
+   func add4(a b, c d =: Int)=:Int: # a and b are deferred-inferred, c and d are Int
       rt a + b + c + d
    ..
 
@@ -682,53 +676,46 @@ ARGUMENT NAMING
 
 
 VARIADIC PARAMETERS
-   func sum(first =: Int, others =: Int []):
-      mut tmp = first + arr
-      for x thru arr:
-         tmp += x
-      ..
-      rt tmp
+   func ben(args =: Int []):
+      printl('Array!')
    ..
-   # or better
-   func sum(first =: Int, others =: Int []): rt first + others
-   mut lion = sum(1, 2, 3, 4, 5, 6)
-   mut tiger = sum(1, 2, 3, [4, 5, 6])
-   mut array = [1, 2, 3, 4, 5]
-   let leopard = sum(0, array)
-   # Conflicts
-   func add(a = 3 []): rt sum(a) # conflicts with the function below
-   func add(a, b, c): rt a + b + c # conflicts with the function above
+   func ben(args =: Int...):
+      printl('Varargs!')
+   ..
+   ben([4, 5, 6]) # Array!
+   ben(4, 5, 6) # Varargs!
+   func ben(a, b, c):.. # Function conflicts with varargs
 
 
 MUTATIVE FUNCTIONS
     func add(x, y): a + b
-    func swap!<T>(x y =: ref T): x, y = [y, x] # use exclamation mark for functions
+    func swap!<T>(x y =: ref T): x, y = y, x # use exclamation mark for functions
     # that can mutate objects passed to them
-    mut tip = add(2, 3)
-    mut top = add(4, 5)
+    var tip = add(2, 3)
+    var top = add(4, 5)
     swap!(tip, top)
 
 
 UNOVERLOADABLE FUNCTIONS
    func add(args = [])
-   func add<T>(args =: T[]) T
+   func add<T>(args =: T[])=:T
 
 
 RETURNING AN ARRAY
    func addThree (a b c =: Int) 3 Int []:
-      [a + b, a + c, b + c]
+      a + b, a + c, b + c
    p, q, r =: [1, 2, 3]
    x, y, z = addThree(p, q, r)
    w = addThree(p, q, r)[1] + z
 
-   func addSubTwo(a b =: Int) Int []: [a + b, a - b]
+   func addSubTwo(a b =: Int)::Int []: [a + b, a - b]
 
 
 RETURNING A TUPLE
-   func getDetails(u = User):
-      rt [.name, .age ]
+   func getDetails(u =: User):
+      rt self.name, self.age
    ..
-   mut x = getDetails() # the headers can be respecified
+   var x = getDetails() # the headers can be respecified
 
 
 RETURNING VARIABLES
@@ -745,47 +732,48 @@ RETURNING VARIABLES
    func getOwnership() [|]:
       rt array
    ..
-   mut pat =: val getVal() # redundant
-   mut put :: ref getRef() # redundant
-   mut pit :: read getReadOnly() # redundant
+   var pat =: val getVal() # redundant
+   var put :: ref getRef() # redundant
+   var pit :: read getReadOnly() # redundant
    let cup =: ref getVal() # returned value is moved
    let cap =: val getRef() # returned reference is copied
-   mut cep =: own getRef() # error, already has reference
-   mut cip = iso getRef() # error, already has reference
-   mut hola = read getVal() # returned value is moved, but cannot write
+   var cep =: wref getRef() # error, already has reference
+   var cip = iso getRef() # error, already has reference
+   var hola = read getVal() # returned value is moved, but cannot write
 
 
 FUNCTION OBJECTS
-   mut add2 = add
-   mut add3 =: Func
-   mut add =: func(Str)
-   func solve(a, b, c =: func(Int Int)Int ): c(a, b)
-   mut new = func(a b =: Int): rt a + b
+    func add(a, b): rt a + b
+    var add2 = add
+    var add3 =: Func
+    var add =: func(Str, Int)::Int
+    func solve(a, b, c =: func(Int Int)=:Int ): c(a, b)
+    var new = func(a b =: Int): rt a + b
 
 
 EVENTS
     func add(a, b): a + b
     add += subtract, divide, multiply
     add -= multiply
-    mut xeno = add(1, 5) # normal function call
+    var xeno = add(1, 5) # normal function call
     emit add(1, 3) # use emit keyword to event call a function
 
 
 CLOSURES
    func outer():
-      mut a = 6
+      var a = 6
       rt func (b =: Int) : a + b # a closure can access variables in outer scope
    ..
-   mut add = outer
+   var add = outer
    # nameless closures (except those returned by a function or another closure) are executed at the
    # point they are declared
    # named closures on the other hand are not executed until they are called
    func add (x y =: Int):
       func (): rt x + y
    ..
-   mut sum =: Func
-   mut sum = add
-   mut foo =: func(Int, Int)
+   var sum =: Func
+   var sum = add
+   var foo =: func(Int, Int)
 
 
 FUNCTION AS ARGUMENTS
@@ -804,51 +792,40 @@ FUNCTION AS ARGUMENTS
 
 
 ANONYMOUS OBJECTS/TYPES
-    MusicPlayer("user/lib/songs/music.mp3").play() # Mind you, unlike Java, this expression returns
-    # the return value of the method instead of the invoking object itselfs
-    func divideAList(num :: Int):
-        (MyList = [1, 2, 3, 4]) /= num
+    type <: Thread(
+        func start():
+            println("This is a thread")
+    ).start()
 
-    ([Thread]: # Thread is abstract
-        func run():
-            print("This is a thread")).start()
-
-    func keyListener(p =: Person): e.save("Steve"); e.delete() # Person is not abstract
-    keyListener(
-        ([Person]:
-            func save(name):
-                .name = name
-                print('Hello [name]')
-            ..
-            func delete():
-                .name = "")
+    type <: Person(
+        func save(name):
+            self.name = name
+            println('Hello [self.name]')
+        ..
+        func delete():
+            self.name = ""
     )
 
 
 LAMBDAS
-    keyListener(func(): print("World")) # lambda
-    keyListener(: print("World")) # shortened lambda using 'rt'
+    keyListener(func(): println("World")) # lambda
+    keyListener(: println("World")) # shortened lambda using 'rt'
     arr.filter(func(a): pivot > a) # anonymous functions
     arr.filter do a: pivot > a # function argument
-    arr.filter(: pivot > _1) # lambda
-    numbers.filter(: _1 % _2 == 0).map(: _1 * _2).reduce(2, +) # lambda
-    let reversed = sort(names, : _1 > _2 )
-
-
-FUNCTION CHAINING
-    let x =: students.filterOutFailed()>>sortByGrade()
-    mut d :: 4(2).subtract(1, 2)>> divide(10, 5)
-    let y = add(4, 2) |> subtract(_, 1) |> divide(10, _)
+    arr.filter(: pivot > [1]) # lambda
+    let reversed = sort(names, : [1] > [2] )
 
 
 MATCH FUNCTION
     match check30DayMonth(month = Month):
-       case _.value == 4 : print("This is April, a 30-day Month!")
-       case _.value == 6 : print("This is June, a 30-day Month!")
-       case _.value == 9 : print("This is September, a 30-day Month!")
-       case _.value == 11 : print("This is November, a 30-day Month!")
-       print("Not a 30-day Month!")
+       when self.value == 4 : println("This is April, a 30-day Month!")
+       when self.value == 6 : println("This is June, a 30-day Month!")
+       case self.value == 9 : println("This is September, a 30-day Month!")
+       else self.value == 11 : println("This is November, a 30-day Month!")
+       println("Not a 30-day Month!")
     ..
+    match chekGreetins(a, b):
+        when 'Hello', 'World!': println(a, b)
 
 
 COROUTINES
@@ -860,7 +837,7 @@ COROUTINES
    # THE 'run' CALL
    func show(s =: Str):
        for x thru [1:3]:
-           print(s)
+           println(s)
 
    func main():
        show("Hello")
@@ -869,243 +846,221 @@ COROUTINES
    ..
    # Hello Hello Hello Hi Hi Hullo Hi Hullo Hullo
    # PIPES
-   func work(pipe x =: Bool):
-       print("working...")
+   func work(flo x =: Bool):
+       println("working...")
        time.sleep(1500)
-       print("done")
-       x <- true
+       println("done")
+       x << true
    ..
    func main():
-       pipe done = Bool
+       flo done = Bool
        run work(done)
-       <- done
+       << done
    ..
    # working...done
    # BUFFERING AND CLOSING PIPES
-    func task(pipe x =: Str):
+    func task(flo x =: Str):
         loop:
             if !closed(x):
-                print("working...")
+                println("working...")
     ..
     func main():
-        pipe a =: Str
+        flo a =: Str
         run task(a)
         time.sleep(time.second * 6)
         close(a)
-        print("done")
+        println("done")
     ..
     # SELECT
     func main():
-        pipe a, b =: Str
+        flo a, b =: Str
         run func ():
             time.sleep(1000)
-            a <- "One"
+            a << "One"
         ..
         run func ():
             time.sleep(2000)
-            b <- "Two"
+            b << "Two"
         ..
         select:
-            case a: print(<- a)
-            case b: print(<- b)
-            print("Nothing")
+            case a: println(<< a)
+            case b: println(<< b)
+            println("Nothing")
         ..
     ..
 
     # Python-type coroutine
     func coroutine():
         for x thru 1..10:
-            yield x
+            yd x
     ..
-    print(coroutine()) # 1
-    print(coroutine()) # 2
-    print(coroutine()) # 3
-    coroutine.reset() # resets the coroutine
-    print(coroutine()) # [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    println(coroutine()) # 1
+    println(coroutine()) # 2
+    println(coroutine()) # 3
 
     # Simulated coroutine using sticky variables
     func addUp(b):
-        mut sticky x = 0
+        var sticky x = 0
         x += b
     ..
-    print(addUp(4))
-    print(addUp(5))
-    print(addUp(6))
+    println(addUp(4))
+    println(addUp(5))
+    println(addUp(6))
 
 
 TYPE DEFINITION
-   type Car:
-      mut name, model = Str
-      func (name =: Str):  # Constructor implicitly contains a first parameter of type Car
-         self.name = name
-      ..
-      func (name, model =: Str):
-         self.name = name
-         self.model = model
-      ..
-      func (!): print("Object Destroyed") # Destructor
-   ..
-
-
-TYPE PLACEHOLDER
-    # if the method of a type is directly beneath its definition, then a =: or :: can be used to
-    # as a placeholder for the type
-    type Greeting
-    func greet(=:, lang =: Language)
-    func greet(=:, cntry =: Country)
-    func greet(::) # This function is not inheritable
+    type Car:
+        var name, model = Str
+    ..
+    func Car(name =: Str):  # Constructor implicitly contains a first parameter of type Car
+        self.new(name)
+    ..
+    func Car(name model =: Str):
+        self.new(name, model)
+    ..
+    func Car(~): println("Object Destroyed") # Normal Destructor
+    func Car(!): println("xception Occured and Object Destroyed") # Exception Destructor
 
 
 CONSTRUCTOR
     type Person:
-        mut name = Str
-        mut age = Int
-        func (name =: Str, age =: Int):
-            .name = name
-            .age = age
-        ..
+        var name = Str
+        var age = Int
     ..
-    # A constructor without body initialises the fields with the corresponding parameter
-    type Person:
-        mut name = Str
-        mut age = Int
-        func (name, age) # which means there is no such thing as virtual constructors
-    ..
+    func Person(name =: Str, age =: Int):
+        self.new(name, age) # Only constructors can create a new object
+    # new() is a special function that creates an object with nilled fields and can map
+    # arguments to fields.
+    # Constructors that access the self.new() method directly can only be defined in the same
+    # module as the type.
+    func Person(name =: Str):
+        self(name, 0) # you can call a another construtor through self
+    # You can shorten a trivial constructor like the one above
+    func Person(name)
 
 
 DEFAULT CONSTRUCTOR
     # If a type doesn't provide a constructor, an implicit default constructor
-    type Lamp
-    mut a =: Lamp() # or
-    mut a =: Lamp # Both are valid
-    # If it provides however, then an implicit default constructor is not provided
     type Lamp:
-        mut color =: Str
-        func (color)
-    mut a =: Lamp("Blue")
-    mut b =: Lamp # error! default cnstructor needs to be provided
-    # A default cnstrustor can be createdby making all the parameters in te cnstrictor optional
-    type Lamp:
-        mut color =: Str
-        func (color =: Str.nil) # color parameter is now optional
-    mut a =: Lamp
+        var color
+    var a =: Lamp() # creates a Lamp objecta and calls the default constructor on it
+    var b =: Lamp # declares a variable as Lamp, no object created
+    b.color = 'blue' # but as soon as it is accessed, Lamp object is created with nilled fields.
 
 
 CONSTRUCTOR TYPES
-    # Constructor classes have only one constructor and an optional set of parameters that are also the only fields of the class
+    # Constructor classes have only one constructor with arguments that map to fields
     # These fields are mutable by default and are always public.
     type Person (name, age)
-    func show(=:): print(=:name, ' ', .age)
-    mut dave = Person("Dave", 45)
-    dave.age = "David"
-    type Car (model make =: Str, year =: Int) [Vehicle]
+    func show(p =: Person): println(self.name, self.age)
 
 
-SELF REFERENCE
-    type Car:
-        mut name, model = Str
-        func (name =: Str):
-            .name = name # the self can be ommitted leaving the dot and the field
-        ..
-        func (name, model)
-    ..
-    # this is also applicable to methods where its is the type of the first parameter
-    func getDetails(c =: Car): rt [.name, .model]
-    func hasModel(=:, model =: Str): .model == model?
-    # you can also use self in a functional way
-    func showInfo(=:): print(getDetails(self))
-
-
-USING A FUNCTION AS METHOD
-    func show(p =: Person): print("name: [.name], age: [.age]")
-    mut nigel = Person("Nigel Nicargua")
+USING A FUNCTION AS METHOD (UFCS)
+    func show(p =: Person): println("name: [self.name], age: [self.age]")
+    var nigel = Person("Nigel Nicargua")
     show(nigel)
-    mut nigel.show() # using show function like a method since Person is the first argument
+    nigel.show() # using show function like a method since Person is the first argument
     # you can also use it on objects directly
-    mut a = Person("Nigel Nicargua").getDetail()
-    mut b = "hello".upper()
-    mut c = 25_000.divideBy(x) # Don't do this though. :)
-    mut d = (2f/4f).floor()
+    var b = "hello".upper()
+    var c = 25_000.divideBy(x) # Don't do this though. :)
 
 
 DESTRUCTORS
     type Car:
-        mut name, model = Str
-        func (name)
-        func (name, model)
-        func (!) : # Destructor implicitly contains a first parameter of type Car
-            print('Object Destroyed!')
-    ..
+        var name, model = Str
+    func (~): println("Object Destroyed") # Normal Destructor
+    func (!): println("xception Occured and Object Destroyed") # Exception Destructor
+    # Destructors can only bedefined within te same module as the type.
 
 
 ABSTRACT TYPES
    type ab Player # cannot be instantiated
-   func play(=:)
-   func rewind(=:)
-   func fastForward(=:)
-   type CassettePlayer [Player]
-   type DigitalPlayer [Player]
+   func play(pl =: Player)
+   func rewind(pl =: Player)
+   func fastForward(pl =: Player)
+   type CassettePlayer <: Player
+   type DigitalPlayer <: Player
    # Abstract types can be constructor type too, but this doesn't mean they can be instantiated
    # The constructor is used here to show the types fields
    type ab Person(name, age)
    type ab Thread
-   func run(=:) # This is a virtual function
-   func stop(=:):.. # Abstract types can contain implementations too
-   func execute(=:): .run()
+   func start(th =: Thread) # This is a virtual function
+   func stop(th =: Thread):.. # Abstract types can contain implementations too
+   func execute(th =: Thread): self.run()
    # Note that an abstract cannot use :: to assign its first parameter
    # because that signifies ony the instance of the class can use it
    # however abstract class cannot be instantiated.
    type ab Person(name, age)
-   func show(::) # error!
+   func show(p :: Person) # error!
+
+
+FIELD MODIFIERS
+    var hide x = 25
+    var sticky y = 'State'
+    type Singleton:
+        var hide sticky count =: Int = 0
+        var hide sticky single =: Singleton
+        var value = Int
+    ..
+    func priv Singleton():
+        if self.count == 0:
+            count++
+            rt single = self.new(value)
+        single
+    ..
+    func Singleton(value =: Int):
+        var x :: self()
+        x.value = value
+    ..
 
 
 PROPERTIES / GETTERS SETTERS
-    mut myVar1 :: func set(a b c =: Int): _ = a * b * c $ func get(): rt _
+    var myVar1 :: set(a b c =: Int): myVar1 = a * b * c \\ get(): rt myVar1
     myVar1 = (1, 2, 3)
-    mut myVar2 =
-        func set(a b =: Int): _ = a * b * c
-        func get(): rt _
+    var myVar2 =
+        set(a b =: Int): myVar2 = a * b * c
+        get(): rt myVar2
     myVar2 = (1, 2)
-    mut myVar3 = func set(a =: Int): _ = a $ func get(): rt _
+    var myVar3 = set(a =: Int): myVar3 = a \\ get(): rt myVar3
     myVar3 = 1
-    mut myVar4 = func set(a =: Int) $ get()
+    var myVar4 = set(a =: Int) \\ get()
     myVar3 = 2
-    mut tip = func get(): rt myVar3
+    var tip = get(): rt myVar3
 
 
 TYPE CHECKING
     # Is
     if myCar === Car:
-        print('myCar is a Car')
+        println('myCar is a Car')
     ..
     if myCar ==: Car:
-      print('myCar is a Car or its subtype')
+      println('myCar is a Car or its subtype')
     ..
     if myCar =<: Car:
-      print('myCar is a subtype of Car')
+      println('myCar is a subtype of Car')
     ..
     if myCar =>: Car:
-      print('myCar is a supertype of Car')
+      println('myCar is a supertype of Car')
     ..
     # Is Not
     if phone !== Phone:
-        print("phone is not a Phone")
+        println("phone is not a Phone")
     if phone !=: Phone:
-        print("phone is not a Phone or its subtype")
+        println("phone is not a Phone or its subtype")
     if phone !<: Phone:
-        print("phone is not a subtype of Phone")
+        println("phone is not a subtype of Phone")
     if phone !>: Phone:
-        print("phone is not a supertype of Phone")
+        println("phone is not a supertype of Phone")
 
 
 MODULES AND IMPORT
     module MyMath
     #......
     import MyMath
-    mut x :: MyMath.pi * 2
+    var x :: MyMath.pi * 2
     #......
     import MyMath: pi
-    mut y =: pi * 2
+    var y =: pi * 2
     #.......
     import MyMath: Rational as Ratio, add, pi
     let y = Ratio(4, 6)
@@ -1120,52 +1075,52 @@ MODULES AND IMPORT
 TYPE ALIAS
    Int as Meter
    func(Str Int) as StrIntFunc
-   mut f = StrIntFunc
+   var f = StrIntFunc
 
 
 METHOD CHAINING
-- Method chaining is automatic, no need to return self
     type Math:
-        mut value = Float
+        var value = Float
     ..
-    func add(a =: Math, b c =: Float) Float:
+    func add(a =: Math, b c =: Float)=:Float:
         a.value = b + c
     ..
-    func subtract(a =: Math, b c =: Float) Float:
+    func subtract(a =: Math, b c =: Float)=:Float:
         a.value = b - c
     ..
-    mut m = Math
-    m.add(1, 2).subtract(3, 4)
-    mut n = "This is the first string".&"This is another string".reverse().toUpper()
+    var math = Math
+    var result = math.add(1, 2).subtract(3, 4)
+    # When a method returns nothing, it attaches back to object
+    myProfile.post('status').accept('friend_request').mark("messages", isRead: true)
 
 
 INHERITANCE # Not Finalized!
     # Note that inheritable methods need =: operator when specifying their first parameter
     type Animal
-    func move(=:):..
+    func move(an =: Animal):..
 
-    type Bird [Animal]
+    type Bird <: Animal
     @mask
-    func move(=:): print("Soar!") # overides move method for Animal, a super method
-    func fly(::):..
+    func move(bd =: Bird): println("Soar!") # overides move method for Animal, a super method
+    func fly(bd :: Bird):..
 
-    type Horse [Animal]
+    type Horse <: Animal
     @mask
-    func move(=:): print("Gallop!") # overides move method for Animal, a super method
-    func gallop(::):..
+    func move(hr =: Horse): println("Gallop!") # overides move method for Animal, a super method
+    func gallop(hr :: Horse):..
 
-    type Pegasus [Bird, Horse] # inherits Bird and Horse classes
+    type Pegasus <: Bird, Horse # inherits Bird and Horse classes
     @mask
-    func move(=:): print("Gallop and Soar!") # overides move method because of CONFLICT in  Bird and Horse
-    func gallopAndSoar(::):..
+    func move(pg =: Pegasus): println("Gallop and Soar!") # overides move method because of CONFLICT in  Bird and Horse
+    func gallopAndSoar(pg :: Pegasus):..
 
-    mut eagle = Bird()
-    mut horse = Horse()
-    mut pegasus = Pegasus()
+    var eagle = Bird()
+    var horse = Horse()
+    var pegasus = Pegasus()
     move(eagle) # "Soar!"
     move(horse) # "Gallop!"
     move(pegasus) # "Soar and Gallop!"
-    mut animals = Animal[Bird(), Horse(), Pegasus()]
+    var animals = Animal[Bird(), Horse(), Pegasus()]
     animals[1].move() # "Soar!"
     animals[2].move() # "Gallop!"
     animals[3].move() # "Soar and Gallop!"
@@ -1183,24 +1138,24 @@ OVERRIDING METHODS
 COVARIANCE
     # Pluto supports covariance thru the =: operator.
     type Person (name =: Str, age =: Int)
-    func showDetails(p =: Person): print("name: [.name], .age: [.age]")
-    type Engineer (kind =: Str) [Person]
-    type Artist (kind =: Str) [Person]
+    func showDetails(p =: Person): println("name: [.name], .age: [.age]")
+    type Engineer (kind =: Str) <: Person
+    type Artist (kind =: Str) <: Person
 
-    mut person =: Person("Peter", 16)
-    mut engineer =: Engineer("Civil Engineer")
-    mut artist =: Artist("Painting Artist")
+    var person =: Person("Peter", 16)
+    var engineer =: Engineer("Civil Engineer")
+    var artist =: Artist("Painting Artist")
     # covariance in assignment
-    mut person =: Person("Matthew", 25) # home type
-    mut person = engineer # guest type
-    mut person = artist # guest type
+    var person =: Person("Matthew", 25) # home type
+    var person = engineer # guest type
+    var person = artist # guest type
     # covariance in argument passing
     showDetails(person)
     showDetails(engineer)
     showDetails(artist)
     # covariance in container types
-    mut arr =: Person[]
-    mut arr[1:] = [person, artist, engineer]
+    var arr =: Person[]
+    var arr[1:] = [person, artist, engineer]
     # covariance in overriding
     func eat(a =: Herbivore, b =: Plant):..
     @mask
@@ -1209,8 +1164,8 @@ COVARIANCE
 
 MULTIPLE LEVELS OF COVARIANCE
     # A structure with multiple type declaration can also allow covariance on each parameter
-    type ab List<T>
-    type ArrayList<T>[List]
+    type ab List:#= IMPLEMENTATION HERE=#..
+    type ArrayList <: List:#= IMPLEMENTATION HERE=#..
     func getIndex(l =: List, i = Integer)
     getIndex(ArrayList = [1, 2, 3], 3_i16) # arg1 is a subtype of List and arg2 is a subtype of Integer
     # Covariant override is an example of multiple level of covariance
@@ -1225,65 +1180,62 @@ CONTRAVARIANCE
     # To do an upcasting, you can use a trick like this.
     type Person(name =: Str.nil, age =: Int.nil)
     type Employee((name =: Str.nil, age = Int.nil), job =: Str.nil, company =: Company.nil)
-    func _convert<T>:Employee>(::, sup =: T): .name = sup.name; .age = sup.age
-    mut p =: Person("Dan", 25)
-    mut emp =: Employee = p
+    func cast(emp :: Employee, pers =: Person):
+        self.name = pers.name; self.age = pers.age
+    var p =: Person("Dan", 25)
+    var emp =: Employee = p
+
 
 
 SUPERMETHODS AND SUBMETHODS
     # inheritable methods always use =: operator to specify the type of their first parameter
     type Listener
-    type ButtonListener [Listener]
-    func respond(a =: Listener) # this is a super method to the more specific method below
+    type ButtonListener <: Listener
+    func respond(bl =: Listener) # this is a super method to the more specific method below
     @mask
-    func respond(a =: ButtonListener):.. # this is a sub method to the method above
+    func respond(bl =: ButtonListener):.. # this is a sub method to the method above
 
 
 TYPE CASTING
-    # Type casting is done using = operator
+    # Type casting is done using -> operator
     # Some cast operations have already been provided for built-in types.
-    mut a :: Int(5)
-    mut b :: Float = a # b == 5.0f
-    # The type cast metaObject is _convert()
+    var a :: Int(5)
+    var b :: Float -> a # b == 5.0
+    # cast()
     type MyInteger(value =: Int)
-    func _convert(::, i =: Int): .value = i
-    func _convert(::, f =: Float): .value = (Int = f)
-    mut x :: MyInteger = 5
-    x = 6.23f
-    # Upcasting is not implicity supported in Pluto, so one can use _convert
-    type Person(name =: Str.nil, age =: Int.nil)
-    type Employee((name =: Str.nil, age = Int.nil), job =: Str.nil, company =: Company.nil)
-    func _convert<T>:Employee>(::, sup =: T): .name = sup.name; .age = sup.age
-    mut p =: Person("Dan", 25)
-    mut emp =: Employee = p
+    func cast(mi :: MyInteger, i =: Int): self.value = i
+    func cast(mi :: MyInteger, f =: Float): self.value = (Int = f)
+    var x :: MyInteger -> 5
+    x = 6.23
+    # Upcasting is not implicity supported in Pluto, one simulate this by casting
+    type Person(name =: Str, age =: Int)
+    type Employee(super(name =: Str, age = Int), job =: Str, company =: Company)
+    func cast(emp :: Employee, pers =: Person):
+        self.name = pers.name; self.age = pers.name
+    var p =: Person("Dan", 25)
+    var emp =: Employee -> p
 
 
 CALLING SUPER
     type Person:
-        mut name :: Str
-        mut age :: Int
+        var name :: Str
+        var age :: Int
         func (name, age)
     ..
-    type Artist [Person]:
-        mut kind = Str
-        func priv (job)
-        func (name, age, kind):
-            super(name, age) # calls the parent constructor to initilize parameters
-            self(kind)
-        ..
+    type Artist <: Person:
+        var kind = Str
     ..
+    func Artist(name, age, kind):
+        self.new(super(name, age), kind)
     # or
-    type Artist [Person]:
-        mut kind :: Str
-        func ((name, age), kind)
-    ..
-    # or better
-    type Artist ((name, age), kind) [Person]
+    func Artist(super(name, age), kind)
+    # or
+    type Artist(super(name, age), kind) <: Person
 
 
 VIRTUAL METHODS
     func respond(a =: Listener) # a method without a body is implicitly virtual and cannot be called however.
-    # constructors cannot be virtual and therefore use the same syntax for shortening initialisation
+    # conArtisttructors cannot be virtual and therefore use the same syntax for shortening initialisation
     @mask
     func respond(a =: ButtonListener) # error, a virtual super method can't be overriden by a virtual sub method
     func respond(a =: Listener):.. # This is not a virtual function, it is an empty one
@@ -1291,10 +1243,10 @@ VIRTUAL METHODS
 
 DOWNCASTING
   # assuming Movie and Song extends MediaItem
-   mut library =: MediaItem [Movie("Zack Snyder's Sucker Punch"), Song("Lazy - Bruno Mars"), Song("Radioactive - Imagine Dragons"), Movie("Zack Snyder's 300")]
+   var library =: MediaItem [Movie("Zack Snyder's Sucker Punch"), Song("Lazy - Bruno Mars"), Song("Radioactive - Imagine Dragons"), Movie("Zack Snyder's 300")]
    for item thru library:
       if item === Song:
-         print('Song: [song.name]')
+         println('Song: [song.name]')
       elsif item === Movie:
          print ('Movie: [movie.name]')
       ..
@@ -1311,31 +1263,31 @@ UNINHERITABLE CLASS
 
 GENERICS
     # Type Parameter
-    <T> # Inferred
-    <T=:Integer> # Integer and Integer subtypes
-    <T<:Integer> # Integer subtypes
-    <T>:Integer> # Integer supertypes
-    <T=:Str|Int> # Str and subtypes or Int and subtypes
-    func add<T>(a b c =: T): a + b + c
-    add<Int>(1, 2, 3)
+    =:Integer # Integer and Integer subtypes
+    <:Integer # Integer subtypes
+    >:Integer # Integer supertypes
+    {=:Str|Int} # Str and subtypes or Int and subtypes
+    func add(a b c =: $T): a + b + c
+    add{Int}(1, 2, 3)
     # A function can use its type generic parameter :)
-    type ArrayList<T>(list =: T[].nil)
-    func add(=:, elem =: T):
-        .list += elem
+    type ArrayList(list =: $T[].nil)
+    func add(al =: ArrayList, elem =: T):
+        self.list += elem
     # You totally omit the type arguments if they can be inferred before use
-    type ArrayList<T>(list =: T[])
-    func _setList(::, t =: T[]): .list = t
-    mut list =: ArrayList # type argument not specified
+    type ArrayList(list =: $T[])
+    func setList(al =: ArrayList, t =: T[]): .list = t
+    var list =: ArrayList # type argument not specified
     list = ["Hi", "Hello", "Hullo"]
     # If the types cannot be inferred before usage, an error is thrown. GenericTypeUnknown
     # Triangular dispatch
-    func colorSpace<T<:ColorValue, U<:Image<T>>()
+    var x =: $T<:ColorValue
+    var y =: $U<:Image{T}
 
 
 DATATYPE OBJECTS
     # Just as variables and functions have types, types also have types. :/
     # The type of types like Int, Float, Str is DataType
-    mut var = Car("Camaro")
+    var car = Car("Camaro")
     typeOf(var) # Car
     typeOf(Car) # DataType
     checkIfStr(a): a === Str?
@@ -1346,7 +1298,7 @@ DATATYPE OBJECTS
     A == A? # true
     A == Letter? # true
     let a = DataType(Car) # DataType objects are exposed thru DataType constructor and can be assigned to variables
-    print(a) # Car
+    println(a) # Car
 
 
 ENUMS
@@ -1355,54 +1307,51 @@ ENUMS
     # also an enum object expects a subtype as value
     enum Friends: Deji, Tosin, Tola # Deji, Tosin and Tola are parameterless conctructor types
     match whichFriend(f =: Friends):
-        case Deji : print("This is Deji")
-        case Tosin : print("This is Tosin")
-        case Tola : print("This is Tola")
+        when Deji : println("This is Deji")
+        case Tosin : println("This is Tosin")
+        case Tola : println("This is Tola")
     ..
-    mut closeFriend =: Friends.Deji
+    var closeFriend =: Friends.Deji
     whichFriend(closeFriend)
     enum Number: IntegerNumber(i =: Integer), RealNumber(r =: Real) # IntegerNumber and RealNumber are constructor types
     # Enums provide access to its subtypes using the access operator
     Friends[1] # Returns a DataType object, here the DataType object is Friends.Deji
     # Iterating thru enum
     for x thru Friends:
-        print(x)
+        println(x)
     ..
 
 
 PATTERN MATCHING
     # EXAMPLE: How to compute a tree-like expression
     type ab Tree
-    type Leaf<T>(value =: T) [Tree]
-    type Node (l = Leaf, r = Tree) [Tree]
+    type Leaf(value =: $T) <: Tree
+    type Node(l = Leaf, r = Tree) <: Tree
     match sum(t =: Tree):
-        case Leaf: t.value
-        case Node: sum(t.l) + sum(t.r)
+        when === Leaf: t.value
+        when === Node: sum(t.l) + sum(t.r)
     ..
-    mut x = Node(Leaf<Int>(1), Node(Leaf<Int>(2), Leaf<Int>(3)))
-    mut y = sum(x)
-    # or better
-    enum Tree<T>: Leaf(value =: T), Node(l =: Leaf, r = Tree)
+    var x = Node(Leaf(1), Node(Leaf(2), Leaf(3)))
+    var y = sum(x)
+    # or using enums
+    enum Tree: Leaf(value =: $T), Node(l =: Leaf, r = Tree)
     match sum(t =: Tree):
-        case Leaf: t.value
-        case Node: sum(t.l) + sum(t.r)
+        when === Leaf: t.value
+        when === Node: sum(t.l) + sum(t.r)
     ..
-    # you can use this verbose version
-    mut x =: Tree<Int>.Node(Tree<Int>.Leaf(1), Tree<Int>.Node(Tree<Int>.Leaf(2), Tree<Int>.Leaf(3)))
-    # or better
-    mut x =: Tree.Node(_.Leaf(1), _.Node(_.Leaf(2), _.Leaf(3))) # the generic type is inferred
-    mut y =: sum(x)
+    var x =: Tree{Int}.Node(Tree{Int}.Leaf(1), Tree{Int}.Node(Tree{Int}.Leaf(2), Tree{Int}.Leaf(3))) # Yeah not so clear
+    var y =: sum(x)
 
 
 REGEX
-    mut number =: /\d+(\.\d+(e[-+]\d+)?)?/
-    mut input = "23.4e+5"
-    if input =~ number: print("input is a number") $ else print("input is not a number")
+    var number =: /\d+(\.\d+(e[-+]\d+)?)?/
+    var input = "23.4e+5"
+    if input =~ number: println("input is a number") \\ else println("input is not a number")
 
 
 ATOMIC EXPRESSION # Will Remove this and follow goroutines implementation # lock can still be used for mutex in goroutine implementation
    lock: x = 5; y = x
-   lock: if y == 5: print('y is 5')
+   lock: if y == 5: println('y is 5')
 
 
 ATOMIC BLOCKS # Will Remove this and follow goroutines implementation # lock can still be used for mutex in goroutine implementation
@@ -1416,18 +1365,22 @@ ATOMIC BLOCKS # Will Remove this and follow goroutines implementation # lock can
       y = x
    ..
    lock if tip == top:
-   print("Hello")
-   print(", World!")
+   println("Hello")
+   println(", World!")
    ..
 
 
 OPERATOR OVERLOADING
+    var xenon =: Person -> Dragon()
+    array[1] = 24
+    cast()
+    setIndex()
+    setList()
+    setHList()
+    getIndex()
     func +(x =: Number, y = Number): x.value + y.value
-    func _setIndex(a =: Int): arr[a]
-    func _value(a =: MyNumber): a.value
     # you can't add "!" infront of a mutative operator function
     func ++(a =: Number): a.value++
-    # check Julia and Swift for reference
 
 
 CUSTOM OPERATORS
@@ -1445,57 +1398,50 @@ TRY & ASSOCIATES
         ensure:
             file.close()
         ..
-        print("I'm about to open a text file and print its first 500 characters")
-        mut file =: File("C:/Users/Hello/hello.txt")
-        try file.open().print([1:500])
-        except(fnfe =: FileNotFoundErr, ioobe =: IndexOutOfBoundErr):
+        println("I'm about to open a text file and print 500 numbers to it")
+        var file =: File("C:/Users/Hello/hello.txt")
+        try file.open().println([1:500])
+        catch(fnfe =: FileNotFoundEx, ioobe =: IndexOutOfBoundEx):
             if fnfe: printErr('Can\'t find file!')
-            if ioobe: printErr('Out of index error!')
+            elif ioobe: printErr('Out of index error!')
         ..
         # ensure can be used in inner scope
         let x = 3, y = 4, z = 5
         use x, y:
             let a =: x * y
-            ensure print("a goes out of scope here")
+            ensure println("a goes out of scope here")
     ..
 
     try:
         file.open()
         file.write('Hello')
-    except(fnfe =: FileNotFoundErr):
+    catch(fnfe =: FileNotFoundEx):
         printErr('Can\'t find file!')
     ..
 
     try:
-        raise Err() # this raises an error, but does not stop program
-        err Err() # this raises an error, and stops the program after error handling
-    except(e =: Err):  # catches all exception
+        throw Exception() # this throws an error, but does not stop program
+    catch(e =: Exception):  # catches all exception
         printErr('Error!')
     ensure:
         file.close()
     ..
 
     try let x =: getObject()
-    except(ne = NilErr):
+catch(ne = NilEx):
         printErr('x can\'t be nil!')
     ..
 
     try:
-        if let x =: getObject(): $ else: raise NilErr()
-    except() # this catches nothing
-
-    try:
-        let x =: getObject()
-    except:
-        printErr('x can\'t be nil!')
-    ..
+        if let x =: getObject(): \\ else: raise NilEx()
+    catch() # this catches nothing
 
     try:
         file.open()
         let x =: file.readLine()
-    except(ne =: NilErr):
+    catch(ne =: NilEx):
         printErr('x can\'t be nil!')
-    except(fnfe =: FileNotFoundErr):
+    catch(fnfe =: FileNotFoundEx):
         printErr('Can\'t find file!')
     ensure:
         file.close()
@@ -1504,7 +1450,7 @@ TRY & ASSOCIATES
 
 ASSERTION
 # syntax of macro still in works
-    @{assert x == nil}
+    @assert x == nil
     # definition of assert
     @macro
     assert(a):
@@ -1522,9 +1468,9 @@ HINTS
     # a hint can have parameters declared in a symbol brackets
     @deprecated {msg = "MediaPlayer class should be used instead"}
     # a hint can introduce a block with colon.
-    @if {plat = "Mac"} print("This is a Machintosh Computer")
+    @if {plat = "Mac"} println("This is a Machintosh Computer")
     @if {plat = "Win"}:
-        print("This is a Windows Computer")
+        println("This is a Windows Computer")
     #------------------------------------
     @compiler # evaluated at compile-time
     @linker # evaluated at link-time
@@ -1548,11 +1494,11 @@ COMPOUND HINT
     # it can only be in the same module as the main function
     @compound:
         @if {plat = "Win"}:
-            print("This is a Windows Computer")
+            println("This is a Windows Computer")
         @elsif {plat = "Mac"}:
-            print("This is a Machintosh Computer")
+            println("This is a Machintosh Computer")
         @elsif {plat = "Linux"}:
-            print("This is a Linux Computer")
+            println("This is a Linux Computer")
     ..
 
 
@@ -1565,48 +1511,39 @@ METAOBJECTS
     # some structures such as match, enum, etc. support "subject in context" metaObject
     # which is represented with "_"
     match check30DayMonth(month = Month):
-        case _.value == 4 : print("This is April, a 30-day Month!")
-        case _.value == 6 : print("This is June, a 30-day Month!")
-        case _.value == 9 : print("This is September, a 30-day Month!")
-        case _.value == 11 : print("This is November, a 30-day Month!")
-    print("Not a 30-day Month!")
+        case self.value == 4 : println("This is April, a 30-day Month!")
+        case self.value == 6 : println("This is June, a 30-day Month!")
+        case self.value == 9 : println("This is September, a 30-day Month!")
+        case self.value == 11 : println("This is November, a 30-day Month!")
+    println("Not a 30-day Month!")
     ..
-    mut sum =: add(a, b) |> add(_, x)
-    mut tip =: func set(a = Int): _ = 25 $ func get(): rt _
+    var sum =: add(a, b) |> add(_, x)
+    var tip =: set(a = Int): _ = 25 \\ get(): rt _
     type ArrayList<T>(list =: T[])
     func _setList(::, t =: T[]): .list = t
-    mut list =: ArrayList = ["Hi", "Hello", "Hullo"]
-
-
-LIST OFS METAOBJECTS
-    _
-    _last
-    _min
-    _max
-    _setList()
-    _convert()
+    var list =: ArrayList = ["Hi", "Hello", "Hullo"]
 
 
 VALUE METAVAR
     # Returned value must be a primitive value
     # This represents the objects value
     func _value(num =: MyNumber): rt num.value
-    mut x = MyNumber(12)
-    print("[x] is my number")
-    mut myMap =: Map<MyNumber, Int> # sorted by MyNumber's _value
+    var x = MyNumber(12)
+    println("[x] is my number")
+    var myMap =: Map<MyNumber, Int> # sorted by MyNumber's _value
 
 
 REFLECTION
     # dynamically determining which class to use
     @if (stage = "runtime", condition = "Main.useOldClass == true"): # ??
         type Class:
-            mut value = func set(x Str): _ = x $ func get(): rt _
+            var value = func set(x Str): _ = x \\ func get(): rt _
             func (value)
         ..
     @else
         type Class:
-            mut str = func set(x =: Str): _ = x $ func get(): _
-            mut num = func set(x =: Float64): _ = x $ func get(): _
+            var str = set(x =: Str): _ = x \\ get(): _
+            var num = set(x =: Float64): _ = x \\ get(): _
             func (str)
             func (str, num)
         ..
@@ -1619,21 +1556,17 @@ MACROS !! Needs Work
     reverseExpression(ex):
         # TODO
     ..
-    if @{reverseExpression x < y} : print('O.O')
+    if @{reverseExpression x < y} : println('O.O')
 
 
 COMPLEX, QUATERNION DECLARATION
-    mut x = 5 + 2i # complex
-    mut y = 5 + 2i + 3j + 4k # quaternion
+    var x = 5 + 2i # complex
+    var y = 5 + 2i + 3j + 4k # quaternion
 
 
 MATHEMATICAL EXPRESSION
-    let top =: m{3x - 2y/5 + r(d^5)} # operator precedence still applies
-    let tip =: m{3x y z^2} # when there is no operator between 2 operands, multiplication is assumed
-    mut pat = m{4y - 2x(z^2) getSalary()} # you can use functions and variables directly
-    mut pet = m{4d 5f} # MathExpr doesn't support numeric literals with type prefix. 4d and 5f here means 4 * d * 5 * f
-    mut pot = m{5y [getValue[2]] 3e-1 + [4d]} # Use '[' and ']' to escape literals with fp type prefix or
-    # variables that use index operator. 4d here is a Double literal and getValue[2] gets the value in index 2.
+    let top =: 3x - 2y/5 + r(d^5)
+    let tip =: 3x y z^2
 
 
 SYMBOL, EXPR, HOMOICONICITY & OTHER SYMBOLIC CLASSES
@@ -1641,18 +1574,18 @@ SYMBOL, EXPR, HOMOICONICITY & OTHER SYMBOLIC CLASSES
     # delimited by spaces and commas
     # interpolated using "[]"
     # can also be nested {x, {y, b}}
-    mut buck =: {1}
-    mut back = {1 2 3}
+    var buck =: {1}
+    var back = {1 2 3}
     let bean = {hello {hi {halo}}} # can be nested too
     let beak = {"hello ", [name]}
     let x = beak[1] # hello
     let y = beak._value # hello Nypro
     # Expressions
-    mut pat =: ex{1 + 2 * [number]}
-    mut exp = parse("1 + 2 * 3")
-    mut ingrid = eval(exp)
+    var pat =: ex{1 + 2 * [number]}
+    var exp = parse("1 + 2 * 3")
+    var ingrid = eval(exp)
     parse(pat)
-    mut math = m{3x - 2y/5 + r(d^5)}
+    var math = m{3x - 2y/5 + r(d^5)}
 
 
 COMPILE TIME SYMBOLS ??
@@ -1663,40 +1596,40 @@ COMPILE TIME SYMBOLS ??
 
 
 CPLUSPLUS SYMBOL
-    mut str = cpp{void add(int a, int b) {return a + b;}}
+    var str = cpp{void add(int a, int b) {return a + b;}}
     parse(str)
     let sum = str.add
-    mut brim = sum(1, 3)
+    var brim = sum(1, 3)
 
 
 NON-STANDARD SYMBOL LITERAL HINT
-    mut cxxCode = cpp{void main() {printf("Hello")}}
+    var cxxCode = cpp{void main() {printf("Hello")}}
     @symLiteral:
         cpp = {Cpp(_value)}
 
 
 NON-STANDARD STRING LITERAL HINT
-    mut byteArray =: ba"87004"
+    var byteArray =: ba"87004"
     @strLiteral:
         re = {ByteArray(_value)}
 
 
 NON_STANDARD NUMERIC LITERAL HINT
-    mut price =: 1_359.99_$
+    var price =: 1_359.99_\\
     @numLiteral:
-        $ = {Dollar(_value)}
+        \\ = {Dollar(_value)}
 
 
 NUMERIC CLASS
     let x = UInt.max()
     let y = Int32.min()
-    mut z = m{2x + 4y/3}.round() + (24.25/4).floor()
+    var z = m{2x + 4y/3}.round() + (24.25/4).floor()
 
 
 RATIONAL CLASS
-    mut xianghou = 2//3
-    mut dean = x.toFloat() # rational format can be changed to fp
-    mut bean = 4//6 ; print(y) # 2//3
+    var xianghou = 2//3
+    var dean = x.toFloat() # rational format can be changed to fp
+    var bean = 4//6 ; println(y) # 2//3
     4//2 == 1//2 # true
     4//2 == 0.5 # true
 
@@ -1711,23 +1644,20 @@ BUFFER TYPE
     # This might allow Array implementation to be separated from storage and to allow
     # Arrays to be implemented completely in Pluto.
     # It stores objects in adjacent memory
-    let intStore5 = Buf(16, 5) # first arg is alignment, secong arg is size
+    let intStore5 = Buffer(16, 5) # first arg is alignment, secong arg is size
 
 
 INTEGER BITWISE OPERATORS
-    mut myVar = 2&:2 # and
-    mut myVar1 = 2|:2 # or
-    mut myVar3 = ~:2 # not
-    mut myVar3 = ^:2 # exclusive or
-
-
-SHIFT OPERATORS
-    mut myVar = 4<<1
-    mut myVar = 2>>2
+    var x = 2!&5 # and
+    var y = 3!|6 # or
+    var z = !~6 # not
+    var a = !^7 # exclusive or
+    var b = a!>7 # bit shift left
+    var c = b!<7 # bit shift right
 
 
 BINARY LITERALS
-    mut myVar = 0b11001001 # deprecated
+    var myVar = 0b11001001 # deprecated
 
 
 HEXADECIMAL LITERALS
@@ -1735,7 +1665,7 @@ HEXADECIMAL LITERALS
 
 
 OCTAL LITERALS
-    mut myVar = 0o56773 # deprecated
+    var myVar = 0o56773 # deprecated
 
 
 UTF-8 CHARACTERS
@@ -1806,9 +1736,9 @@ KEYWORDS
     skip(0.8)
     ensure (0.8)
     try
-    except
+    catch
     self
-    mut (0.8)
+    var (0.8)
     nan (0.8)
     nil
     op (0.8.2)
@@ -1883,7 +1813,7 @@ OPERATORS
 
 
 SYNTACTIC SYMBOLS
-    |, $ (0.8.2)
+    |, \\ (0.8.2)
     ;
     @
     :
@@ -1912,11 +1842,11 @@ NIL
 - Nil can be assigned to an object directly (a syntactic sugar for the object's nil state),
 - but they cannot be returned. Although one can pass or return an object with a Nil state.
 - The recieving object must handle it or else NilErr will be invoked.
-    mut deal = nil # is Any.nil
-    mut done = deal # error! NilErr
-    mut deck = deal~ # deck now accepts nil
+    var deal = nil # is Any.nil
+    var done = deal # error! NilErr
+    var deck = deal~ # deck now accepts nil
     # you could also do this
-    mut dark = deal~0  # dark will be 0 if deal is nil
+    var dark = deal~0  # dark will be 0 if deal is nil
 
 
 OBJECT HIERARCHY
@@ -1987,23 +1917,23 @@ DECLARATIVE PLUTO ".deplu" #27/06/16
 
 
 DUCK TYPING EXAMPLES
-   mut c
-   mut a = 25
-   mut b =: [1, 2, 3, 4, 5] # array
-   mut c = [1, 2, 3 | 4, 5, 6] # multi dimen array
-   mut d = ['Hello', 25, 1.3f, 'Hi'] # table
+   var c
+   var a = 25
+   var b =: [1, 2, 3, 4, 5] # array
+   var c = [1, 2, 3 | 4, 5, 6] # multi dimen array
+   var d = ['Hello', 25, 1.3f, 'Hi'] # table
    func getArea(length, breadth):
       length * breadth
    ..
-   mut length = 10
-   mut breadth = 25
-   mut rectangleArea = getArea(length, breadth)
+   var length = 10
+   var breadth = 25
+   var rectangleArea = getArea(length, breadth)
 
 
 NESTED ASSIGNMENT
 - Pluto does not support nested assignments. Dunno really :p
-   mut tip = 5
-   mut tap = (tip *= 5)
+   var tip = 5
+   var tap = (tip *= 5)
 
 
 PASS TABLE
@@ -2078,6 +2008,6 @@ QUIRKS
 - Macro and its relationship wih the AST
 - Multi-line Expression
 - Returning list or iterator for stuffs like
-    mut x = [:50]
+    var x = [:50]
 - Whether nullable objects should be declared nullable, or all object should be nullable by default
 - Chained conditions can be written in 4 ways. (update) Now reduced to 3 but wih one producing an error if used certain way

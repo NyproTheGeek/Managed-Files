@@ -1,0 +1,13 @@
+// 17/11/16
+WHY ASTRO MAY BE FASTER THAN PYTHON
+Python does type checking for many basic operations. Astro leverages type inference and avoids type checking for evident primitive operations.
+
+Python uses switch-case opcode dispatch. Astro uses jump tables.
+
+Python represents a list as arrays of pointers to objects. Astro uses a single pointer to contigous memory.
+
+WHY ASTRO MAY BE SLOWER THAN PYTHON
+Python function is simple and direct. However, due to covariance and multiple dispatch support in Astro, there may be excessive type checks at runtime.
+
+// 20/11/16
+I just solved some of the problems by introducing context switches.

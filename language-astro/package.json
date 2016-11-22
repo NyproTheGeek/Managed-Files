@@ -1,0 +1,18 @@
+# 14/11/16
+{
+  "name": "language-astroo",
+  "version": "0.0.0",
+  "description": "Astro Programming Language",
+  "engines": {
+    "atom": ">=0.174.0 <2.0.0"
+  },
+  "dependencies": {},
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "bugs": {
+    "url": ""
+  },
+  "license": "MIT"
+}

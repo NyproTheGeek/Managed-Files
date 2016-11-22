@@ -1,0 +1,102 @@
+# 20/10/16
+RUNTIME STRUCTURE
+Stacked
+
+Heaped
+
+
+FUNCTION LOADING
+- globals
+- locals
+- constants
+- outers
+
+ANY
+-
+
+PRIMITIVES
+- bool
+- int, i8, i16, i32, i64, uint, u8, u16, u32, u64
+- f32, f64
+
+BASE OBJECTS
+- buffers (iso)
+- maps
+- hashes
+- strings -> type + ascii_flag, byte_size, cp_length, UTF-8
+- chars -> type, byte_size, UTF-32
+- primitiveObject
+- complexObject
+
+TYPE FIELD
+- unsigned 32-bit
+- Primitive - [R(Type) 1()]
+    1(Nil|Valued) 4(PrimitiveValue|PrimitiveObject)
+- Complex - [R(Type) 1()]
+    1(Nil|Valued) 4(Complex)
+- Map - [R(Type) 1()]
+    1(Nil|Valued) 4(Complex)
+- Hash - [R(Type) 1()]
+    1(Nil|Valued) 4(PrimitiveHash|ComplexHash|HybridHash)
+- Buffer - [R(Type) 1()]
+    1(Nil|Valued) 4(PrimitiveBuffer|ComplexBuffer)
+- Tuple - [R(Type) 1()]
+    1(Nil|Valued)  4(PrimitiveTuple|ComplexTuple)
+- Str - [R(Type) 1(Ascii|Unicode)]
+    1(Nil|Valued) 4(Complex)
+- Chars - [R(Type) 1()]
+    1(Nil|Valued) 4(Complex)
+
+STRUCTURES
+-
+
+THREAD STACK SIZES
+- Stack_1 -> 2Kb
+- Stack_2 -> 4Kb
+- Stack_3 -> 12Kb
+- Stack_4 -> 48Kb
+- Stack_5 -> 240Kb
+- Stack_6 -> 480Kb
+- Stack_7 -> 1.44Mb
+- Stack_8 -> 5.76Mb
+- Stack_9 -> 28.8Mb
+- Stack_10 -> 57.6Mb
+
+
+FUTURE OPTIMISATIONS
+- Allocating and managing heap buckets (JIT Implementation)
+- Tail call optimizations
+    func fac(n):
+        if n < 2: rt 1
+        else: n * fac(n-1)
+    ..
+    # ITERATION
+    func fac(n):
+        label top:
+        var acc = 1
+        if n < 2: rt acc
+        acc = n * acc
+        n = n - 1
+        next top # for expressiveness only. next only works for loops.
+    ..
+    # -----------------
+    func foo(a, b):
+        if b == 1: rt a
+        else: rt foo(a * a + a, b)
+    ..
+    # ITERATION
+    func foo(a, b):
+        label top:
+        if b == 1: rt a
+        else:
+            a = a * a + a
+            b = b - 1
+            next top # for expressiveness only. next only works for loops.
+        ..
+    ..
+
+- Making fibers and threads work together
+- Optimising ComplexPtr and ComplexObj (JIT Implementation)
+	Complex Ptr -> type | arrayPtr
+	ComplexObj -> header + array 
+	(the header is always placed before the abitrary array)

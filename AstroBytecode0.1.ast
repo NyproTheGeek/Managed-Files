@@ -4,18 +4,72 @@ VM IMPLEMENTATION
 STATIC DISPATCH
 - All of an objects possible types at any 'particular time' are gathered statically and this is used to filter the multiple dispatch at compile time.
 ######################################################################
-# 07/11/16
+
+## CHANGES ##
+opcode attribute -> int
+no more unsure opcodes
+## CHANGES ##
+	---------------
+	STACK HIERARCHY
+	foo ← [P1] current_stack_size();
+	try ← [P2] current_stack_size() | catch_instruction_pos();
+	bar ← [P3] current_stack_size();
+	----------------
+	THROWN OBJECTS
+	a # Nil Exception
+	b # Cast Exception
+	c
+	... # others
+	----------------
+	RETURNED OBJECTS
+	a
+	----------------
+
+Most type checking will be done in order to resolve field index and to resolve function dispatch.
+
+
+
+
+
+# GLOBAL # globals, constants, typevars, funcvars, mockobject
+
+#########
+[Code]
+var score = TestScore
+var buffer = [15, 6, 8, 0, 21, 75, 3, 7]
+var score = buffer[5:]
+[Bytecode]
+stage1buffer_
+index ; 50
+stage2complex_ person ; name
+mov_rnil x x
+[Update 21/11/16]
+mkcmp a ; TestScore ; TestScore() # = score
+mkbuf b # buffer
+forloop2
+
+
+
+# :LISTS: #
+funclist
+typelist
+instructionlist
+stack
+
+
+
+#########
 type Person:
 	var name = Str
 	var age = Int
-	func self(name, age)
 ..
+func Person(name, age)
 
 type Employee[Person]:
 	var job, company = Str
-	func self()
-	func self(super(name, age), job, company)
 ..
+func self()
+func self(super:(name, age), job, company)
 
 func getDetails(person = Person):
 	self.name, self.age
@@ -50,54 +104,111 @@ func div(num den = Int):
 	encoding = 1 # 1Byte # UTF-8
 	version = [
 		major : 0 # 1Byte
-		minor : 0 # 1Byte
-		patch : 83 # 1Byte
+		minor : 1 # 1Byte
+		patch : 0 # 1Byte
 	]
-	fileSize = 1_000 # 4Byte
->TYPES
-	typeSize = 1_000 # 4Byte
-	type = [
-		id = 11 # 4Byte
-		name = [
-			length = 8 # 4Byte
-			content = 'Employee'
-		]
-		ancestorsSize = 3 # 4Byte
-		ancestors = [
-			ancestorID : 1 # 4Byte
-			ancestorID : 2 # 4Byte
-			ancestorID : 10 # 4Byte
-		]
-		contentSize = 1_000 # 4Byte
-		var = [
-			type = x'FA637E89' # list
-			value =
-		]
-	]
->FUNCTIONS
-	functionSize = 1_000
-	function = [
-	]
->GLOBALS
->INSTRUCTIONS
+	fileSize = 150 # 4Byte
 
-#########################OBJECTS############################################\
-	LIST
-var = [
-	type = t'LIST'
-	dimen = 2
-	dimenSizes = [
-		extent : 20
-		extent : 15
+>TYPES
+	bytes = 150 # 4Byte
+	types = [
+		type1 = [...]
+		type2 = [...]
 	]
-	var = [
-		type : t''
+
+>FUNCTIONS
+	bytes = 150
+	funcs = [
+		func1 = [...]
+		func2 = [...]
+	]
+
+>GLOBALS
+	bytes = 150
+	globals = [
+		constants = [
+			bytes = 30
+			...
+		]
+		globals = [
+			bytes = 30
+			...
+		]
+		typevars = [
+			bytes = 30
+			...
+		]
+		funcvars = [
+			bytes = 30
+			...
+		]
+	]
+
+>INSTRUCTIONS
+	bytes = 150
+	instructions = [...]
+
+>ATTRIBUTES
+	bytes = 150
+	attributes = [...]
+
+>STACK
+	bytes = 150
+	stack = [...]
+
+
+#########################OBJECTS SERIALISED###########################
+primitive = [
+	bytes = 12
+	type = t'I64'
+	value = 56
+]
+
+complex = [
+	bytes = 36
+	type = t'Person'
+	size = 2
+	string = [...]
+	primitive = [...]
+]
+
+buffer = [
+	bytes = 50
+	type = t'Buffer/Str'
+	dimen = 1
+	dimenSizes = [3]
+	array = [
+		string = [...],
+		string = [...],
+		string = [...]
 	]
 ]
 
+func = [
+	bytes = 20
+	type = t'Func'
+	instrIndex = 32
+	overloadHead = 12
+	layout = [
+		bytes = 34
+		obj1 = [ kind = k'global', globalIndex = 55]
+		obj2 = [ kind = k'local', globalIndex = 0]
+		obj3 = [ kind = k'constant', globalIndex = 57]
+		obj4 = [ kind = k'funcvar', globalIndex = 58]
+	]
+]
 
-
-
+type = [
+	bytes = 6
+	type = t'DataType'
+	ancestorSize = 2
+	ancestors = [34, 64] # ancestors is sorted.
+	constructorsSize = 2
+	constructors = [23, 7]
+	normalDestructor = 56
+	exceptionDestructor = 71
+	
+]
 
 ######################################################################
 # 03/11/16
@@ -160,10 +271,12 @@ ret__
 # 05/11/16
 func arith(a, b):
 	var c = (a * b) + (a / b) - b
+..
 
 func solve():
 	var d = 5
 	var e = arith(1, d)
+..
 
 solve:
 	p_mov_v a 1
@@ -209,6 +322,7 @@ func main():
 	var a = [1, 2, 3, 4]
 	var b = val a[2:4] # this a list object, not an index object
 	var c = b[2]
+..
 
 k1 {2} # begin index of a
 k2 {4} # end index of a
@@ -248,6 +362,7 @@ func drake():
 	var x = 50
 	let y = x - 6
 	add(x, y)
+..
 
 drake:
 	p_mov_v x 50
@@ -279,16 +394,20 @@ ret__
 #############################################
 			INSTRUCTIONS [XX]
 #############################################
+
+# TYPECHECK
+typecheck_
+# DIMEN
+dimen a b
+dimensize a b
+
+
+# primitive ops don't need nil checks because the compiler makes signature
+# the operands are bare primitives.
 # MOV
-p_mov_v a b
-p_mov_r a b
-p_mov_wr a b
 mov_v a b
 mov_r a b
 mov_wr a b
-u_mov_v a b # unsure of type or nil state
-u_mov_r a b # unsure of type or nil state
-u_mov_wr a b # unsure of type or nil state
 # ADD, SUB, MUL, DIV, MOD, EXP, ROOT, UNM
 add a b c
 sub a b c
@@ -298,27 +417,19 @@ mod a b c
 exp a b c
 root a b c
 unm a b
-# CONCAT
-concat a b c
 # INCR, DECR, STEP
 incr a
 decr a
 step a b
 # CAST
-cast a b ; combo
-# EQ, NEQ, LT, LE, GT, GE
+cast a b ; type_index
+# EQ, LT, LE
 eq a b c
-neq a b c
 lt a b c
 le a b c
-gt a b c
-ge a b c
-eq__ a b ; number
-neq__ a b ; number
-lt__ a b ; number
-le__ a b ; number
-gt__ a b ; number
-ge__ a b ; number
+eq2 a b ; jump_offset
+lt2 a b ; jump_offset
+le2 a b ; jump_offset
 # AND OR
 and a b c
 or a b c
@@ -330,50 +441,68 @@ bxor a b
 # SHL, SHR
 shl a b c
 shr a b c
+# FORLOOP
+forloop_ initial_value ; end_value ; instruction_index
+forloop2_ a b ; instruction_index
 # MK
-mklist a
-mkbuffer a
-mkstr a
-mkchars a
-mktuple a
-mktype a
-# SET
-setlist_ a b
-setbuffer_ a b
-setstr_ a b
-setchars_ a b
-settuple_ a b
-setcomplex_ a b
-# KEYS, INDICES
-igetkey ; number
-igetkey_ ; number
-sgetkey ; number
-sgetkey_ ; number
-u_getkey ; number
-u_getkey_ ; number
-igetindex ; number
-igetindex_ ; number
-u_getindex ; number
-u_getindex_ ; number
-# TCHECK
-tcheckst a ; Type ; number
-tcheckcv a ; Type ; number
-# CALL, RUN
-call ; Function ; FunctionLayout
-run ; Function ; FunctionLayout
+mkbuf a ; dimen ; dimensizes
+mkcmp a ; type_index; constructor_function_index
+# STAGEGLOBAL
+pullglob_ a ; global_index # sets pointer to a particular object in global.
+# PULL, PUSH
+---------
+# last index is checked to determine if pulling/pushing barePrimitive
+pullbuf_ a
+pushbuf_ a
+---------
+pullindex a ; index # indexer
+pushindex a ; index # indexer
+---------
+pullnext a # generator
+---------
+# type is checked to determine if pulling/pushing stackPrimitive
+pullcmp_ a b ; index
+# pullcmp pulls the ref onto the stack
+---------
+pushcmp_v_ a b ; index
+pushcmp_r_ a b ; index
+pushcmp_wr_ a b ; index
+---------
+pushcmp_vnull_ a b ; index
+pushcmp_rnull_ a b ; index
+pushcmp_wrnull_ a b ; index
+# INDEX
+index ; number
+index_ ; number
+# TYPECHECK
+typecheck_ a ; switch_table_index ; size ; type_index ; switch_number ; ...
+typechecksub a ; type_index
+# SWITCH
+switch ; switch_table_index
+# CALL, RUN, EMIT
+call a
+run a
+emit a
+emittop a
 # STEPBACK
-stepback ; number
-# LEN
-len a b
+stepback ; offset
+# LEN  # Cannot be Nil # Complex
+lencmp a b
+lenbuf a b
+# DIMEN # Cannot be Nil # Buffer
+dimen a b
+dimensize a b c # c is the dimension position
 # CATCH, THROW
-catch a b  # automatic stepback for just one object
+catch a b  # automatic clearance for just one object
 throw a
 # JMP, JMPBACK
-jmp ; number
-jmpback ; number
+jmp ; jump_offset
+jmpback ; jump_offset
 # RET
 ret a
-ret__
+ret2
+# CLEAR
+clear ; number
 # PRINT, SCAN
 print a
 println a
@@ -386,12 +515,13 @@ closef a
 # EXIT
 exit a # error code
 
+
 OPCODE STRUCTURE
 8
 8, 8
 8, 8, 8
 8, 8, 8, 8
-32
+32/64
 
 
 # SETBUFFERS, etc.

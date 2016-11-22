@@ -24,7 +24,7 @@ BASE OBJECTS
 - maps
 - hashes
 - strings -> type + ascii_flag, byte_size, cp_length, UTF-8
-- chars -> type + ascii_flag, byte_size, UTF-32
+- chars -> type, byte_size, UTF-32
 - primitiveObject
 - complexObject
 
@@ -44,7 +44,7 @@ TYPE FIELD
     1(Nil|Valued)  4(PrimitiveTuple|ComplexTuple)
 - Str - [R(Type) 1(Ascii|Unicode)]
     1(Nil|Valued) 4(Complex)
-- Chars - [R(Type) 1(Ascii|Unicode)]
+- Chars - [R(Type) 1()]
     1(Nil|Valued) 4(Complex)
 
 STRUCTURES
@@ -64,7 +64,7 @@ THREAD STACK SIZES
 
 
 FUTURE OPTIMISATIONS
-- Allocating and managing heap buckets
+- Allocating and managing heap buckets (JIT Implementation)
 - Tail call optimizations
     func fac(n):
         if n < 2: rt 1
@@ -96,3 +96,7 @@ FUTURE OPTIMISATIONS
     ..
 
 - Making fibers and threads work together
+- Optimising ComplexPtr and ComplexObj (JIT Implementation)
+	Complex Ptr -> type | arrayPtr
+	ComplexObj -> header + array 
+	(the header is always placed before the abitrary array)

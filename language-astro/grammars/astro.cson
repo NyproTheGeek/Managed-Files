@@ -1,20 +1,14 @@
-# 08/08/16
-# I think lookkbehind is somewhat buggy
-# I can't do dth like this "(?<=(?:[A-za-z_][A-za-z_0-9]*)|\\)|\"|\')(\\.(?:[A-za-z_][A-za-z_0-9]*))"
-# I had to use capturing instead with "(?:[A-za-z_][A-za-z_0-9]*|\\)|\"|\')\\.([A-za-z_][A-za-z_0-9]*)"
-# Took me a 2 days to compose this syntax, more refinements are still being done tho.
-
-
+# 14/11/16
 # add folds and stuffs
 fileTypes: [
-    "plu", "pluto"
+    "ast", "astro"
 ]
 foldingStartMarker: ":"
 foldingStopMarker: "\\.\\.\\s*$"
-name: "Pluto"
+name: "Astro"
 patterns: [
     {
-        include: '#non_pluto'
+        include: '#non_astro'
     }
     {
         include: '#hints'
@@ -54,18 +48,18 @@ patterns: [
     }
 ]
 repository:
-    non_pluto:
+    non_astro:
         patterns:[
             {
                 begin: "^(?:[A-Z\\-]|\\-[ A-Za-z\\-])"
                 beginCaptures:
                     "0":
-                        name: "punctuation.definition.comment.begin.pluto"
+                        name: "punctuation.definition.comment.begin.astro"
                 end: "$"
                 endCaptures:
                     "0":
-                        name: "punctuation.definition.comment.end.pluto"
-                name: "comment.double-dash.pluto"
+                        name: "punctuation.definition.comment.end.astro"
+                name: "comment.double-dash.astro"
             }
         ]
     hints:
@@ -73,17 +67,17 @@ repository:
             # HINTS
             {
                 match: "\\@(?:[A-za-z_][A-za-z_0-9]*)"
-                name: 'support.function.macro.pluto'
+                name: 'support.function.macro.astro'
             }
             {
                 begin: "\\@\\{\\s*[a-zA-Z_0-9]+\\s"
                 beginCaptures:
                     "0":
-                        name: 'support.function.macro.pluto'
+                        name: 'support.function.macro.astro'
                 end: "\\}"
                 endCaptures:
                     "0":
-                        name: 'support.function.macro.pluto'
+                        name: 'support.function.macro.astro'
                 patterns: [
                     {
                         include: "$self"
@@ -95,7 +89,7 @@ repository:
         patterns: [
             {
                 match: "(?:\\(|\\)|\\[|\\]|,)(?!('|(?:\\.'))*\\.?')"
-                name: "meta.bracket.pluto"
+                name: "meta.bracket.astro"
             }
         ]
     comments:
@@ -104,20 +98,20 @@ repository:
                 begin: "#=|##="
                 beginCaptures:
                     "0":
-                        name: "punctuation.definition.comment.begin.pluto"
+                        name: "punctuation.definition.comment.begin.astro"
                 end: "=#|=##"
                 endCaptures:
                     "0":
-                        name: "punctuation.definition.comment.end.pluto"
-                name: "comment.block.pluto"
+                        name: "punctuation.definition.comment.end.astro"
+                name: "comment.block.astro"
             }
             {
                 begin: "#|##"
                 beginCaptures:
                     "0":
-                        name: "punctuation.definition.comment.pluto"
+                        name: "punctuation.definition.comment.astro"
                 end: "$"
-                name: "comment.line.pluto"
+                name: "comment.line.astro"
             }
         ]
     numbers:
@@ -125,18 +119,12 @@ repository:
             # # REAL NUMBERS
             {
                 match: "\\b([+-]?([0-9]_?)+(\\.([0-9]_?)+)?(e[+-]?([0-9]?)+)?(_[A-Za-z_0-9]+)?)" # The non-std literal can have characters that are supported by identifiers in their labels
-                # "\\b(?:[+-]?(?:[0-9]_?)*\\.(?:[0-9]_?)+(?:e[+-](?:[0-9]?)+)?[df]?|[+-]?(?:[0-9]_?)+[a-z]*[0-9]*)\\b"
-                name: "constant.numeric.pluto"
+                name: "constant.numeric.astro"
             }
-            # # OTHER NUMBERS
-            # {
-            #     match: "\\b(?:[\\+\\-]*0x([0-9A-Fa-f]_?)+|[\\+\\-]*0o([0-8]_?)+|[\\+\\-]*0b([01]_?)+)\\b"
-            #     name: "constant.numeric.pluto"
-            # }
             # ARRAY SIZE SPECIFIER, e,g. let y = 2x2 [1 2 | 3 4]
             {
                 match: "\\b[0-9](?:x[0-9])*\\b"
-                name: "constant.numeric.pluto"
+                name: "constant.numeric.astro"
             }
         ]
     keywords:
@@ -144,74 +132,58 @@ repository:
             # CONSTANTS
             {
                 match: '\\b(?:true|false|nil)\\b',
-                name: 'constant.language.pluto'
+                name: 'constant.language.astro'
             }
             # META VARIABLES
             {
                 match: '\\b(?:_[A-Za-z0-9]*)\\b',
-                name: 'variable.other.pluto'
+                name: 'variable.other.astro'
             }
-            # TYPES
-            # {
-            #     match: '\\b(?:AStr|Str|Int|I32|I64|I16|I8|UInt|U32|U64|U6|U8|F16|F32|F64|Comp|Comp128|Quat|Quat256|BigInt|BigFloat|Ratio|Bool|Any|Func|Array|Dict|Indie|Symbol|DataType|Expr)\\b',
-            #     name: 'support.type.pluto'
-            # }
             # LANG VARIABLES
             {
                 match: '\\b(?:self|super|sub|outer)\\b',
-                name: 'constant.language.pluto' # 'variable.language.pluto'
+                name: 'constant.language.astro' # 'variable.language.astro'
             }
             # CONTROL FLOW
             {
                 match: '\\b(?:for|nobreak|if|where|\\?|opt|else|elsif|elif|rt|yd|while|repeat|match|case|when|until|do|use|loop|label|op|block|try|catch|ensure|throw|err|next|break|skip|step|take|select|import|module)\\b',
-                name: 'keyword.control.pluto'
+                name: 'keyword.control.astro'
             }
             # MODIFIERS
             {
                 match: '\\b(?:sticky|ab|solo|const|priv|pack|pass|prod|prot|rpriv|rpack|rpass|rprod|wpriv|wpack|wpass|wprod|hold|nan|lock|iso|val|ref|wref|own|read|hide)\\b',
-                name: 'storage.modifier.pluto'
+                name: 'storage.modifier.astro'
             }
             # CATEGORIES
             {
                 match: '\\b(?:type|func|enum|flo|let|var|mod|as)\\b',
-                name: 'storage.type.pluto'
+                name: 'storage.type.astro'
             }
             # CLASSES
             {
                 match: '\\b(?:[A-Z][_A-Za-z0-9]*)\\b',
-                name: 'support.class.pluto'
+                name: 'support.class.astro'
             }
             # FUNCTIONS
             {
                 match: '\\b(?:set|get|emit|run)\\b',
-                name: 'constant.language.pluto'
+                name: 'constant.language.astro'
             }
             # OTHERS
             {
                 match: '\\b(?:and|or|thru|in|not\\s+in)\\b'
-                name: 'keyword.control.pluto'
+                name: 'keyword.control.astro'
             }
         ]
     dot_members:
         patterns: [
             # OTHERS
             {
-                # match: "(?<=[A-za-z_][A-za-z_0-9]*|\\)|\"|\')\\.([A-za-z_][A-za-z_0-9]*)"
-                # name: "variable.language.pluto"
-                # I seriously don't know what is wrong with the above regex, but it is the solution to the problem
-                # I'm having with the method below.
                 match: "(?:\\)|\\.)([A-Za-z_][A-Za-z_0-9]*)\\b"
                 captures:
                     "1":
-                        name: "variable.language.pluto"
+                        name: "variable.language.astro"
             }
-        #     # FOR NUMBERS
-        #     {
-        #         match: "(?:\\)|\\.)([+-]?([0-9]_?)+(\\.([0-9]_?)+)?(e[+-]([0-9]?)+)?(_[A-Za-z_0-9]+)?)"
-        #         captures:
-        #             "1" :
-        #                 name: "variable.language.pluto"
-        #     }
         ]
     function_calls:
         patterns: [
@@ -219,13 +191,13 @@ repository:
                 begin: "([[:alpha:]_][[:word:]!]*)\\s*(?:\\<(?:[A-za-z_][A-za-z_0-9]*,*)+\\>)?({(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*})?\\("
                 beginCaptures:
                     "1":
-                        name: "entity.name.function.pluto"
+                        name: "entity.name.function.astro"
                     "2":
-                        name: "keyword.operator.pluto"
+                        name: "keyword.operator.astro"
                 end: "\\)(('|(\\.'))*\\.?')?"
                 endCaptures:
                     "1":
-                        name: "keyword.operator.transposed-func.pluto"
+                        name: "keyword.operator.transposed-func.astro"
                 patterns: [
                     {
                         include: "$self"
@@ -239,37 +211,37 @@ repository:
                 #PUNCTUATIONS
                 {
                     match: '(?:,|;|::|\\.\\.\\.|\\.\\.|:)',
-                    name: 'keyword.operator.pluto'
+                    name: 'keyword.operator.astro'
                 }
                 # UNARY OPERATORS
                 {
                     match: '(?:-|\\+|--|\\+\\+|\\.-|\\.\\+|\\.--|\\.\\+\\+|\\?)'
-                    name: 'keyword.operator.pluto'
+                    name: 'keyword.operator.astro'
                 }
                 # BINARY OPERATORS
                 {
                     match: '(?:\\=|\\*|/|\\%|\\^|//|\\.\\*|\\./|\\.\\%|\\.\\^|\\.//|\\+=|-=|\\*=|/=|%=|\\^=|//=|\\.\\+=|\\.-=|\\.\\*=|\\./=|\\.%=|\\.\\^=|\\.//=)'
-                    name: 'keyword.operator.pluto'
+                    name: 'keyword.operator.astro'
                 }
                 # CONDITIONAL OPERATORS
                 {
                     match: '(?:\\||>|<|>=|<=|!=|\\&)'
-                    name: 'keyword.operator.pluto'
+                    name: 'keyword.operator.astro'
                 }
                 # BITWISE OPERATORS
                 {
                     match: '(?:\\:~|\\:\\||\\:\\&|\\:\\^)'
-                    name: 'keyword.operator.pluto'
+                    name: 'keyword.operator.astro'
                 }
                 # SHIFT OPERATORS
                 {
                     match: '(?:>>|<<|>>=|<<=)'
-                    name: 'keyword.operator.pluto'
+                    name: 'keyword.operator.astro'
                 }
                 # OTHER OPERATORS
                 {
                     match: '(?:>>>|<<<|->|<-)'
-                    name: 'keyword.operator.pluto'
+                    name: 'keyword.operator.astro'
                 }
             ]
     cpp_symbol:
@@ -278,14 +250,14 @@ repository:
                 begin: "(cpp)(\\{)"
                 beginCaptures:
                     "1":
-                        name: 'variable.interpolation.pluto'
+                        name: 'variable.interpolation.astro'
                     "2":
-                        name: 'variable.interpolation.pluto'
+                        name: 'variable.interpolation.astro'
                 end: "\\}"
                 endCaptures:
                     "0":
-                        name: 'variable.interpolation.pluto'
-                name: 'embed.cxx.pluto'
+                        name: 'variable.interpolation.astro'
+                name: 'embed.cxx.astro'
                 contentName: 'source.cpp'
                 patterns: [
                     {
@@ -301,14 +273,14 @@ repository:
                 begin: "([A-Za-z0-9_]*)(')"
                 beginCaptures:
                     "1":
-                        name: "support.function.macro.pluto"
+                        name: "support.function.macro.astro"
                     "2":
-                        name: "punctuation.definition.string.begin.pluto"
+                        name: "punctuation.definition.string.begin.astro"
                 end: "'"
                 endCaptures:
                     "0":
-                        name: "punctuation.definition.string.end.pluto"
-                name: "string.quoted.single.pluto"
+                        name: "punctuation.definition.string.end.astro"
+                name: "string.quoted.single.astro"
                 patterns: [
                     {
                         include: "#string_escaped_chars"
@@ -326,14 +298,14 @@ repository:
                 begin: '([A-Za-z0-9_]*)(")'
                 beginCaptures:
                     "1":
-                        name: "support.function.macro.pluto"
+                        name: "support.function.macro.astro"
                     "2":
-                        name: "punctuation.definition.string.begin.pluto"
+                        name: "punctuation.definition.string.begin.astro"
                 end: '"'
                 endCaptures:
                     "0":
-                        name: "punctuation.definition.string.end.pluto"
-                name: "string.quoted.double.pluto"
+                        name: "punctuation.definition.string.end.astro"
+                name: "string.quoted.double.astro"
                 patterns: [
                     {
                         include: "#string_escaped_chars"
@@ -351,14 +323,14 @@ repository:
                 begin: "([A-Za-z0-9_]*)(''')"
                 beginCaptures:
                     "1":
-                        name: "support.function.macro.pluto"
+                        name: "support.function.macro.astro"
                     "2":
-                        name: "punctuation.definition.string.multiline.begin.pluto"
+                        name: "punctuation.definition.string.multiline.begin.astro"
                 end: "'''"
                 endCaptures:
                     "0":
-                        name: "punctuation.definition.string.multiline.end.pluto"
-                name: "string.quoted.triple.single.pluto"
+                        name: "punctuation.definition.string.multiline.end.astro"
+                name: "string.quoted.triple.single.astro"
                 patterns: [
                     {
                         include: "#string_escaped_chars"
@@ -376,14 +348,14 @@ repository:
                 begin: '([A-Za-z0-9_]*)(""")'
                 beginCaptures:
                     "1":
-                        name: "support.function.macro.pluto"
+                        name: "support.function.macro.astro"
                     "2":
-                        name: "punctuation.definition.string.multiline.begin.pluto"
+                        name: "punctuation.definition.string.multiline.begin.astro"
                 end: '"""'
                 endCaptures:
                     "0":
-                        name: "punctuation.definition.string.multiline.end.pluto"
-                name: "string.quoted.triple.double.pluto"
+                        name: "punctuation.definition.string.multiline.end.astro"
+                name: "string.quoted.triple.double.astro"
                 patterns: [
                     {
                         include: "#string_escaped_chars"
@@ -401,7 +373,7 @@ repository:
         patterns: [
             {
                 match: "\\\\(\\[|\\t|\\n|\"|\'|#|\\\\)" # \\.(\\[|t|n|\"|\'|#)
-                name: "constant.character.escape.pluto"
+                name: "constant.character.escape.astro"
             }
             ]
     string_interpolate:
@@ -409,7 +381,7 @@ repository:
             {
                 begin: '\\[',
                 end: '\\]',
-                name: 'variable.interpolation.pluto'
+                name: 'variable.interpolation.astro'
             }
         ]
     regex:
@@ -419,12 +391,12 @@ repository:
                 begin: "(?<=\\+|\\-|\\:|\\=|\\(|\\))\\s*\\/(?=!\\=)" # if preceded by an operator, then regex is assumed. lookkbehind works here. Yay!
                 beginCaptures:
                     "2":
-                        name: "punctuation.definition.string.begin.pluto"
+                        name: "punctuation.definition.string.begin.astro"
                 end: "\\/"
                 endCaptures:
                     "0":
-                        name: "punctuation.definition.string.end.pluto"
-                name: "string.quoted.single.pluto"
+                        name: "punctuation.definition.string.end.astro"
+                name: "string.quoted.single.astro"
             }
         ]
     nest_parens_and_self:
@@ -443,4 +415,4 @@ repository:
             }
         ]
 
-scopeName: "source.pluto"
+scopeName: "source.astro"
