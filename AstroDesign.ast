@@ -1,0 +1,257 @@
+-----------COMPLEX-------------
+complex:
+	type
+	refcount
+	len
+	body ptr
+
+body ptr:
+	type
+	refcount
+	size
+	fields
+
+-----------BUFFER-------------
+buffer:
+	type
+	refcount
+	dimens
+	bufferopt
+
+bufferopt:
+	primitive array (I8, U8, I16, U16, I32, U32, I64, U64, F32, F64, Bool)
+	body ptr array
+	inbuffer array
+
+inbuffer:
+	type
+	len
+	bufferopt
+
+----THINGS THAT LIVE STACK----
+stack primitive
+struct-buf
+struct-cmp
+el-cmpbuf
+el-cmpcmp
+el-cmpprim
+el-bufbuf
+el-bufcmp
+el-bufprim
+
+------------LISTS-------------
+globallist # globals, constants/loaded values, mockobject
+##
+funclist
+##
+typelist
+##
+instructionlist
+attributelist
+# switchlist
+##
+stack
+stackheadlist
+thrownlist
+returnedlist
+
+--------------------------------
+
+###### EXAMPLES ########
+[CODE]
+var score =: TestScore
+var buffer =: [15, 6, 8, 0, 21, 75, 3, 7]
+score = buffer[5:]
+[BYTECODE]
+mkcmp score ; TestScore ; TestScore()
+ret2
+mkbuf buffer; 1 ; 10
+pushbuf buffer t1
+call ; __setbuffer(=:Testcore, =:Buffer, =:Int, =:Int, =:Int)
+...
+ret2
+-----------------------
+[CODE]
+type Person:
+	var name =: Str
+	var age =: Int
+..
+func Person(name, age)
+
+type Employee <: Person:
+	var job, company =: Str
+..
+func Employee()
+func Employee(super(name, age), job, company)
+func getDetails(person =: Person):
+	self.name, self.age
+func main():
+	var someone =: Employee(
+		"David Copenhagen",
+		45,
+		"Managing Director",
+		"Pharmadise, Inc."
+	)
+	let name, age = dave.getDetails()
+	let david = Employee(name, age)
+	try:
+		let a = 5.0
+		let b = 2.0
+		let c = a.div(b)
+	catch err =: DivByZeroEx:
+		print('Attempt to divide by zero!')
+..
+type DivByZeroEx <: Exception
+func DivByZeroEx(super(msg))
+func div(num den =: Int):
+	if den == 0: throw DivByZeroEx
+	num / den
+..
+[BYTECODE]
+call ; main
+	mkcmp e ; Employee ; Employee(=:Str, =:Int, =:Str, =:Str)
+	stepback ; 4
+
+ret2
+########################
+
+
+####### COMPILER #######
+- Expression ASTs are associated with their BLOCKS, CONTROL FLOW and FUNCTIONS.
+- Main and dependencies are walked top to bottom.
+- Every declared variable has a tag:
+	- initialized
+	- dynamic/covariant/invariant
+	-
+- An event-based relationship linking.
+- stores known primitives, strings and buffers
+- Solving range ambiguity issue
+	1. only ranges can have colon following a literal or name. apart from keywords which can also come before a colon.
+	2. the operands and operators in a range are packed up
+	3. ranges come in two types. ranges without step (r1) and ranges with step (r2)
+	4. in places where a range is expected, the tokens are tested for r2, then r1.
+	r1 = a:b:c:
+	r2 = a:b:
+>HEADER
+	signature = 'ASTC' # 4Bytes
+	encoding = 1 # 1Byte # UTF-8
+	version = [
+		major : 0 # 1Byte
+		minor : 1 # 1Byte
+		patch : 0 # 1Byte
+	]
+	contentSize = 150 # 4Byte
+
+>TYPES
+	bytes = 150 # 4Byte
+	types = [
+		type1 : [...]
+		type2 : [...]
+	]
+
+>FUNCTIONS
+	bytes = 150
+	funcs = [
+		func1 : [...]
+		func2 : [...]
+	]
+
+>GLOBALS
+	bytes = 150
+	globals = [
+		constants : [
+			bytes : 30
+			...
+		]
+		globals : [
+			bytes : 30
+			...
+		]
+		typevars : [
+			bytes : 30
+			...
+		]
+		funcvars : [
+			bytes : 30
+			...
+		]
+	]
+
+>INSTRUCTIONS
+	bytes = 150
+	instructions = [...]
+
+>ATTRIBUTES
+	bytes = 150
+	attributes = [...]
+
+
+
+#########################OBJECTS SERIALISED###########################
+primitive = [
+	bytes = 12
+	type = t'I64'
+	value = 56
+]
+
+complex = [
+	bytes = 36
+	type = t'Person'
+	size = 2
+	string = [...]
+	primitive = [...]
+]
+
+buffer = [
+	bytes = 50
+	type = t'Buffer/Str'
+	dimen = 1
+	dimenSizes = [3]
+	array = [
+		string : [...],
+		string : [...],
+		string : [...]
+	]
+]
+
+func = [
+	bytes = 20
+	type = t'Func'
+	instrIndex = 32
+	overloadHead = 12
+	layout = [
+		bytes : 34
+		obj1 : [ kind = k'global', globalIndex = 55]
+		obj2 : [ kind = k'local', globalIndex = 0]
+		obj3 : [ kind = k'constant', globalIndex = 57]
+		obj4 : [ kind = k'funcvar', globalIndex = 58]
+	]
+]
+
+type = [
+	bytes = 6
+	type = t'DataType'
+	ancestorSize = 2
+	ancestors = [34, 64] # ancestors is sorted.
+	constructorsSize = 2
+	constructors = [23, 7]
+	normalDestructor = 56
+	exceptionDestructor = 71
+	mockobject = [
+		bytes : 34
+		type : t'Person'
+		size : 4
+		refCount : 0
+		string : [...]
+		primitive : []
+	]
+]
+
+
+------------- COMPILER ----------
+Optimizations
+- moving temporaries reference to assigned.
+- reusing object containers
+	- in an rhs expression, sub-expressions overwrite each other as they go, if they
+	- have the same container type, and finally the ending expression overwrites the
+	- assigned object’s container if they have the same container type.

@@ -25,383 +25,10 @@ no more unsure opcodes
 	a
 	----------------
 
-Most type checking will be done in order to resolve field index and to resolve function dispatch.
-
-
-
-
-
-# GLOBAL # globals, constants, typevars, funcvars, mockobject
-
-#########
-[Code]
-var score = TestScore
-var buffer = [15, 6, 8, 0, 21, 75, 3, 7]
-var score = buffer[5:]
-[Bytecode]
-stage1buffer_
-index ; 50
-stage2complex_ person ; name
-mov_rnil x x
-[Update 21/11/16]
-mkcmp a ; TestScore ; TestScore() # = score
-mkbuf b # buffer
-forloop2
-
-
-
-# :LISTS: #
-funclist
-typelist
-instructionlist
-stack
-
-
-
-#########
-type Person:
-	var name = Str
-	var age = Int
-..
-func Person(name, age)
-
-type Employee[Person]:
-	var job, company = Str
-..
-func self()
-func self(super:(name, age), job, company)
-
-func getDetails(person = Person):
-	self.name, self.age
-
-func main():
-	var someone = Employee:(
-		"David Copenhagen",
-		45,
-		"Managing Director",
-		"Pharmadise, Inc."
-	)
-	let name, age = dave.getDetails()
-	let david = Employee()name(name)age(age)
-	try:
-		let a = 5.0
-		let b = 2.0
-		let c = a.div(b)
-	catch err = DivByZeroEx:
-		print('Attempt to divide by zero!')
-..
-
-type DivByZeroEx[Exception]:
-	func self(super(msg))
-
-func div(num den = Int):
-	if den == 0: throw DivByZeroEx
-	num / den
-..
-
->HEADER
-	signature = 'ASTC' # 4Bytes
-	encoding = 1 # 1Byte # UTF-8
-	version = [
-		major : 0 # 1Byte
-		minor : 1 # 1Byte
-		patch : 0 # 1Byte
-	]
-	fileSize = 150 # 4Byte
-
->TYPES
-	bytes = 150 # 4Byte
-	types = [
-		type1 = [...]
-		type2 = [...]
-	]
-
->FUNCTIONS
-	bytes = 150
-	funcs = [
-		func1 = [...]
-		func2 = [...]
-	]
-
->GLOBALS
-	bytes = 150
-	globals = [
-		constants = [
-			bytes = 30
-			...
-		]
-		globals = [
-			bytes = 30
-			...
-		]
-		typevars = [
-			bytes = 30
-			...
-		]
-		funcvars = [
-			bytes = 30
-			...
-		]
-	]
-
->INSTRUCTIONS
-	bytes = 150
-	instructions = [...]
-
->ATTRIBUTES
-	bytes = 150
-	attributes = [...]
-
->STACK
-	bytes = 150
-	stack = [...]
-
-
-#########################OBJECTS SERIALISED###########################
-primitive = [
-	bytes = 12
-	type = t'I64'
-	value = 56
-]
-
-complex = [
-	bytes = 36
-	type = t'Person'
-	size = 2
-	string = [...]
-	primitive = [...]
-]
-
-buffer = [
-	bytes = 50
-	type = t'Buffer/Str'
-	dimen = 1
-	dimenSizes = [3]
-	array = [
-		string = [...],
-		string = [...],
-		string = [...]
-	]
-]
-
-func = [
-	bytes = 20
-	type = t'Func'
-	instrIndex = 32
-	overloadHead = 12
-	layout = [
-		bytes = 34
-		obj1 = [ kind = k'global', globalIndex = 55]
-		obj2 = [ kind = k'local', globalIndex = 0]
-		obj3 = [ kind = k'constant', globalIndex = 57]
-		obj4 = [ kind = k'funcvar', globalIndex = 58]
-	]
-]
-
-type = [
-	bytes = 6
-	type = t'DataType'
-	ancestorSize = 2
-	ancestors = [34, 64] # ancestors is sorted.
-	constructorsSize = 2
-	constructors = [23, 7]
-	normalDestructor = 56
-	exceptionDestructor = 71
-	
-]
-
-######################################################################
-# 03/11/16
-func bar(x, y):
-	if x < y:
-		throw Banana('Banana caught!')
-..
-
-func foo():
-	try:
-		bar(1, 3)
-		var a = 6
-	catch (b::Banana|Guava):
-		case === Banana: print(b.msg)
-		case === Guava: print(b.msg)
-	..
-..
-
-foo:
-stepback ; 1
-	p_mov_v x 1
-	p_mov_v y 3
-	stepback ; 2
-	call ; bar ; bar_layout
-	p_mov_v y 6
-	jmp ; 6 # jumping the catch
-	catch b tx # cached thrown object
-		tcheckst b ; Banana ; 2
-			print b.msg
-			println
-			jmp ; 5 # jumping the tcheck and throw
-		tcheckst b ; Guava ; 2
-			print b.msg
-			println
-			jmp ; 2 # jumping the throw # can also jump to ensure
-	throw b
-ret__
-bar:
-	gt__ x y ; xxxx
-		throw b
-ret__
-
-	---------------
-	STACK HIERARCHY
-	foo ← [P1] current_stack_size();
-	try ← [P2] current_stack_size() | catch_instruction_pos();
-	bar ← [P3] current_stack_size();
-	----------------
-	THROWN OBJECTS
-	a # Nil Exception
-	b # Cast Exception
-	c
-	... # others
-	----------------
-	RETURNED OBJECTS
-	a
-	----------------
-
-######################################################################
-# 05/11/16
-func arith(a, b):
-	var c = (a * b) + (a / b) - b
-..
-
-func solve():
-	var d = 5
-	var e = arith(1, d)
-..
-
-solve:
-	p_mov_v a 1
-	p_mov_v b d
-	stepback ; 2
-	call ; arith ; arith_layout
-	p_mov_v e t0 # cached returned object
-ret__
-arith:
-	mul t1 a b c
-	div t2 a b c
-	add t3 t1 t2
-	sub c t3 b
-ret__
-######################################################################
-# 05/11/16
-func sth():
-	for i thru [1:10]:
-		if i % 2 == 0:
-			print(i)
-		elsif i > 8:
-			print(i + 2)
-	..
-..
-
-sth:
- 	p_mov_v i 1
-	le__ i 10 ; 8
-		mod t1 i 2
-		eq__ t1 0 ; 2
-			print i
-			println
-		gt__ i 8 ; 3
-			add t1 i 2
-			print t1
-			println
-	jmpback ; 7
-ret__
-
-######################################################################
-# 05/11/16
-func main():
-	var a = [1, 2, 3, 4]
-	var b = val a[2:4] # this a list object, not an index object
-	var c = b[2]
-..
-
-k1 {2} # begin index of a
-k2 {4} # end index of a
-k3 {1} # begin index of b
-k4 {2}
-a {[]}
-b {[]}
-c
-t1 {[1, 2, 3, 4]}
-t2
-t3
-
-main:
-	mov_r a t1
-	mklist t1 # set temp as list before future assignment
-	le__ k1 k2 ; 9
-		setlist_ b t2
-		igetindex ; k3
-		setlist_ a t3
-		igetindex ; k1
-		p_mov_v t2 t3
-		incr k3
-		incr k1
-	jmpback ; 8
-	setlist_ a t1
-	igetindex ; k4
-	p_mov_v c t1
-ret__
-
-######################################################################
-# 05/11/16
-func add(a = MyInt, b = MyInt):..
-func add(a = MyInt, b :: MyStr):..
-func add(a :: MyStr, b = MyInt):..
-
-func drake():
-	var x = 50
-	let y = x - 6
-	add(x, y)
-..
-
-drake:
-	p_mov_v x 50
-	sub t1 x 6
-	p_mov_v y t1
-	p_mov_v a x
-	p_mov_v b y
-	stepback ; 2
-	tcheckcv a ; MyInt ; 7
-		tcheckcv b ; MyInt ; 3
-			call ; add1 ; add1_layout
-			jmp ; 9 # jump the throw
-		tcheckst b ; MyStr ; 3
-			call ; add2 ; add2_layout
-			jmp ; 6 # jump the throw
-	tcheckst a ; MyStr ; 4
-		tcheckcv b ; MyInt ; 3
-			call ; add3 ; add3_layout
-			jmp ; 2 # jump the throw
-	throw f
-ret__
-add1: # MyInt, MyInt
-ret__
-add2: # MyInt, ::MyStr
-ret__
-add3: # ::MyInt, MyStr
-ret__
 
 #############################################
 			INSTRUCTIONS [XX]
-#############################################
-
-# TYPECHECK
-typecheck_
-# DIMEN
-dimen a b
-dimensize a b
-
-
+#############################################S
 # primitive ops don't need nil checks because the compiler makes signature
 # the operands are bare primitives.
 # MOV
@@ -447,43 +74,51 @@ forloop2_ a b ; instruction_index
 # MK
 mkbuf a ; dimen ; dimensizes
 mkcmp a ; type_index; constructor_function_index
-# STAGEGLOBAL
+# PULLGLOBAL
 pullglob_ a ; global_index # sets pointer to a particular object in global.
-# PULL, PUSH
----------
-# last index is checked to determine if pulling/pushing barePrimitive
-pullbuf_ a
-pushbuf_ a
----------
-pullindex a ; index # indexer
-pushindex a ; index # indexer
----------
-pullnext a # generator
----------
-# type is checked to determine if pulling/pushing stackPrimitive
-pullcmp_ a b ; index
-# pullcmp pulls the ref onto the stack
----------
+pushbuf_v_ a b ; index
+pushbuf_r_ a b ; index
+pushbuf_wr_ a b ; index
+pushbuf_vnull_ a b ; index
+pushbuf_rnull_ a b ; index
+pushbuf_wrnull_ a b ; index
 pushcmp_v_ a b ; index
 pushcmp_r_ a b ; index
 pushcmp_wr_ a b ; index
----------
 pushcmp_vnull_ a b ; index
 pushcmp_rnull_ a b ; index
 pushcmp_wrnull_ a b ; index
+--------
+# last index is checked to determine if pulling/pushing barePrimitive
+pullbufel_ a b
+pushbufel_ a b
+---------
+pullcmpel_ a b ; index # pullcmp pulls the ref onto the stack
+---------
+pushcmpel_v_ a b ; index
+pushcmpel_r_ a b ; index
+pushcmpel_wr_ a b ; index
+pushcmpel_vnull_ a b ; index
+pushcmpel_rnull_ a b ; index
+pushcmpel_wrnull_ a b ; index
 # INDEX
 index ; number
 index_ ; number
 # TYPECHECK
-typecheck_ a ; switch_table_index ; size ; type_index ; switch_number ; ...
-typechecksub a ; type_index
+typecheck_ a ; type_index ; switch_number ; ...
+typecheck a b
+typechecksub a b
+typecheck2 a ; type_index
+typechecksub2 a ; type_index
 # SWITCH
-switch ; switch_table_index
+switch ; instr_index ; instr_index ; ...
 # CALL, RUN, EMIT
 call a
 run a
 emit a
-emittop a
+call2 ; function_index
+run2 ; function_index
+emit2 ; function_index
 # STEPBACK
 stepback ; offset
 # LEN  # Cannot be Nil # Complex
@@ -507,11 +142,11 @@ clear ; number
 print a
 println a
 scan a
-# OPENF, READF, WRITEF, CLOSEF
-openf a
-readf a
-writef a
-closef a
+# FOPEN, FREAD, FWRITE, FCLOSE
+fopen a
+fread a b
+fwrite a b
+fclose a
 # EXIT
 exit a # error code
 
@@ -522,19 +157,3 @@ OPCODE STRUCTURE
 8, 8, 8
 8, 8, 8, 8
 32/64
-
-
-# SETBUFFERS, etc.
-setlist_ list pos # saves pointer to an index of a list on stack for temp operation
-igetkey_ ; 5
-sgetkey_ ; 'name'
-igetkey_ ; 3
-n_getkey ; b
-#=============#
-setbuffer_ buffer pos
-igetindex_ ; 1
-igetindex_ ; 2
-n_getindex ; b
-#=============#
-setstr_ str pos
-igetindex ; 5

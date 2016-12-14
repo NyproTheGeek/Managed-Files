@@ -11,6 +11,9 @@ patterns: [
         include: '#non_astro'
     }
     {
+        include: "#numbers"
+    }
+    {
         include: '#hints'
     }
     {
@@ -20,16 +23,13 @@ patterns: [
         include: "#comments"
     }
     {
-        include: "#numbers"
-    }
-    {
         include: "#keywords"
     }
     {
-        include: "#dot_members"
+        include: "#function_calls"
     }
     {
-        include: "#function_calls"
+        include: "#dot_members"
     }
     {
         include: "#cpp_symbol"
@@ -116,14 +116,9 @@ repository:
         ]
     numbers:
         patterns: [
-            # # REAL NUMBERS
+            # REAL NUMBERS
             {
-                match: "\\b([+-]?([0-9]_?)+(\\.([0-9]_?)+)?(e[+-]?([0-9]?)+)?(_[A-Za-z_0-9]+)?)" # The non-std literal can have characters that are supported by identifiers in their labels
-                name: "constant.numeric.astro"
-            }
-            # ARRAY SIZE SPECIFIER, e,g. let y = 2x2 [1 2 | 3 4]
-            {
-                match: "\\b[0-9](?:x[0-9])*\\b"
+                match: "\\b[+-]?[0-9]([A-Za-z0-9]_?)*(\\.([0-9]_?)*(e[+-]?)?([0-9]_?)+)?(_[A-Za-z0-9]+)?"
                 name: "constant.numeric.astro"
             }
         ]
@@ -131,7 +126,7 @@ repository:
         patterns: [
             # CONSTANTS
             {
-                match: '\\b(?:true|false|nil)\\b',
+                match: '\\b(?:true|false|null)\\b',
                 name: 'constant.language.astro'
             }
             # META VARIABLES
@@ -142,16 +137,16 @@ repository:
             # LANG VARIABLES
             {
                 match: '\\b(?:self|super|sub|outer)\\b',
-                name: 'constant.language.astro' # 'variable.language.astro'
+                name: '' # 'variable.language.astro'
             }
             # CONTROL FLOW
             {
-                match: '\\b(?:for|nobreak|if|where|\\?|opt|else|elsif|elif|rt|yd|while|repeat|match|case|when|until|do|use|loop|label|op|block|try|catch|ensure|throw|err|next|break|skip|step|take|select|import|module)\\b',
+                match: '\\b(?:for|nobreak|if|where|\\?|opt|else|elsif|elif|rt|yd|while|redo|match|case|when|until|do|use|loop|label|op|block|try|catch|ensure|throw|err|next|break|skip|step|take|select|import|module|using|hiding|\\.\\.)\\b',
                 name: 'keyword.control.astro'
             }
             # MODIFIERS
             {
-                match: '\\b(?:sticky|ab|solo|const|priv|pack|pass|prod|prot|rpriv|rpack|rpass|rprod|wpriv|wpack|wpass|wprod|hold|nan|lock|iso|val|ref|wref|own|read|hide)\\b',
+                match: '\\b(?:sticky|ab|solo|const|priv|pack|pass|prod|prot|rpub|rpriv|rpack|rpass|rprod|wpub|wpriv|wpack|wpass|wprod|hold|nan|lock|iso|val|ref|wref|own|read|hide)\\b',
                 name: 'storage.modifier.astro'
             }
             # CATEGORIES
@@ -175,20 +170,10 @@ repository:
                 name: 'keyword.control.astro'
             }
         ]
-    dot_members:
-        patterns: [
-            # OTHERS
-            {
-                match: "(?:\\)|\\.)([A-Za-z_][A-Za-z_0-9]*)\\b"
-                captures:
-                    "1":
-                        name: "variable.language.astro"
-            }
-        ]
     function_calls:
         patterns: [
             {
-                begin: "([[:alpha:]_][[:word:]!]*)\\s*(?:\\<(?:[A-za-z_][A-za-z_0-9]*,*)+\\>)?({(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*})?\\("
+                begin: "([A-Za-z_][A-Za-z_0-9]*\\!?)\\s*(?:\\<(?:[A-za-z_][A-za-z_0-9]*,*)+\\>)?({(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*})?\\("
                 beginCaptures:
                     "1":
                         name: "entity.name.function.astro"
@@ -205,12 +190,26 @@ repository:
                 ]
             }
         ]
-
+    dot_members:
+        patterns: [
+            # OTHERS
+            {
+                match: "(?<!\\.\\.)(?:\\-\\>|\\.)([A-Za-z_][A-Za-z_0-9]*\\!?)\\b"
+                captures:
+                    "1":
+                        name: "variable.language.astro"
+            }
+        ]
     operators:
         patterns: [
-                #PUNCTUATIONS
+                #PUNCTUATORS
                 {
-                    match: '(?:,|;|::|\\.\\.\\.|\\.\\.|:)',
+                    match: '(?:,|;|\\\\\\\\|:)',
+                    name: 'keyword.operator.astro'
+                }
+                # ASSIGNMENT OPERATORS
+                {
+                    match: '(?:::|>:|<:)'
                     name: 'keyword.operator.astro'
                 }
                 # UNARY OPERATORS
@@ -230,17 +229,17 @@ repository:
                 }
                 # BITWISE OPERATORS
                 {
-                    match: '(?:\\:~|\\:\\||\\:\\&|\\:\\^)'
+                    match: '(?:\\!~|\\!\\||\\!\\&|\\!\\^)'
                     name: 'keyword.operator.astro'
                 }
                 # SHIFT OPERATORS
                 {
-                    match: '(?:>>|<<|>>=|<<=)'
+                    match: '(?:\\!>|\\!<|\\!>=|\\!<=)'
                     name: 'keyword.operator.astro'
                 }
                 # OTHER OPERATORS
                 {
-                    match: '(?:>>>|<<<|->|<-)'
+                    match: '(?:>>|<<|\\,\\,)'
                     name: 'keyword.operator.astro'
                 }
             ]
@@ -268,13 +267,11 @@ repository:
         ]
     strings:
         patterns: [
-            # SINGLE-LINE SINGLE-QUOTE STRING
+            # SINGLE-QUOTE STRING
             {
-                begin: "([A-Za-z0-9_]*)(')"
+                begin: "'"
                 beginCaptures:
-                    "1":
-                        name: "support.function.macro.astro"
-                    "2":
+                    "0":
                         name: "punctuation.definition.string.begin.astro"
                 end: "'"
                 endCaptures:
@@ -293,13 +290,25 @@ repository:
                     }
                 ]
             }
-            # SINGLE-LINE DOUBLE-QUOTE STRING
+            # NON-STANDARD SINGLE-QUOTE STRING
             {
-                begin: '([A-Za-z0-9_]*)(")'
+                begin: "([A-Za-z0-9_]+\\.)(')"
                 beginCaptures:
                     "1":
                         name: "support.function.macro.astro"
                     "2":
+                        name: "punctuation.definition.string.begin.astro"
+                end: "'"
+                endCaptures:
+                    "0":
+                        name: "punctuation.definition.string.end.astro"
+                name: "string.quoted.single.astro"
+            }
+            # DOUBLE-QUOTE STRING
+            {
+                begin: '"'
+                beginCaptures:
+                    "0":
                         name: "punctuation.definition.string.begin.astro"
                 end: '"'
                 endCaptures:
@@ -318,61 +327,35 @@ repository:
                     }
                 ]
             }
-            # VERBATIM SINGLE-QUOTE STRING
+            # NON-STANDARD DOUBLE-QUOTE STRING
             {
-                begin: "([A-Za-z0-9_]*)(''')"
+                begin: '([A-Za-z0-9_]+\\.)(")'
                 beginCaptures:
                     "1":
                         name: "support.function.macro.astro"
                     "2":
-                        name: "punctuation.definition.string.multiline.begin.astro"
-                end: "'''"
+                        name: "punctuation.definition.string.begin.astro"
+                end: '"'
                 endCaptures:
                     "0":
-                        name: "punctuation.definition.string.multiline.end.astro"
-                name: "string.quoted.triple.single.astro"
-                patterns: [
-                    {
-                        include: "#string_escaped_chars"
-                    }
-                    {
-                        include: "#string_interpolate"
-                    }
-                    {
-                        include: "#comments"
-                    }
-                ]
+                        name: "punctuation.definition.string.end.astro"
+                name: "string.quoted.single.astro"
             }
-            # VERBATIM DOUBLE-QUOTE STRING
+            # NON-STANDARD ONE WORD STRING
             {
-                begin: '([A-Za-z0-9_]*)(""")'
-                beginCaptures:
-                    "1":
-                        name: "support.function.macro.astro"
-                    "2":
-                        name: "punctuation.definition.string.multiline.begin.astro"
-                end: '"""'
-                endCaptures:
-                    "0":
-                        name: "punctuation.definition.string.multiline.end.astro"
-                name: "string.quoted.triple.double.astro"
-                patterns: [
-                    {
-                        include: "#string_escaped_chars"
-                    }
-                    {
-                        include: "#string_interpolate"
-                    }
-                    {
-                        include: "#comments"
-                    }
-                ]
+                match: '([A-Za-z0-9_]+\\.)(?=`)'
+                name: "support.function.macro.astro"
+            }
+            # NON-STANDARD SYMBOL
+            {
+                match: '([A-Za-z0-9_]+\\.)(?={)'
+                name: "support.function.macro.astro"
             }
         ]
     string_escaped_chars:
         patterns: [
             {
-                match: "\\\\(\\[|\\t|\\n|\"|\'|#|\\\\)" # \\.(\\[|t|n|\"|\'|#)
+                match: "\\\\(\\[|t|n|\"|\'|#|\\\\)" # \\.(\\[|t|n|\"|\'|#)
                 name: "constant.character.escape.astro"
             }
             ]

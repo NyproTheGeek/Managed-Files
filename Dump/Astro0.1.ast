@@ -78,7 +78,7 @@ ACCESS MODIFIERS
 	let pack pi =: 3.141592653589793
 	type prod Company # @INC
 	func pass println(p =: Person): # @INC
-		println('name: [p.name], age: [p.age]')
+		println('name: [p.name], age: [p.age]') 
 
 ACCESS MODIFIER BLOCK
 	mod let priv:
@@ -90,7 +90,7 @@ ACCESS MODIFIER BLOCK
 	..
 
 READ-ONLY/WRITE-ONLY ACCESS MODIFIERS # @INC
-	rpub, rpriv, rpack, rpass, rprod
+	rpub, rpriv, rpack, rpass, rprod 
 	wpub, wpriv, wpack, wpass, wprod
 
 TUPLES
@@ -101,7 +101,7 @@ TUPLES
 PROPERTIES
 	var property = (hieght, width):
 			rt hieght * width
-
+			
 	var name, property = 'Tunde Alayande', (5, 6)
 
 LISTS
@@ -112,7 +112,7 @@ LISTS
 	let myGarage =: Car[('Mustang'), ('Eleanor'), ('Bugatti'), ('Lamborghini')]
 	let yearSalary :: 12 Int[]
 	yearSalary[1:6] = [2_000, 2_000, 2_500, 2_500, 2_750, 2_750]
-	var matrix =: 2*2[
+	var matrix =: 2*2 [
 		[1, 0]
 		[0, 1]
 	]
@@ -140,7 +140,7 @@ RANGES
 	var normalizedList = [0.0:1.0]
 
 GENERATORS # @INC
-	var array = 0:10
+	var array = 0:10 
 	for i thru 0:2:15:
 		println(i)
 
@@ -151,19 +151,19 @@ PACKING & UNPACKING
 	var generator = thru array
 	var indexer = array[1:]
 
-STRINGS
+STRINGS 
 	let language =: 'Astro'
 	let year =: 2015
 	var story =: '[language] was started in [year]'
 	var verbatimString = raw'Use '\t' to represent tab'
 	let unlockBitCode =: b`01100010
-
+	
 	var concatenate = 'ab' + 'c' # 'abc'
 	var multiply = 'ab' * 2 # 'abcabc'
 	let subtract = 'abcac' - 'ca' # 'abc'
 	let divide = 'abcdeabc' / 'de' # ['abc', 'abc']
 	let escapeSequences = '\t \n \' \" \[ \# \\'
-
+	
 	var greeting =:
 		'Hello, '
 		'World!'
@@ -171,15 +171,15 @@ STRINGS
 MULTILINE EXPRESSIONS # @INC
 	var zero = (25-(2^4/4)
 		*(9+(-36/4))+25)
-
+		
 	var noRepeatSum =: x and y == z ? x || x == y ? y + z \
 		|| x == z ? z + y || y == z ? z + x || x + y + z
-
+	
 	# exceptions
 	if x < y
 	& a == b:
 		runTask()
-
+	
 	myName
 		.strip!()
 		.reverse!()
@@ -199,24 +199,24 @@ IF STATEMENT
 	else:
 		cry('we are broke')
 	..
-
+	
 	if phoneNumber == null:
 		useEmail()
-
+		
 	if copy = getCopy():
 		println(copy)
-
+	
 
 NULL STATE
 	var tasks = null
 	var messages =: Str[].null
 	var average =: Float.null
-
+	
 	var balance = remote.account('Deadpool').balance() ~ 0
 	var nypro = search('Nypro') ~ println('Nypro does not exist!')
-
+	
 	if feeds: println('no feeds')
-
+	
 	if isRecieving == null:
 		println('remote server stopped recieving')
 
@@ -243,13 +243,13 @@ FOR LOOP
 	]
 	for kind, number thru interestingNumbers:
 		println('[kind]: [number]')
-
+		
 	for up, down thru 1:20, 20:1:
 		println('[up] <-> [down]')
-
+		
 	for upper thru 1:20 for lower thru 1:20: # @INC
 		println('[upper] : [lower]')
-
+		
 	var oddList = [for i thru 1:20 where i % 2 != 0: x]
 
 HOLD VARIABLES
@@ -298,7 +298,7 @@ WHILE LOOP
 		var result = interpret(bytecodes)
 		println(nl, result)
 	..
-
+	
 	redo:
 		lines += gen.readLine()
 	while gen.hasNext()
@@ -347,11 +347,11 @@ FUNCTION DEFINITION (2) # @INC
 
 	var details =: getDetails
 	var details2 =: getDetails(=:User)
-
+	
 	var binaryOp =: (=:Number, =:Number)=:Number
 	var initServer =: Func
 
-FUNCTIONS AS ARGUMENTS
+FUNCTIONS AS ARGUMENTS 
 	var pplBelow25 = census.filter() do person:
 			person.age < 25
 		..
@@ -389,10 +389,10 @@ OUTER VARIABLES
 EVENTS # @INC
 	func remove(list =: [], index =: Int):
 		list -= list[index]
-
+		
 	remove += refreshUI
 	emit movieList.remove(2)
-
+	
 	remove(=:[], =:Int) += refreshUI
 
 USEFUL FUNCTIONS # @INC
@@ -494,19 +494,19 @@ INHERITANCE # @INC
 	type Horse <: Animal:
 	func sound(horse =: Horse):
 		println('Neigh!')
-
+		
 	type Pegasus <: Horse, Bird:
 	func sound(pegasus =: Pegasus):
 		Horse.sound(pegasus)
 
 	type Person:
 		var name, age
-
+		
 	func Person(name, age):
 		var x = self.new()
 		setPerson!(x, name, age)
 	..
-
+	
 	func setPerson!(person, name, age):
 		person.name = name
 		person.age = age
@@ -626,24 +626,24 @@ DATATYPE OBJECTS # @INC
 		if sec =<: dt:
 			sec / 60
 	..
-
+		
 	secToMin(number, 25)
 	secToMin(Float, 6.5)
-
+	
 	if nummber == Number: println('Not surprising')
 
 ENUMS
 	enum Days:
 		Sunday, Monday, Tuesday, Wednesday, Thursday, Friday
-
+	
 	using Days: *
-
+	
 	match todo(day =: Days):
 		when Sunday: sleep()
 		when Monday: work()
 		when Friday: tgif()
 	..
-
+	
 	hiding Days: *
 
 	enum Number: IntegerNumber(i =: Integer), RealNumber(r =: Real)
@@ -651,12 +651,12 @@ ENUMS
 OPERATOR OVERLOADING # @INC
 	var hybrid =: Person -> Dragon()
 	array[1] = 24
-
+	
 	cast()
 	setIndex()
 	setList()
 	getIndex()
-
+	
 	func +(x =: Number, y = Number): x.value + y.value
 
 TRY CATCH ENSURE
