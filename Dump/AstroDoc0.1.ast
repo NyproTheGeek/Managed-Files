@@ -1410,4 +1410,114 @@ PREDEFINED TYPES # @INC
 # MODULE
 - a file is a module
 
+# 14/12/16
+# NS LITERALS
+	let z = m.[1, 2, 3, 4, 5]
+
+# 14/12/16
+# CHAINED DECLARATION
+	func add a & b = 0: a + b
+	let name & gender = 35
+
+# 14/12/16
+# CHAINED CONDITIONS
+	if x & y == 5: print z
+	if x and y == 5: print z
+
+# 14/12/16
+# COMPULSORY NAMED ARGUMENTS
+	func sendMessage(message & :to-recipient = Str, :shouting = false):
+		println (message + recipient).toUpper
+
+	sendMessage 'Hello', to: 'Tony'
+
+	func index(myList = MyList, :at-index = Int):
+		myList.list[index]
+
+# 14/12/16
+# UNWRAPPING NILABLE
+	let dave = peter~.name # dave becomes a nilable
+
+# 14/12/16
+# ASSIGNMENT
+	func name(n = Str): _name = n
+	let age = 5
+	name('Barney')
+	name = 'Barney'
+	# objects have default callables that is same as ordinary assigment.
+	age(5)
+	age = 5
+
+# 14/12/16
+# SETTER, GETTER
+	let tiny =
+	set i:
+		tiny = i + 2
+	get:
+		tiny
+	tiny = 45
+	let a = tiny
+
+	func tony i: var pin value; value = i + 2
+	func tony: func tony(Any).value
+	tony = 45
+	let a = tony
+
+# 14/12/16
+# FUNCTION OBJECTS
+	let c = func add
+	let r = func add(Int, Int)->Int
+	let d = func (Int, Int)->Int
+	let e = Func
+
+# 14/12/16
+# STRING INTERPOLATION
+	let x = 5
+	let y = 'x = [x] 5 + 2 = [5 + 2]'
+
+# 14/12/16
+# Range
+	for x thru 1:(highest - 1): x
+
+	func add a & b: a + b
+
+# 14/12/16
+# ACCESS MODIFIERS
+	let `private = 5
+	let public = 6.0
+	var rd `privateRead = Car 'Mustang'
+	var wr `privateWrite = 'Hello'
+	let .hidden = 2
+
+# 14/12/16
+# REFERENCES
+	func swap! var a & b = ref $T: a, b = b, a;
+
+# 14/12/16
+# NO RETURN
+	func add a, b: a + b;
+
+	func factorial n:
+		if n == 1: 1
+		else: n * factorial n - 1
+	..
+
+	func fill! p = Person, :name & :gender = Str, :age = Int:
+		self->name(name)->age(age)->gender(gender)
+	let steve = Person
+	steve.fill! name: "Steve", gender: "M", age: 51
+
+# 14/12/16
+# PRODUCTION LINE
+	func giveOnes(): yd 1
+	func addUp(take x = Int): var pin d = 0; yd d += x
+	func createList(take x = Int):
+		var list = []
+		for y thru x:
+			list .append y
+		list
+	..
+	giveOnes ->addUp ->createList
+	givees
+
 # FUTURE END

@@ -1,3 +1,63 @@
+# 18/12/16
+# Astro0.2 # Abstract Type
+	type ab Jitterable
+
+	func jitter j = Jitterable, :speed = F32:
+		# TODO jitter animation on a Jitterable
+	..
+
+	type LoginButton <: UIView, Jitterable
+
+	let loginBtn = LoginButton
+	loginBtn .jitter speed=0.5
+
+---------------------------------
+
+# 17/12/16
+# Astro0.2
+# Introsort Pseudocode
+func introSort list = []:
+	let maxDepth = log list.size * 2
+
+func reIntroSort var list = [], maxDepth = Int:
+	let size = list.size
+	if size <= 1:
+		rt # base case
+	else if maxDepth = 0:
+		heapSort list
+	else:
+		let p = partition list
+		reIntroSort list[1:p], maxdepth - 1
+        reIntroSort list[p:size], maxdepth - 1
+	..
+..
+
+---------------------------------
+# 14/12/16
+# Astro0.1
+func factorial n:
+	if n == 1: 1
+	else: n * factorial n - 1
+..
+
+func fill! p = Person, :name & :gender = Str, :age = Int:
+	self->name(name)->age(age)->gender(gender)
+let steve = Person
+steve.fill! name="Steve", gender="M", age=51
+---------------------------------
+# 14/12/16
+# Astro0.1
+# PROPOSED PRODUCTION LINE
+	func giveOnes(list = []): yd 1
+	func addUp(take x = Int): var pin d = 0; yd d += x
+	func createList(take x = Int):
+		var list = []
+		for y thru x:
+			list .append y
+		list
+	..
+	giveOnes .>addUp .>createList
+---------------------------------
 # 13/12/16
 # Astro0.1
 	type Car(let hide year miles = Int)
@@ -15,7 +75,6 @@
 	let ben = Person = "Benjamin", 56
 
 	println total([1, 2, 3, 4, 5])
-
 ---------------------------------
 # 12/12/16
 # Astro0.1
