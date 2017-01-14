@@ -1,0 +1,75 @@
+# 03/01/17
+# Astro0.2 (30 SLOC)
+func area:
+	loop:
+		let shape = {scanln "Enter a shape ('sq' for square, 'rec' for rectangle"
+			"and 'cir' for circle, 'ex' to exit): "}.toLower.trim
+		match shape
+		with 'rec':
+			let length, breadth = Int scanln 'Enter length: ', && scanln 'Enter breadth: '
+			drawRec length, breadth
+			println '\nArea of Rectangle: [length * breadth]\n\n'
+		with 'sq':
+			let length = Int scanln 'Enter length: '
+			drawSq length
+			println '\nArea of Square: [length^2]\n\n'
+		with 'cir':
+			let radius = Int scanln 'Enter radius: '
+			println '\[Diagram missing]' && '\nArea of Circle: [pi * radius^2]\n\n'
+		with 'ex': break
+		with: println 'Gimme the correct input stupid!\n\n'
+	..
+..
+
+func drawSq length:
+	println sp, '_ ' * length
+	for i in length: println '|', sp * length, '\b\b|'
+	println '|', '_ ' * length, '\b\b|'
+..
+
+func drawRec length, breadth:
+	println sp, '_ ' * breadth
+	for i in length: println '|', sp * breadth, '\b\b|'
+	println '|', '_ ' * breadth, '\b\b|'
+..
+
+area
+
+# Python (34 SLOC)
+# 03/01/17
+from sys import stdout
+from math import pi
+def area():
+	while True:
+		shape = input("Enter a shape ('sq' for square, 'rec' for rectangle and 'cir' for circle, 'ex' to exit): ").lower().strip()
+		if shape == 'rec':
+			length = int(input('Enter length: '))
+			breadth = int(input('Enter breadth: '))
+			drawRec(length, breadth)
+			print('\nArea of Rectangle: {}\n\n'.format(length*breadth))
+		elif shape == 'sq':
+			length = int(input('Enter length: '))
+			drawSq(length)
+			print('\nArea of Square: {}\n\n'.format(length**2))
+		elif shape == 'cir':
+			radius = int(input('Enter radius: '))
+			print('[Diagram missing]')
+			print('\nArea of Circle: {}\n\n'.format(pi * radius**2))
+		elif shape == 'ex':
+			break
+		else:
+			print('Gimme the correct input idiot!\n\n')
+
+def drawSq(length):
+	print(' ', '_ ' * length)
+	for i in range(length):
+		print('|', '  ' * length, '\b\b|')
+	print('|', '_ ' * length, '|')
+
+def drawRec(length, breadth):
+	print(' ', '_ ' * breadth)
+	for i in range(length):
+		print('|', '  ' * breadth, '\b\b|')
+	print('|', '_ ' * breadth, '\b\b|')
+
+area()

@@ -1,0 +1,212 @@
+# 22/12/16
+# Astro0.2
+# DESIGN PATTERNS # based on Swift 2 Design Patterns by Julien Lange
+####################################################
+PROTOTYPE
+# allows client to get the clone of a type under a particular interface
+type ab AbstractCard(name, mana, attack, defense):
+	var name = Str
+	var mana, attack, defense = Int
+..
+func clone ac = AbstractCard:
+	val self
+..
+type Card <: AbstractCard(super(name, mana, attack, defense))
+
+let raidLeader = Card name='Raid Leader', mana=3, attack=2, defense=2
+let facelessManipulator = raidLeader.clone
+println '
+	[facelessManipulator.name],
+	[facelessManipulator.mana],
+	[facelessManipulator.attack],
+	[facelessManipulator.defense]'
+####################################################
+FACTORY FUNCTION
+# allows client to get instances of types under a particular interface
+type ab Card(name, mana, attack, defense):
+	var name = Str
+	var mana, attack, defense = Int
+..
+
+func clone card = Card:
+	val self
+
+func toStr card = Card:
+	'[self.name], [self.mana], [self.attack], [self.defense]'
+
+enum CardType: facelessManipulator, raidLeader
+
+func createCard kind = Card:
+	with> facelessManipulator: FacelessManipulatorCard
+	with raidLeader: RaidLeaderCard
+..
+
+type FacelessManipulatorCard <: Card
+func FacelessManipulatorCard:
+	super(name=5, attack=3, defense=3, name='FacelessManipulator')
+..
+
+type RaidLeaderCard <: Card
+func RaidLeaderCard:
+	super(name=5, attack=3, defense=3, name='RaidLeaderCard')
+..
+
+var card = createCard kind=facelessManipulator
+card.toStr
+####################################################
+SINGLETON
+type BoardGameManager:
+	let pin sharedInstance = BoardGameManager
+..
+let boardManager = BoardGameManager.sharedInstance
+####################################################
+ABSTRACT FACTORY
+type WatchBand size = BandSize:
+	var color = Color.yellow
+	var size = BandSize
+	var kind = BandKind
+..
+func WatchBand(size, kind)
+
+type WatchDial size = BandSize:
+	var material = MaterialKind
+	var size = WatchSize
+..
+func WatchDial(size, material)
+
+enum Material: aluminium, stainlessSteel, gold
+enum BandKind: milanese, classic, leather, modern, linkBracelet, sportBand
+enum WatchSize: _38mm('38mm'), _42mm('42mm')
+enum WatchSize: sm, ml
+
+func getFactory size = WatchSize:
+	with> _38mm: WatchFactory(size=38mm)
+	with _42mm: WatchFactory(size=42mm)
+..
+
+type WatchFactory(:size):
+	var size = WatchSize
+..
+func createBand wf = WatchFactory, bandKind = BandKind:
+	with> _, milanese: WatchBand(wf.size, bandKind)
+	with _, classic: WatchBand(wf.size, bandKind)
+	with _, leather: WatchBand(wf.size, bandKind)
+	with _, modern: WatchBand(wf.size, bandKind)
+	with _, sportBand: WatchBand(wf.size, bandKind)
+	else: WatchBand(wf.size, sportBand)
+..
+
+func createDial wf = WatchFactory, material = Material:
+	with> _, gold: WatchDial(wf.size, material)
+	with _, stainlessSteel: WatchDial(wf.size, material)
+	with _, aluminium: WatchDial(wf.size, material)
+	else: WatchDial(wf.size, aluminium)
+..
+
+let manufacture1 = getFactory _38mm
+let productA = manufacture1.createBand milanese
+productA.color
+productA.size.value
+productA.kind.__name
+
+let productB = manufacture1.createDial gold
+productB.material.__name
+productB.size.__name
+
+let manufacture2 = getFactory _42mm
+let productC = manufacture2.createBand linkBracelet
+productC.color
+productC.size.value
+productC.type.__name
+
+let productD = manufacture2.createDial gold
+productD.material.__name
+productD.size.__name
+####################################################
+# 23/12/16
+# Astro0.2
+BUILDER  # TODO
+type Car:
+	var wheels = Int
+	var color = Str
+..
+
+type ab ICarBuilder
+func setColor carBuilder = ICarBuilder
+func setWheels carBuilder = ICarBuilder
+
+type CarBuilder <: ICarBuilder:
+	let car = Car
+..
+func setColor carBuilder = CarBuilder, color = Str:
+	self.car.color = color;
+..
+func setWheels carBuilder = CarBuilder, wheels = Int:
+	self.car.wheels = wheels;
+..
+func getResult carBuilder = CarBuilder:
+	iso self.car
+..
+
+let carBuilder = CarBuilder
+carBuilder.setWheels 4
+carBuilder.setColor 'emrald'
+let car = carBuilder.getResult
+
+####################################################
+DECORATOR
+type ab Shape
+func draw shape = Shape: 'drawing Shape: [shape.type.__name]'
+
+type Square <: Shape
+type Rectangle <: Shape
+
+type RoundedCornerShape(shape) <: Shape:
+	let shape = Shape
+..
+func draw shd = RoundedCornerShape:
+	shd.shape.draw() + ", Corners are rounded"
+..
+
+let rectangle = Rectangle
+let square = Square
+
+let roundedRectangle = RoundedCornerShape shape=Rectangle
+let roundedSquare = RoundedCornerShape shape=Square
+####################################################
+PROXY
+type ab ICar
+func drive car = ICar
+
+type Car <: ICar
+func drive car = ICar:
+	println 'Car has been driven'
+..
+
+type ProxyCar(driver) <: ICar:
+	var driver = Driver
+	var car = Car
+..
+func drive proxyCar = ProxyCar:
+	if self.driver.age < 17:
+		println 'Sorry, the driver is too young to drive.'
+	else: self.car.drive
+..
+
+type Driver(age = Int)
+
+func buttonClick event = Event:
+	var car = ProxyCar Driver(16)
+	car.drive
+
+	car = ProxyCar Driver(25)
+	car.drive
+..
+
+####################################################
+BRIDGE
+
+####################################################
+
+
+####################################################

@@ -1,0 +1,116 @@
+# 22/12/16
+# Astro0.2
+
+type UnknownKeyError <: Exception
+type RangeError <: Exception
+type FloatingPointError <: Exception
+
+func strToInt sentence, returnInt = true:
+	# Returns spelled-out numbers as integers.
+	let number_conv_table = [
+        'negative' => '0',
+        '' => '0',
+        'and' => '0',
+        'dollars' => '0',
+        'dollar' => '0',
+        'zero' => '0',
+        'one' => '1',
+        'two' => '2',
+        'three' => '3',
+        'four' => '4',
+        'five' => '5',
+        'six' => '6',
+        'seven' => '7',
+        'eight' => '8',
+        'nine' => '9',
+        'ten' => '10',
+        'eleven' => '11',
+        'twelve' => '12',
+        'thirteen' => '13',
+        'fourteen' => '14',
+        'fifteen' => '15',
+        'sixteen' => '16',
+        'seventeen' => '17',
+        'eighteen' => '18',
+        'nineteen' => '19',
+        'twenty' => '20',
+        'thirty' => '30',
+        'forty' => '40',
+        'fifty' => '50',
+        'sixty' => '60',
+        'seventy' => '70',
+        'eighty' => '80',
+        'ninety' => '90',
+        'hundred' => '00', #sub flag
+        'thousand' => '000', #flag
+        'k' => '000', #flag
+        'grand' => '000', #flag
+        'million' => '000000', #flag
+        'billion' => '000000000', #flag
+        'trillion' => '000000000000', #flag
+        'quadrillion' => '000000000000000', #flag
+	]
+
+	let flags = ['hundred', 'thousand', 'grand', 'million', 'billion', 'trillion',
+             'quadrillion', 'quintillion','sextillion', 'septillion', 'octillion',
+             'nonillion', 'decillion', 'undecillion', 'duodecillion', 'tredecillion',
+             'quattuordecillion', 'k']
+	let subFlags = ['hundred']
+	var output = 0
+	var section = ''
+	var sections = []
+	var hundred_flag = false
+	var negative_flag = false
+	var currency_flag = false
+
+	sentence.lower
+	tokens = sentence.replace('-', with=' ').split ' '
+
+	for word thru tokens:
+		var sum_flag = true
+		if /point|dot/ in word: throw FloatingPointError 'Sentence must represent an integer.'
+		var number
+		loop:
+			number = number_conv_table[word]`keyExCatch
+			if word == 'negative': negative_flag = true
+			if /dollar[s]?|k/ in word:
+				currency_flag = true
+				if returnInt:
+					scanln '\nNOTICE: Currency will be represented as a string not an integer. *press enter*'
+					println
+				..
+				returnInt = false
+				break
+			..
+			catch keyExCatch(ke = KeyEx):
+				println '\nWARNING:',word,'is not a valid key. Please replace it.'
+				word = scanln 'Modify word: '
+				println
+			..
+		..
+		if word in flags:
+			section += number
+			if word in sub_flags:
+				hundred_flag = true
+		else:
+			section = Int{section} + number
+
+		if word in flags & hundred_flag == false:
+			sections.append Int{section}
+			section = ''
+
+		hundred_flag = false
+	..
+	sections.append Int{section}
+	output = sum sections
+	if negative_flag:
+		output = 0 - output
+	if currency_flag:
+		rt '$' + (output .format '%.2d')
+	if ! returnInt:
+		rt output .format '%.2d'
+	else:
+		rt output
+..
+
+# TO BE CONTINUED

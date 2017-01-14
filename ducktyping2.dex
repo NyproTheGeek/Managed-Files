@@ -1,0 +1,79 @@
+# 03/01/17
+# Astro0.2 (8 SLOC)
+type Duck
+type Person
+
+func quack d=Duck: println 'Quack, quack!'
+func quack p=Person: println 'Flap, Flap!'
+
+func fly d=Duck: println "I'm Quackin'!"
+func fly p=Person: println "I'm Flyin'!"
+
+func inTheForest mallard: mallard ->quack ->fly
+
+inTheForest Duck && Person
+
+
+# Python (15 SLOC)
+class Duck:
+    def quack(self):
+        print("Quack, quack!")
+
+    def fly(self):
+        print("Flap, Flap!")
+
+class Person:
+    def quack(self):
+        print("I'm Quackin'!")
+
+    def fly(self):
+        print("I'm Flyin'!")
+
+def in_the_forest(mallard):
+    mallard.quack()
+    mallard.fly()
+
+in_the_forest(Duck())
+in_the_forest(Person())
+
+
+# PHP (14 SLOC)
+class Duck {
+    function quack() { echo "Quack", PHP_EOL; }
+    function fly() { echo "Flap, Flap", PHP_EOL; }
+}
+
+class Person {
+    function quack() { echo "I try to imitate a duck quack", PHP_EOL; }
+    function fly() { echo "I take an airplane", PHP_EOL; }
+}
+
+function in_the_forest($object) {
+    $object->quack();
+    $object->fly();
+}
+
+in_the_forest(new Duck);
+in_the_forest(new Person);
+
+
+# Dart (16 SLOC)
+class Duck {
+	quack() => print("Quack, quack!");
+	fly()	=> print("Flap, Flap!");
+}
+
+class Person {
+	quack() => print("I'm Quackin'!");
+	fly()	=> print("I'm Flyin'!");
+}
+
+inTheForest(mallard) {
+	mallard.quack();
+	mallard.fly();
+}
+
+main() {
+	inTheForest(new Duck());
+	inTheForest(new Person());
+}

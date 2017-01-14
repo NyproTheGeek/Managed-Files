@@ -1,0 +1,1266 @@
+# 13/01/17
+# Dexter0.2
+# pony
+type AskActor name = Str <: Actor
+
+enum AskActorMsg:
+    AskName
+    NameResponse(name=Str)
+..
+
+func recieve ~AskActor, msg:
+    w:th AskName$: sender ! NameResponse self.name
+..
+
+let askActor = AskActor "Pat"
+
+# import
+import com.example.math pi, gcd, abs
+import com.example.{(math pi, gcd, abs), (test scores, students)}
+import com.example.math _
+import com.example.math $vars, $lets, $enums
+
+# akka
+import Actor >> Props >> Logging
+
+actor SimpleActor <: Actor
+
+func recieve ~SimpleActor, msg:
+    w:th Str$: self.log "recieved test"
+    with Int$: self.log "recieved unknown message"
+..
+
+let system = ActorSytsem()
+let myActor = system.createActor
+println "Before messages"
+myActor ! "Hi there"
+println "After messages"
+myActor ! 42
+----------------------------------------
+match x
+with Int$: println x
+with Terminated('Child'): lastSender ! 'Terminate'
+----------------------------------------
+actor SimpleActor
+enum SimpleActorMessage:
+    Count
+..
+
+func recieve ~SimpleActor, msg:
+    w:th Count$: 'Counting start'
+
+# 12/01/17
+# Dexter0.2
+# brackets
+loop: println '>>>', scan.lex.parse.compile.interpret
+
+['a1', 'a2', 'a3'].map Int$
+
+args.fold 1, (x, y => x + y)
+
+list
+    .(filter => $1.startsWith 'c')
+    .(map toUpper$)
+    .sorted
+    .each println$
+
+println((message + recipient).toUpper)
+
+# pony
+main
+
+func main:
+    let l1, l2 = Logger 'logger 1', >> 'logger2'
+    l1.log 'one', 3
+    l2.log 'two', 1
+    l1.log 'three', 3
+    l2.log 'four', 1
+..
+
+actor Logger prefix:
+    let .prefix = Str
+..
+
+trait Logger prefix:
+    let .prefix = Str
+..
+
+func log ~Logger, msg, delay:
+    sleep delay
+    println self.prefix, ": ", msg
+..
+
+# 11/01/17
+# Quadro0.2
+# akka
+# call chaining
+args.fold 1, {x, y => x + y}
+
+let l = |U32|[]
+
+l.push 1 >> 2 >> 3 >> 4
+
+details john, >> barney
+
+# aliases
+type Number as Integer|Float|Complex
+func cheb as chebyshevCoefficient
+let pi as thisIsAPiConstant
+
+# structural typing
+type Duck
+type Person
+
+func quack ~Duck: println 'Quack, quack!'
+func quack ~Person: println 'Flap, Flap!'
+
+func fly ~Duck: println "I'm Quackin'!"
+func fly ~Person: println "I'm Flyin'!"
+
+func inTheForest mallard: mallard ->quack ->fly
+
+inTheForest Duck && Person
+
+let add = func _ ~Int, ~Int -> Int
+
+enum Tree:
+    Leaf ~Int
+    Node ~Int, ~Tree
+..
+
+# 10/01/17
+# Astro0.2
+# inheritance is composition
+type Robot(id)
+type CleaningRobot(cleanArea) <: Robot
+type Animal(name)
+type Dog(tag) <: Animal:
+    mutate: name, tag # mutate remves certain fields from a particular type
+
+type CleaningRobotDog <: CleaningRobot, Dog # id, cleanArea, [name], tag
+
+# concurrency model redesign (actor-based)
+type abstr Game
+type actor Name
+
+# concurrency model redesign (actor-based)
+type actor MyActor:
+    var log = Logging(context.system, this)
+..
+
+func recieve(MyActor, msg):
+    w:th 'test': self.log.info('recieved test')
+    with _: self.log.info('recieved unkown message')
+..
+
+# 09/01/17
+# Astro0.2
+# concurrency model redesign
+func foo:
+    tar object = HeavyDuty
+    go func bar:
+        var things
+        lock
+        let things = object
+        execute things
+        object = things
+        unlock
+        yd object
+    ..
+    var x << foo$[1]
+    foo$[1] ? println 'foo sent something' || |> 'foo sent nothing'
+    foo$[1].locks(object) ? baz()
+..
+
+# nameless parameters
+func convert(_ = Int, num = Float): Int num
+func convert(Float, num = Int): $[$1] num
+
+Int.convert(2.34)
+F64.convert(56_750)
+# algebraic data types
+enum Tree:
+    Empty
+    Leaf Int
+    Node Tree, Tree
+..
+
+func expr x = Tree:
+    w:th Empty: 0
+    with Leaf l: l
+    with Node l, r: expr(l) + expr(r)
+..
+
+# concurrency model redesign
+-------------------
+lane userLand
+
+tar db = |Str|[]
+
+func doSth:
+    print 'Hello'
+    -- lock starts here --
+    db[1] = 'Boom'
+    bar()
+    foo()
+    let qux = db[1]
+    -- lock ends here ----
+    baz(qux)
+    print "Bye"
+..
+---------------------
+lane main
+func main:
+    doSth()
+
+# changed && to |>
+type Person var name & gender = Str, age = Int
+
+func print p = Person: print '(', p ->name, ->gender, ->age, ')'
+
+type Employee var job & company = Str <: Person
+
+func print e = Employee: print super <- e |> sp, e->job, ->company
+
+func setName var e = Employee, name: e.name = name
+
+var e = Employee
+e.setName 'Badmus' |> 'Travis' |> 'Gabriel'
+e.setName 'Badmus'; e.setName 'Travis'; e.setName 'Gabriel'
+
+# 06/01/17
+# Astro0.2
+
+# type specification vs default value
+func add a & b = Int:
+    a + b
+
+func add a & b = Int():
+    a + b
+
+let a = Int
+let a = Int()
+
+
+let a = Int # a = 0
+a = 25 # a = 25
+
+
+# 99 bottles of beer
+
+let a, b, c, d, e, f =
+    "bottle", "of beer", "on the wall",
+    "Take one down and pass it around",
+    "no more", "Go to the store and buy some more"
+
+{99:2}
+    .each => println("[$1] [a]s [b] [c], [i] [a]s [b].\n[d], [$1-1] [a]s [b] [c].")
+
+println("1 [a] [b] [c], 1 [a] [b].\n[d], [e] [a]s [b] [c].")
+println("N[e[2:]] [a]s [b] [c], [e] [a]s [b].\n[f], 99 [a]s [b] [c].")
+
+# 05/01/17
+# Astro0.2
+type Person:
+    let name, age
+
+type Employee <: Person:
+    let job, company
+
+func Person(name, age):
+    rt new(name, age)
+
+func Employee(name, age, job, company):
+    rt new(super(name, age), job, company)
+
+func details(p = Person):
+    rt p.name, p.age
+
+func details(e = Employee):
+    rt super.details(), e.job, e.company
+
+let john = Person('John Smith', 33)
+let tola = Employee('Tola Adeniran', 21, 'App Developer', 'CodeBuzz, Inc.')
+
+println(john.details)
+println(tola.details)
+
+
+let b = 56
+var c = 'String'
+let b = 56
+
+# Row order vs Column Order
+ let a = [
+     [1, 2, 3]
+     [4, 5, 6]
+ ]
+
+ let b = [
+     [1, 2, 3]
+     [4, 5, 6]
+ ]@
+
+1 2 3
+4 5 6
+
+1 4
+2 5
+3 6
+
+# splatting
+let a = [
+    [1, 0]
+    [0, 1]
+]
+
+# ...a splats into 2d open tuple
+
+let b = [
+    [...a@, ...a]
+    [...a, ...a@]
+]
+
+
+# 04/01/17
+# Astro0.2
+
+type Person name, age
+type Employee {super name, age}, job, company <: Person
+
+func details p = Person:
+    p->name, ->age,
+
+func details e = Employee:
+    ...super.details, e->job, ->company
+
+let john = Person 'John Smith', 33
+let dave = Employee 'Tola Adeniran', 21, 'App Developer', 'CodeBuzz, Inc.'
+
+println john.details && tola.details
+
+------------------------------
+class Person:
+    def __init__(self, name, age):
+        self.name = name
+        self.age = age
+
+    def details(self):
+        return (self.name,  self.age)
+
+class Employee(Person):
+    def __init__(self, name, age, job, company):
+        super(Employee, self).__init__(name, age)
+        self.job = name
+        self.company = company
+
+    def details(self):
+        return (super(Employee, self).details(), self.job, self.company)
+
+john = Person('John Smith', 33)
+tola = Employee('Tola Adeniran', 21, 'App Developer', 'CodeBuzz, Inc.')
+
+print(john.details())
+print(tola.details())
+
+__________________________________________
+
+__________________________________________
+
+println {message + recipient}.toUpper
+
+# inline catch
+if name in self.memory: rt self.memory[name]
+self.memory[name]`{0}
+self.memory[name]`notFoundEx
+self.memory[name]`{KeyNotFoundEx ? 0}
+self.memory[name]~{0}
+
+catch notFoundEx knfe = KeyNotFoundEx: println knfe.msg
+
+# lambda syntax
+['a1', 'a2', 'a3']
+    .map => $1.subStr 1
+    .map Int$
+
+list
+    .{filter => $1.startsWith 'c'}
+    .{map toUpper$}
+    .sorted
+    .each println$
+
+# 03/01/17
+# Astro0.2
+type ab ICar
+func drive car = ICar
+
+type Car <: ICar
+
+type ProxyCar(driver) <: ICar:
+	var driver, car = Driver, Car
+
+func drive car = ICar: println 'Car has been driven'
+func drive proxyCar = ProxyCar:
+	if self.driver.age < 17: println 'Sorry, the driver is too young to drive.'
+	else: self.car.drive
+..
+
+type Driver age = Int
+
+func buttonClick event = Event:
+	var car = ProxyCar(Driver 16)->drive
+	car = ProxyCar(Driver 20)->drive
+..
+
+# THE REASON GENERICS WILL STAY
+# I've imagined that $[...] can replace generics entirely. But that's not true. Generics has a conformance property in which it requires that an object to be passed to a subject have certain properties, otherwise it will issue an error.
+# var x = Fruit{Int, Int} object or its subtypes.
+# x can only take Fruit objects with that exact type.
+# func baz x = Fruit{Int}: ..
+# x can only take Fruit{Int} object or its subtypes.
+# Assertions can be used to achieve the same effect, but it shouldn't liter everywhere.
+
+# THE BASE PACKAGE
+# contents of base are imported into ur module automatically as they are used, but if there is a name clash, you have explicitly import such base content or scope it using the dot operator.
+
+# DEFAULT PARAMETER VALUES
+# Unlike most languages, every non-dynamic parameter already has a default value in Astro.
+func add a = Int, b = Int, c = Int, d = Int: a + b + c + d
+func add a = Int, b = Int: a + b
+# parameters a and b are assigned to Int which is a default constructor and returns the value 0
+@which add 51, 64, 43, 12 # add(Int, Int, Int, Int).
+@which add 20, 17 # add(Int, Int) # notice is issued.
+@which add 10 # add(Int, Int) # notice is issued.
+@which add 10,_,_ # add(Int, Int, Int, Int) # notice is issued.
+@which add _,54 # add(Int, Int) # notice is issued.
+
+# CONSTANTS
+let a = 25
+let b
+b = 56
+
+let c = Int; c = 10 # for constant subjects, bracketless default constructor
+# is actually a type specification.
+let d = Int(); d = 10 # error!
+
+# STREAM
+ones.twos.threes.collect 10
+collect(threes(twos(ones())), 10)
+
+func ones: yd 1
+func twos gen=Generator: yd gen + 2
+func threes gen=Generator: yd gen + 3
+
+func collect gen=Generator, num=Int:
+    list = []
+    for _ in num: list .append gen
+    list
+..
+
+['a1', 'a2', 'a3']
+    .findFirst
+    .ifPresent println$
+
+{:4}.each println$
+
+['a1', 'a2', 'a3']
+    .map :$1.subStr 1
+    .map Int$
+
+list
+    .{filter :$1.startsWith 'c'}
+    .{map toUpper$}
+    .sorted
+    .each println$
+
+# unintialized dynamic veriable reference specification
+let x = ref y
+let y ref
+
+func boom x ref, y ref: ..
+boom x: a, y: b
+
+boom {name: a, age: b} # named tuple
+boom((name: a, age: b)) # named tuple
+bane[]
+
+# chain tupling
+type Person var name & gender = Str, age = Int
+
+func print p = Person: print '(', p ->name, ->gender, ->age, ')'
+
+type Employee var job & company = Str <: Person
+
+func print e = Employee: print super <- e && sp, e->job, ->company
+
+func setName var e = Employee, name: e.name = name
+
+var e = Employee
+e.setName 'Badmus' && 'Travis' && 'Gabriel'
+e.setName 'Badmus'; e.setName 'Travis'; e.setName 'Gabriel'
+
+
+# Duck Typing
+type Duck
+type Person name = Str
+
+func quack duck = Duck: println 'Quaaaaack!'
+func quack person = Person: println 'The person imitates a duck.'
+
+func feathers duck = Duck: println 'The duck has white and gray feathers.'
+func feathers person = Person:
+    println 'The person takes a feather from the ground and shows it.'
+
+func name person = Person: println self.name
+
+func inTheForest duck: duck->quack->feathers
+
+func game:
+    let donald, john = Duck, Person 'John Smith'
+    inTheForest donald && john
+..
+
+game
+
+# SUBJECT-REFERS-TO-OBJECT-OF-THE-TYPE-ABOVE SYNTAX PROPOSAL.
+# '?' here represents a Car sucject
+# I reasoned that this will cause unexpected problem
+# when cutting and pasting codes like this around.
+type Car var make, model
+func setMake var ?, make:
+    self.make = make
+func setModel var ?, model:
+    self.model = model
+--------------------------------------
+# 02/01/17
+# Astro0.2
+input not 5
+fileName not in argv
+orobo not rich
+
+not(5 == 6)
+5 not 7
+--------------------------------------
+let f = func _ x: _ x + 1
+println f 10
+--------------------------------------
+type Account var balance
+func withdraw account, amount: self.balance -= amount
+
+let acc = Account 100
+acc.withdraw 100
+--------------------------------------
+for yPixel in {1:24}:
+    var y = yPixel / 12 - 1
+    for xPixel in {1:80}:
+        var x = yPixel / 30 - 2
+        var x0, y0, iter = x, y, 0
+        while iter < 11 where x0^2 + y0^2 <= 4:
+            var x1, y1 =
+                x0^2 - y0^2 + x,
+                2 * x0 * y0 + y
+            x0, y0 = x1, y1
+            ++iter
+        ..
+        println ' .-:+=xX$&'[iter]
+    ..
+    println ''
+..
+--------------------------------------
+--------------------------------------
+# 01/01/17
+# Astro0.2
+# import
+import json: .all
+import json: .vars, .lets
+import json: .funcs, .types
+
+# dictionaries
+let amountOfFruits = [
+    'oranges': 45,
+    'guavas': 30,
+    'bananas': 1,
+    'apples': 73,
+]
+
+let emptyDict = [:]
+
+# function named arguments
+func add one = Int, two = Int: one + two
+add one: 1, two: 4
+
+# iteration
+for fruit in groceryList: println fruit
+
+let tuple = 1, 2, 3, 4
+tuple.map :$1 + 5
+
+# useful constants
+    nl == '\n'
+    sp == ' '
+    tb == '\t'
+
+# range
+for even in {1:1:20}: print even, sp
+
+let list = [2, 4, 6, 8, 10]
+list[:four] # no gap btw name and index brackets.
+
+# nil coalescing
+let profile = remote.user('Nate')~{Account 'default'}
+    .profile~{Profile}
+
+# argument walling
+profile ->{deleteContact 'Tosin', 'Tunde'}->changeAvatar 'album/grad/0122.png'
+makeCar make:'Toyota', model:'Sienna', date:{Date 01, 01, 17}
+{getList 'groceries'}[5]
+
+getCompany managers, {getCompany 'PZ'}~{getSub 'PZ', kind 'new'}.users, founders
+getCompany(managers, getCompany('PZ')~{getSub('PZ', kind('new'))}.users, founders)
+
+# the object in the 'argument wall' must have at least 1 argument
+play {music 'Jailer'}, speed:'fast' # ok
+play {music}, speed:'fast' # error! argument wall can be used when there's one or more argument
+
+println {'Hello' + name}.strip
+println {+ 'Hello', name}.strip
+println {'Hello' .+ name}.strip
+
+#  no more dedicated __cast function
+func MyInteger num = F64: new {Int num}
+let cost = {MyInteger price} * qty
+
+# declaring a list
+[]
+2`[]
+Int`[]
+2 Int`[]
+2*4 Int`[]
+
+or
+[]
+|2|[]
+|Int|[]
+|2 Int|[]
+|2*4 Int|[]
+
+
+# next to continue
+for num in scoreList:
+    if num .isEven:
+        continue
+    else:
+        break
+..
+
+
+# reference specification
+let id = 25
+let age ref = id
+let cost ref = age
+
+
+func swap var a & b ref = $T: a, b = b, a;
+
+# subtyping
+type Person var name & gender = Str, age = Int
+
+func print p = Person: print p.name, p.age
+
+type Employee var job & company = Str <: Person
+
+func print e = Employee:
+	super.print # or print super <- e
+	print sp, e.job, e.company
+..
+--------------------------------------
+# 30/12/16
+# Astro0.2
+func Store other = Store:..
+func Store list = List:..
+func Store wares = Int:..
+
+let shop = Store = [1, 2, 3, 4]
+shop = [5, 6, 7, 8]
+shop = 30
+let wareHouse = Store = 546
+shop = wareHouse
+
+let primes = |4*2 Int|[2, 3, 5, 7, 11, 17, 19]
+let x = |Str|[1, 2, 3, 4]
+
+# function
+add$(Any, Any).value
+sub$.value
+# forwarding
+buf ->resize(20) ->fill 0, $$
+--------------------------------------
+# 29/12/16
+# Astro0.2
+func assign: check(lhs),, ('='),, (rhs)
+--------------------------------------
+# 28/12/16
+# Astro0.2
+let tuple = ()
+
+func add a, b: a + b
+func sort_words word: self.sorted
+func break_word word: self.split ' '
+
+let  a, b, c =
+    sort_words 'Hello',
+    break_word 'I am a braniac',
+    add 2, 3
+
+println a, b, c
+--------------------------------------
+import antlr4: _
+import helloLexer: _
+import helloParser: _
+
+func main argv:
+    let input = FileStream argv[1]
+    let lexer = HelloLexer input
+    let stream = CommonTokenStream lexer
+    let parser = HelloParser stream
+    let tree = parser.startRule
+    let printer = KeyPrinter
+    let walker = ParseTreeWalker
+    walker.walk printer, tree
+..
+
+type KeyPrinter <: HelloListener
+func exitKey kp = KeyPrinter, ctx: println 'Oh, a key!'
+--------------------------------------
+import StringTemplate.V4: _
+var hello = ST('Hello, <name>!')->add 'name', 'World'
+println hello.render
+--------------------------------------
+# 27/12/16
+# Astro0.2
+# Duck Typing
+type Duck
+type Person name = Str
+
+func quack duck = Duck: println 'Quaaaaack!'
+func quack person = Person: println 'The person imitates a duck.'
+
+func feathers duck = Duck: println 'The duck has white and gray feathers.'
+func feathers person = Person:
+    println 'The person takes a feather from the ground and shows it.'
+
+func name person = Person: println self.name
+
+func inTheForest duck: # same as duck::Any
+    duck->quack->feathers
+
+func game:
+    let donald = Duck
+    let john = Person 'John Smith'
+    inTheForest donald
+    inTheForest john
+..
+
+game
+---------------------------------------
+person~
+if person: \\ else: playGame
+person?||person.playGame
+person~.playGame
+if person~: println 'Hello [person.name]!'
+
+func getAddress name = Str -> Str~:
+    name ->split /\s+/ ->parseAddress
+..
+
+func check a & b = Int:
+    wit_ 0, 0:
+    case true:
+    with 2, 2:
+    case true:
+        cas_ true:
+        case true:
+        with 6. 6:
+        ..
+    ..
+..
+
+---------------------------------------
+# 24/12/16
+# Astro0.2
+func divideSelf num = Int:
+    Str{num}
+        .split
+        .noneMatch :Int{$1} == 0 | num % Int{$1} != 0
+..
+---------------------------------------
+func clean(str = Str):
+	str.filter :var pin y = $[$1]; y != $1 ? (y = x; true) || false
+---------------------------------------
+println 1:4.map :"Happy Birthday to [$1 != 2 ? "you!" || "dear Haibeey]"
+---------------------------------------
+let a, b, c, d, e, f =
+	"bottle", "of beer", "on the wall",
+    "Take one down and pass it around",
+    "no more", "Go to the store and buy some more"
+99:2.each :println "[$1] [a]s [b] [c], [i] [a]s [b].\n[d], [$1-1] [a]s [b] [c]."
+println "1 [a] [b] [c], 1 [a] [b].\n[d], [e] [a]s [b] [c]."
+println "N[e[2:]] [a]s [b] [c], [e] [a]s [b].\n[f], 99 [a]s [b] [c]."
+---------------------------------------
+# 21/12/16
+# Astro0.2
+func approximate n = Int:
+	var u = makeList repeat=1d, times=n
+	var v = makeList repeat=0d, times=n
+	for _ thru 1:10:
+		multiplyAtAv n, u, v
+		multiplyAtAv n, v, u
+	..
+	var vBv = 0d, vv = 0
+	for i thru 1:n:
+		vBv += u[i] * v[i]
+		vv += v[i] * v[i]
+	..
+	rt √(vBv / vv)
+..
+
+func a i & j = Int:
+	let ij = i * j
+	1d / ij * (ij + 1) / 2 + i + 1
+..
+
+func multiplyAv! n = Int, v & av = F64[]:
+	for i thru 1:n:
+		av[i] = 0d
+		for j thru 1:n:
+			av[i] += a(i, j) * v[j]
+	..
+..
+
+func multiplyAtv! n = Int, v & av = F64[]:
+	for i thru 1:n:
+		av[i] = 0d
+		for j thru 1:n:
+			av[i] += a(j, i) * v[j]
+	..
+..
+
+func multiplyAtAv! n = Int, v & atAv = F64[]:
+	var u = makeList repeat=0d, times=n
+	multiplyAv! n, v, u
+	multiplyAtv! n, u, atV
+..
+
+let n = Int{argv[2]}
+printf '%.9f', approximate n
+
+---------------------------------------
+type SurveyQuestion(text):
+	let text = Str
+	var response = Str~
+..
+func ask sq = SurveyQuestion:
+	println self.text
+..
+let beetsQuestion = SurveyQuestion text='how about beets?'
+beetsQuestion.ask
+
+beetsQuestion.response = 'I also like beets. (But not with cheese)'
+
+---------------------------------------
+type Rect:
+	var origin = Point
+	var size = Size
+..
+func Rect(:center = Point, :size = Size):
+	let originX = center.x - (size.width / 2)
+	let originY = center.y - (size.height / 2)
+	Rectangle(origin=Point(x=originX, y=originY), size=size)
+..
+
+---------------------------------------
+type MediaItem(name = Str)
+type Movie <: MediaItem(super(name), director):
+	var director = Str
+..
+type Song <: MediaItem(super(name), artist):
+	var artist = Str
+..
+let library = [
+	Movie(name="Casablanca", director="Michael Curtiz"),
+	Song(name="Blue Suede Shoes", artist="Elvis Presley"),
+	Movie(name="Citizen Kane", director="Orson Welles"),
+	Song(name="The One And Only", artist="Chesney Hawkes"),
+]
+
+var movieCount = 0
+var songCount = 0
+
+for item thru library:
+	if item is a Movie: ++movieCount
+	elif item is a Song: ++songCount
+..
+
+println 'Media library contains [movieCount] movies and [songCount] songs'
+---------------------------------------
+func repeat i = Int:
+	println 'Hello!\n' * i
+..
+
+3.repeat
+
+---------------------------------------
+# 20/12/16
+# Astro0.2
+let `gifts = [
+	'trip to Himalayas',
+	'gift bouquet',
+]
+
+let `names = []
+
+func getGift:
+	let index = 1
+	label game
+	loop:
+		shuffle! gifts
+		loop:
+			let user_name = scanln "Please enter ur names: "
+			if /\s+/ in user_name if user_name not in names: # NOTE ADD
+				if index == gifts.size:
+					println "You have picked all gifts. Thank you."
+					let input = scanln "Do you want continue the game. Y/N: "
+					if input.split == 'Y' or 'y': next game
+					else: break game
+				..
+				println "[user_name], you picked a [gifts[index]]"
+				names += user_name
+				++index
+				next
+			..
+			else: println "Please enter at least 2 names!\n"; next
+			else: println "[user_name], you have picked before. You can't pick again!"; next
+		..
+	..
+..
+-------------------------------------
+enum TriStateSwitch: off, low, high
+
+func switch! tss = TriStateSwitch:
+	with> off: self = low
+	with low: self = high
+	with high: self = off
+..
+
+var ovenLight = TriStateSwitch.low
+ovenLight.switch! # ovenLight is now equal to high
+ovenLight.switch! # ovenLight is now equal to off
+-------------------------------------
+
+type LevelTracker:
+	var currentLevel = 1
+	var pin highestUnlockedLevel = 1
+..
+
+func levelIsUnlocked level = Int:
+	level <= LevelTracker.highestUnlockedLevel
+
+func advanceToLevel! l = LevelTracker, level = Int:
+	if levelIsUnlocked level:
+		currentLevel = level
+		true
+	else: false
+..
+
+type Player(name-playerName):
+	var tracker = LevelTracker
+	let playerName = Str
+..
+
+func completedLevel level = Int:
+	unlockedLevel level + 1
+	tracker.advanceToLevel level + 1
+..
+
+---------------------------------
+
+# 19/12/16
+# Astro0.2
+func strToInt strNum = Str:
+	var num = 0
+	for i thru strNum.size:
+		num += Int{StrNum[i]} * 10^(strNum.size - i)
+	num
+..
+
+func intToStr num = $T<:Integer:..
+Integer to Str: 1234 / 10 -> 123.4 - Int{123.4} -> 0.4 * 10 -> 4 + '0' -> '4'
+
+func mod a & b = Int:
+	var c = a / b
+	(c - Int{c}) * c
+..
+
+func isPrime n = Integer:
+	if n == 1 or 2: rt false
+	var nRoot = Int{√n}
+	for i thru 2:nRoot:
+		if n % i == 0: rt false
+	true
+..
+
+func add a & b = Int -> Int: a + b
+---------------------------------
+
+# 18/12/16
+# Astro0.2
+for _ thru 1:n: # NOTE!!!
+	println('Hello!')
+
+let point = 1, -1
+match point: # NOTE!!!
+	with let x, y where x == y:
+		println '([x], [y]) is on the line x == y'
+	with let x, y where x == -y:
+		println '([x], [y]) is on the line x == -y'
+..
+
+	Astro	| Swift
+	--------|-------------
+	rt		| return
+	yd		|
+	next	| continue
+	break	| break
+	spill	| fallthrough
+
+label outer # NOTE!!!
+for i thru 1:10:
+	for j thru 1:10:
+		println '[i]: [j]'
+		if j > 5:
+			break outer
+	..
+..
+
+func alignRight(var string = Str, count = Int, pad = Str):
+	let amountToPad = count - string.size
+	for _ thru 1:amountToPad:
+		string += pad
+	string
+..
+
+let fullHD = Resolution width=1920, height=1080
+
+# 18/12/16
+# Astro0.2
+# NAMED TUPLES # NOTE!!!
+let http404Error = 404, 'Not Found'
+let statusCode, _ = http404Error
+let http200Status = statusCode => 200, description => 'Ok'
+let population2020 = [
+	'countries'=>['United Kingdom', 'Nigeria', 'India']
+	'proportion'=>[0.01, 0.19, 0.8]
+]
+
+# 18/12/16
+# Astro0.2
+# OBJECT CONFORMANCE SYNTAX PROPOSAL
+type ab Jitterable <: Animatable [<:UIView, >:ImageButton]
+# an object must conform with the types in the sq brackets to inherit the abstract type.
+
+# 18/12/16
+# Astro0.2
+func repeat(item = $T, times = Int):
+	var result = T[]
+	for i thru 0:times:
+		result += item
+	result
+..
+repeat('knock', 3) # 'knockknockknock'
+
+# 18/12/16
+# Astro0.2 # Abstract Type
+	type ab Jitterable
+
+	func jitter j = Jitterable, :speed = F32:
+		# TODO jitter animation on a Jitterable
+	..
+
+	type LoginButton <: UIView, Jitterable
+
+	let loginBtn = LoginButton
+	loginBtn .jitter speed=0.5
+
+---------------------------------
+
+# 17/12/16
+# Astro0.2
+# Introsort Pseudocode
+func introSort list = []:
+	let maxDepth = log list.size * 2
+
+func reIntroSort var list = [], maxDepth = Int:
+	let size = list.size
+	if size <= 1:
+		rt # base case
+	elif maxDepth = 0:
+		heapSort list
+	else:
+		let p = partition list
+		reIntroSort list[1:p], maxdepth - 1
+        reIntroSort list[p:size], maxdepth - 1
+	..
+..
+
+---------------------------------
+# 14/12/16
+# Astro0.1
+func factorial n:
+	if n == 1: 1
+	else: n * factorial n - 1
+..
+
+func fill! p = Person, :name & :gender = Str, :age = Int:
+	self->name(name)->age(age)->gender(gender)
+let steve = Person
+steve.fill! name="Steve", gender="M", age=51
+---------------------------------
+# 14/12/16
+# Astro0.1
+# PRODUCTION-LINE SYNTAX PROPOSAL
+# this has been solved with generators
+	func giveOnes(list = []): yd 1
+	func addUp(take a = Int): var pin d = 0; yd d += a
+	func createList(take x = Int):
+		var list = []
+		for y thru x:
+			list .append y
+		list
+	..
+	giveOnes .>addUp .>createList
+    # createList asks for the next value from x
+    # x being a take subject, in turns ask its argument for value
+    # the argument being a yield from a generator function (addUp),
+    # must yield its next value and so on
+---------------------------------
+# 13/12/16
+# Astro0.1
+	type Car(let hide year miles = Int)
+
+	println 1.toStr
+
+	obj Person:
+		var name = Int
+
+	type Person(name, age):
+		var name, age
+
+	Car.x = 5
+	Car.y = 25
+	let ben = Person = "Benjamin", 56
+
+	println total([1, 2, 3, 4, 5])
+---------------------------------
+# 12/12/16
+# Astro0.1
+# Solving range ambiguity issue
+# 1. only ranges can have colon following a literal or name. apart from keywords which can also come before a colon.
+# 2. the operands and operators in a range are packed up
+# 3. ranges come in two types. ranges without step (r1) and ranges with step (r2)
+# 4. in places where a range is expected, the tokens are tested for r2, then r1.
+r1 = a:b:c:
+r2 = a:b:
+---------------------------------
+# 11/12/16
+# Astro0.1
+func __cast(::Type{Str}, ch =: Chars):
+	var chars = List{ch}
+	var ls = I8[]
+	for char thru chars: # char is an I32
+		ls .append (char.toUTF8)
+	Str{ls}
+..
+---------------------------------
+# 10/12/16
+# Python
+def kapreka(n):
+	for i in range(7):
+		chars = list(str(n))[:4]
+		chars.sort()
+		a = int("".join(chars))
+		chars.reverse()
+		b = int("".join(chars))
+		n = b - a
+		print('{} - {} = {}'.format(a, b, n))
+# Julia # BUG!
+function kapreka(n)
+	for i=1:7
+		chars = "" * n[:4]
+		a = parse(Int64, sort!(chars))
+		b = parse(Int64, reverse!(chars))
+		n = b - a
+		println("$b - $b = $n")
+	end
+end
+# Astro0.1
+func kapreka(n):
+	for i thru (1:7):
+		let s = Str{n}[:4]
+		let a = Int{s.sort!}
+		let b = Int{s.reverse!}
+		n = b - a
+		println('[b] - [a] = [n]')
+	..
+..
+---------------------------------
+# 02/12/16
+# Python
+def fib(n):
+	if n < 2:
+		return n
+	else:
+		return fib(n - 1) + fib(n - 2)
+# Julia
+function fib(n)
+	if n < 2
+		n
+	else
+		fib(n - 1) + fib(n - 2)
+	end
+end
+# Astro0.1
+func fib(n):
+	if n < 2:
+		n
+	else:
+		fib(n - 1) + fib(n - 2)
+..
+--------------------------------
+# 29/11/16
+# Python
+while True:
+	print('>>> ')
+	return interpret(compile(parse(lex(input()))))
+# Julia
+while true
+ 	println(">>> ")
+	interpret(compile(parse(lex(input()))))
+end
+# Astro0.1
+loop: println('>>>', scan() .lex $ .parse $ .compile $ .interpret $)
+---------------------------------
+# Python
+jack = Profile("admin/Captain Jack Sparrow")
+jack.changePicture("res/goofy.png")
+jack.postStatus("Savvy?")
+jack.deleteMessages()
+# Julia
+jack = Profile("admin/Captain Jack Sparrow")
+changePicture(jack, "res/goofy.png")
+postStatus(jack, "Savvy?")
+deleteMessages(jack)
+# Astro0.1
+var jack = Profile("admin/Captain Jack Sparrow")
+	->changePicture("res/goofy.png")
+	->postStatus("Savvy?")
+	->deleteMessages()

@@ -1,0 +1,56 @@
+# 06/01/16
+# DESIGN PATTERNS
+# PROTOTYPE
+type ab AbstractCard(name, mana, attack, defense):
+	var name = Str
+	var mana, attack, defense = Int
+..
+
+func clone(ac = AbstractCard):
+	val self
+..
+
+type Card(super(name, mana, attack, defense)) <: AbstractCard
+
+let raidLeader = Card(name:'Raid Leader', mana:3, attack:2, defense:2)
+let facelessManipulator = raidLeader.clone
+
+println(facelessManipulator->name,->mana,->attack,->defense, mid:', ')
+
+# SINGLETON
+type BoardGameManager:
+	let pin sharedInstance = BoardGameManager
+..
+
+let boardManager = BoardGameManager.sharedInstance
+
+# PROXY
+type ab AbstractCar
+
+type Car <: AbstractCar
+
+type ProxyCar(driver) <: AbstractCar:
+	var driver, car = Driver, Car
+..
+
+func drive(car = AbstractCar)
+
+func drive(car = Car):
+	println 'Car has been driven'
+..
+
+func drive(proxyCar = ProxyCar):
+	if self.driver.age < 17:
+		println 'Sorry, the driver is too young to drive.'
+	else: self.car.drive
+..
+
+type Driver(age = Int)
+
+func buttonClick event = Event:
+	var car = ProxyCar Driver(16)
+	car.drive
+
+	car = ProxyCar Driver(25)
+	car.drive
+..

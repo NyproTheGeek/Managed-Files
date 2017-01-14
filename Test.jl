@@ -1,14 +1,16 @@
 # 17/11/16
-type Person
+import Base: print
+
+type Language
     name::AbstractString
-    male::Bool
-    age::Float64
-    children::Int
+    isAwesome::Bool
+    age::Int
+    version::Float64
 end
+print(julia::Language) = print('[', julia.name, julia.isAwesome, julia.age, julia.version, ']')
+julia = Language("Julia", true, 4, 0.6)
 
-p = Person("Julia", false, 4, 0)
-
-println(p.age)
+print(julia)
 
 # 01/11/16
 function fibonacci(n)

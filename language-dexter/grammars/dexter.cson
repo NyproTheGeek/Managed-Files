@@ -1,0 +1,472 @@
+# 14/11/16
+# add folds and stuffs
+fileTypes: [
+    "dxt", "dex"
+]
+foldingStartMarker: ":"
+foldingStopMarker: "\\.\\.\\s*$"
+name: "Dexter"
+patterns: [
+    {
+        include: "#comments"
+    }
+    {
+        include: "#non_dexter"
+    }
+    {
+        include: "#numbers"
+    }
+    {
+        include: "#macros"
+    }
+    {
+        include: "#lambda_var"
+    }
+    {
+        include: "#brackets"
+    }
+    {
+        include: "#comments"
+    }
+    {
+        include: "#keywords"
+    }
+    {
+        include: "#functions"
+    }
+    {
+        include: "#variable"
+    }
+    {
+        include: "#import_special"
+    }
+    {
+        include: "#dot_members"
+    }
+    {
+        include: "#function_calls"
+    }
+    {
+        include: "#infix_call"
+    }
+    {
+        include: "#cpp_symbol"
+    }
+    {
+        include: "#strings"
+    }
+    {
+        include: "#regex"
+    }
+    {
+        include: "#math_expressions"
+    }
+    {
+        include: "#operators"
+    }
+]
+repository:
+    functions:
+        patterns: [
+            {
+                match: "(?<=func |catch )(?:\\.|`)?[A-Za-z_][A-Za-z0-9_!]*|[A-Za-z_][A-Za-z0-9_!]*\\$"
+                name: "entity.name.function.dexter"
+            }
+            # CONSECUTIVE CALL CHAIN
+            {
+                match: '\\|>'
+                name: "entity.name.function.dexter"
+            }
+            # LAMBDAS
+            {
+                match: "\\=\\>(?!\\:)"
+                name: "entity.name.function.dexter"
+            }
+        ]
+    lambda_var:
+        patterns: [
+            {
+                match: "\\$\\d+"
+                name: "dexter" # needs proper naming
+            }
+        ]
+    non_dexter:
+        patterns:[
+            {
+                begin: "^\\s*-"
+                end: "$"
+                name: 'support.function.macro.dexter'
+            }
+            {
+                begin: "^\\s*\\.{5,}"
+                end: "$"
+                name: 'support.function.macro.dexter'
+            }
+        ]
+    macros:
+        patterns:[
+            # HINTS
+            {
+                match: "\\@(?:[A-Za-z_][A-Za-z_0-9]*)"
+                name: 'support.function.macro.dexter'
+            }
+        ]
+    brackets:
+        patterns: [
+            {
+                match: "(?:\\(|\\)|\\[|\\]|,)(?!('|(?:\\.'))*\\.?')"
+                name: "meta.bracket.dexter"
+            }
+        ]
+    comments:
+        patterns: [
+            {
+                begin: "#=|##="
+                beginCaptures:
+                    "0":
+                        name: "punctuation.definition.comment.begin.dexter"
+                end: "=#|=##"
+                endCaptures:
+                    "0":
+                        name: "punctuation.definition.comment.end.dexter"
+                name: "comment.block.dexter"
+                patterns: [
+                    {
+                        include: "#nested_comments"
+                    }
+                ]
+            }
+            {
+                begin: "#|##"
+                beginCaptures:
+                    "0":
+                        name: "punctuation.definition.comment.dexter"
+                end: "$"
+                name: "comment.line.dexter"
+            }
+        ]
+    nested_comments:
+        patterns: [
+            {
+                begin: "#=|##="
+                beginCaptures:
+                    "0":
+                        name: "punctuation.definition.comment.begin.dexter"
+                end: "=#|=##"
+                endCaptures:
+                    "0":
+                        name: "punctuation.definition.comment.end.dexter"
+                name: "comment.block.dexter"
+            }
+        ]
+    numbers:
+        patterns: [
+            # REAL NUMBERS
+            {
+                match: "\\b[+-]?[0-9]([A-Za-z0-9]_?)*(\\.([0-9]_?)*(e[+-]?)?([0-9]_?)+)?(_[A-Za-z0-9]+)?"
+                name: "constant.numeric.dexter"
+            }
+        ]
+    keywords:
+        patterns: [
+            # CONSTANTS
+            {
+                match: '\\b(?:true|false|nil)\\b',
+                name: 'constant.language.dexter'
+            }
+            # LANG VARIABLES
+            {
+                match: '\\b(?:self|outer)\\b',
+                name: '' # 'variable.language.dexter'
+            }
+            # CONTROL FLOW
+            {
+                match: '\\b(?:for|spill|if|where|\\?|opt|else|elsif|elif|rt|yd|while|redo|match|with|case|w:th|c:se|until|do|loop|label|op|block|try|catch|ensure|throw|continue|break|skip|select|import|but|tar|using|hiding|\\.\\.)\\b',
+                name: 'keyword.control.dexter'
+            }
+            # MODIFIERS
+            {
+                match: '\\b(?:pin|abstr|actor|obj|rd|wr|hold|NaN|lock|iso|val|ref|wref|def)\\b',
+                name: 'storage.modifier.dexter'
+            }
+            # CATEGORIES
+            {
+                match: '\\b(?:type|extend|func|enum|let|var|as)\\b',
+                name: 'storage.type.dexter'
+            }
+            # CLASSES
+            {
+                match: '\\b(?:[A-Z][_A-Za-z0-9]*\\$?)',
+                name: 'support.class.dexter'
+            }
+            # FUNCTIONS
+            {
+                match: '\\b(?:set|get|emit)\\b',
+                name: 'constant.language.dexter'
+            }
+            # OTHERS
+            {
+                match: '\\b(?:and|or|in|ref|not\\s+in|in)\\b'
+                name: 'keyword.control.dexter'
+            }
+        ]
+    variable:
+        patterns:[
+            {
+                match: "([a-z_][A-Za-z_0-9]*)\\s+(?=in|ref|in)"
+                name: 'dexter'
+            }
+        ]
+    import_special:
+        patterns: [
+            # OTHERS
+            {
+                match: "(?<!\:)\\s*\\.(?:all|vars|lets|types|funcs)\\b"
+                name: "constant.numeric.dexter"
+            }
+        ]
+    dot_members:
+        patterns: [
+            # OTHERS
+            {
+                match: "(?<!let |var |type |extend | wr | rd | pin |\\.\\.)(?:(\\-\\>|\\.)\\{?)([A-Za-z_][A-Za-z_0-9]*\\!?)\\b"
+                captures:
+                    "2":
+                        name: "variable.language.dexter"
+            }
+        ]
+    function_calls:
+        patterns: [
+            {
+                begin: "([A-Za-z_][A-Za-z_0-9]*\\!?)\\s*({(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*})?\\("
+                beginCaptures:
+                    "1":
+                        name: "entity.name.function.dexter"
+                    "2":
+                        name: "keyword.operator.dexter"
+                end: "\\)(('|(\\.'))*\\.?')?"
+                endCaptures:
+                    "1":
+                        name: "keyword.operator.transposed-func.dexter"
+                patterns: [
+                    {
+                        include: "$self"
+                    }
+                ]
+            }
+        ]
+    infix_call:
+        patterns:[
+            {
+                match: "(?<!let |var |rd |wr )([^\\=|\\:|\\;|\\.|\\<|\\>|\'|\"|\\*|\\/|\\-|\\+|\\^|\\%|\\\\|\\}|\\{|\\)|\\(|\\!|\\&|\\$|\\@|\\||\\~|type|extend|func|enum|let|var|as|for|spill|if|where|\\?|opt|else|elsif|elif|rt|yd|while|redo|match|with|case|w:th|c:se|until|do|loop|label|op|block|try|catch|ensure|throw|continue|break|skip|select|import|but|tar|using|hiding|\\.\\.|pin|abstr|actor|obj|const|rd|wr|hold|NaN|lock|iso|val|ref|wref|own|set|get|emit|and|or|in|ref|not\\s+in|in]|\\b[a-z_][A-Za-z_0-9!]*)\\s+(?=[A-Za-z_0-9]+|\"|\'|\\{|\\(|\\[|,)(?!(but|if|for|while|and|or|as|where|iso|val|ref|wref|def|not\\s+in)\\b)"
+                name: 'entity.name.function.dexter'
+            }
+        ]
+    operators:
+        patterns: [
+                #PUNCTUATORS
+                {
+                    match: '(?:,|;|\\\\\\\\|:)',
+                    name: 'keyword.operator.dexter'
+                }
+                # ASSIGNMENT OPERATORS
+                {
+                    match: '(?:::|>:|<:)'
+                    name: 'keyword.operator.dexter'
+                }
+                # UNARY OPERATORS
+                {
+                    match: '(?:-|\\+|--|\\+\\+|\\.-|\\.\\+|\\.--|\\.\\+\\+|\\?)'
+                    name: 'keyword.operator.dexter'
+                }
+                # BINARY OPERATORS
+                {
+                    match: '(?:\\=|\\*|/|\\%|\\^|//|\\.\\*|\\./|\\.\\%|\\.\\^|\\.//|\\+=|-=|\\*=|/=|%=|\\^=|//=|\\.\\+=|\\.-=|\\.\\*=|\\./=|\\.%=|\\.\\^=|\\.//=)'
+                    name: 'keyword.operator.dexter'
+                }
+                # CONDITIONAL OPERATORS
+                {
+                    match: '(?:\\||>|<|>=|<=|!=|\\&)'
+                    name: 'keyword.operator.dexter'
+                }
+                # BITWISE OPERATORS
+                {
+                    match: '(?:\\!~|\\!\\||\\!\\&|\\!\\^)'
+                    name: 'keyword.operator.dexter'
+                }
+                # SHIFT OPERATORS
+                {
+                    match: '(?:\\!>|\\!<|\\!>=|\\!<=)'
+                    name: 'keyword.operator.dexter'
+                }
+                # OTHER OPERATORS
+                {
+                    match: '(?:>>|<<|\\,\\,)'
+                    name: 'keyword.operator.dexter'
+                }
+            ]
+    cpp_symbol:
+        patterns:[
+            {
+                begin: "(cpp)(\\{)"
+                beginCaptures:
+                    "1":
+                        name: 'variable.interpolation.dexter'
+                    "2":
+                        name: 'variable.interpolation.dexter'
+                end: "\\}"
+                endCaptures:
+                    "0":
+                        name: 'variable.interpolation.dexter'
+                name: 'embed.cxx.dexter'
+                contentName: 'source.cpp'
+                patterns: [
+                    {
+                        include: 'source.cpp'
+                    }
+                ]
+            }
+        ]
+    strings:
+        patterns: [
+            # SINGLE-QUOTE STRING
+            {
+                begin: "'"
+                beginCaptures:
+                    "0":
+                        name: "punctuation.definition.string.begin.dexter"
+                end: "'"
+                endCaptures:
+                    "0":
+                        name: "punctuation.definition.string.end.dexter"
+                name: "string.quoted.single.dexter"
+                patterns: [
+                    {
+                        include: "#string_escaped_chars"
+                    }
+                    {
+                        include: "#string_interpolate"
+                    }
+                    {
+                        include: "#comments"
+                    }
+                ]
+            }
+            # NON-STANDARD SINGLE-QUOTE STRING
+            {
+                begin: "([A-Za-z0-9_]+\\.)(')"
+                beginCaptures:
+                    "1":
+                        name: "support.function.macro.dexter"
+                    "2":
+                        name: "punctuation.definition.string.begin.dexter"
+                end: "'"
+                endCaptures:
+                    "0":
+                        name: "punctuation.definition.string.end.dexter"
+                name: "string.quoted.single.dexter"
+            }
+            # DOUBLE-QUOTE STRING
+            {
+                begin: '"'
+                beginCaptures:
+                    "0":
+                        name: "punctuation.definition.string.begin.dexter"
+                end: '"'
+                endCaptures:
+                    "0":
+                        name: "punctuation.definition.string.end.dexter"
+                name: "string.quoted.double.dexter"
+                patterns: [
+                    {
+                        include: "#string_escaped_chars"
+                    }
+                    {
+                        include: "#string_interpolate"
+                    }
+                    {
+                        include: "#comments"
+                    }
+                ]
+            }
+            # NON-STANDARD DOUBLE-QUOTE STRING
+            {
+                begin: '([A-Za-z0-9_]+\\.)(")'
+                beginCaptures:
+                    "1":
+                        name: "support.function.macro.dexter"
+                    "2":
+                        name: "punctuation.definition.string.begin.dexter"
+                end: '"'
+                endCaptures:
+                    "0":
+                        name: "punctuation.definition.string.end.dexter"
+                name: "string.quoted.single.dexter"
+            }
+            # NON-STANDARD ONE WORD STRING
+            {
+                match: '([A-Za-z0-9_]+\\.)(?=`)'
+                name: "support.function.macro.dexter"
+            }
+            # NON-STANDARD LIST LITERAL
+            {
+                match: '([A-Za-z0-9_]+\\.)(?=\\[)'
+                name: "support.function.macro.dexter"
+            }
+        ]
+    string_escaped_chars:
+        patterns: [
+            {
+                match: "\\\\(\\[|t|n|r|b|\"|\'|#|\\\\)" # \\.(\\[|t|n|\"|\'|#)
+                name: "constant.character.escape.dexter"
+            }
+            ]
+    string_interpolate:
+        patterns: [
+            {
+                begin: '\\[',
+                end: '\\]',
+                name: 'variable.interpolation.dexter'
+                patterns: [
+                    {
+                        include: '#string_interpolate'
+                    }
+                ]
+            }
+            {
+                match: '\\$([A-Za-z0-9_]+|\\d+)'
+                name: 'variable.interpolation.dexter'
+            }
+        ]
+    regex:
+        patterns: [
+            # REGEX
+            {
+                begin: "(?<=\\+|\\-|\\:|\\=|\\(|\\))\\s*\\/(?=!\\=)" # if preceded by an operator, then regex is assumed. lookkbehind works here. Yay!
+                beginCaptures:
+                    "2":
+                        name: "punctuation.definition.string.begin.dexter"
+                end: "\\/"
+                endCaptures:
+                    "0":
+                        name: "punctuation.definition.string.end.dexter"
+                name: "string.quoted.single.dexter"
+            }
+        ]
+    nest_parens_and_self:
+        patterns: [
+            {
+                begin: '\\('
+                end: '\\)'
+                patterns: [
+                    {
+                        include: '#nest_parens_and_self'
+                    }
+                ]
+            }
+            {
+                include: '$self'
+            }
+        ]
+
+scopeName: "source.dexter"

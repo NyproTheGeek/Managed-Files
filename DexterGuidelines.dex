@@ -1,0 +1,22 @@
+# Astro 0.2
+# 29/12/16
+
+CALLING FUNCTIONS WITHOUT BRACKETS
+- Nested Calls: Commas Belong To The Outer Functions
+	println(sum qty, price)
+	== println(sum(qty), price)
+	!= println(sum(qty, price))
+
+- Operators and Commas:
+	sum a, b + c
+	== sum(a, (b + c))
+	!= sum(a, b) + c
+
+- Near Brackets and Commas:
+	sum (a - y), b, c
+	== sum(a - y), b, c
+	!= sum a - y, b, c
+
+CODE LINE
+- lines of code longer than 90 columns should be broken down.
+- if a block contains only one line of expression, it should be written on the same line as the block header, unless the guideline above is broken.

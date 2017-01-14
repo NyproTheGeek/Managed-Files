@@ -1,0 +1,64 @@
+# 18/11/16
+The TradeOff between Number of Instructions and Runtime Performance.
+Non-deterministic object os the root of all evil - Nypro.
+
+I was initially worried about the performance of multiple dispatch type checking, based on the fact that objects whose types cannot be resolved at compile-time (non-deterministic objects), need runtime type checking for their operations to be determined.
+
+The thing is Astro does not only have invariantly typed objects, it also has covariantly typed objects, which means covariant operations may require more computation because binary search is done on an object's type ancestors to check if its an equal type or a subtype of the expected type of the operation. This is typical with multiple dispatch, where types of non-determinstic object need to be resolved in order to dispatch to the right function. Imagine several of these objects being passed to a function with covariant parameters. This could result in lots of binary searches just to call a single function.
+
+So yesterday, I was trying to improve this and I came up with a less intriguing solution with possible O(1) access. Each type stores a bitfield large enough to represent all the types in the program, if a bit is set, it means the corresponding type is an ancestor. But this has its downsides in that it can use up a lot of memory if you have lots of types in the program.
+
+In an attempt to solve that, I discovered another problem. The Field Checking Problem. I realized that an instruction referring to non-deterministic object cannot directly index its field, the name of field is used instead because we don't know the actual index until the type is resolved. What this means is that names of fields need to be stored in types. This scared the shit out of me because there will be even more binary searches in order to access a field and some instructions will need to include string characters. I quickly came up with a better solution. All field names are represented as numbers (field_id) at compile time. Similar field names of different types use the same number, then each type stores a map of its own field_id along with the index to the field. This solves the problem, although there are still redirections I really don't like, i.e. redirecting to the type list in order to resolve each field access.
+
+So I decided to review the whole type checking, field checking thing to see if I can get more performance out of the vm.
+
+Eventually I realized non-deterministic objects are the major bottleneck to performance. If there was only a way to resolve them at compile time. This has brought me to a single concrete solution that can increase performance considerably because it requires no runtime Field Checking or Covariant Type Checking.
+
+The solution requires that all the immediately associated type of a non-deterministic object be known at compile time and generated instructions can typecheck for those with a corresponding jump to the right operation.
+
+Objects stored in dynamic list are a bit problematic, because we can't infer the type of each element. So the sanest solution we have is to aggregate the types of all objects in the array and check for that at runtime. This is quite inefficient, but it solves the problem.
+
+The trade-off with this solution is that the number of instruction can increase by a large factor and this depends majorly on how many non-deterministic objects are used in the program.
+
+Non-determinstic objects are usually not used much and should be used as few as possible if performance is important.
+
+With this new solution, I'm confident that Astro will be at least 2 times faster than Python.
+
+
+# 19/11/16
+# 20/11/16
+Context Switch
+Yesterday in an attempt to improve perf further, I came up with context switches. This entails noting all probable types of a non-deterministic object at compile-time. The instructions generated for such object then contains type checking for each probable type with a corresponding jump to the appropriate operation.
+The problem with this approach is that it can generate a lot of instructions. The initial concept was to type-check non-deterministic objects wherever they are used. This was a terrible idea, cos there will be a lot of O(log n) type checking everywhere. Then I changed the concept to one where each type in a typecheck jumps to/has its own block of instructions where that type is always assumed for the object. So no repeated typechecks is done on the object again. The problem this approach is that the number of instructions will be crazily large.
+So I finally came up with a better version with little duplication of code. After the type of an object is determined, the object is associated with a switch_number (that represents the current object's type), the runtime uses this switch_number (O(1)) to jump to the appropriate operation.
+
+Buffers
+Also today I came changed buffers from being iso to being referrable. This makes some things like the BufferIndexer and the BufferGenerator easier to implement. BufferIndexer and BufferGenerators hold refs to buffers and can index or iterate through them directly.
+Buffer elements cannot, however, be referenced or passed by reference.
+
+# 08/01/17
+Back when I was searching for a nice name for the language, I found 'Astro' as part of a list of project name suggestion on a particular site I can't remember. The problem is, back then  when I took the name, I searched online for 'Astro Programming Language' on Google and Bing, I didn't find anything apart from a Julia package named 'Astro'.
+Today, however, I searched for the same keyword (an attempt to see how my Astro NL thread ranks), just to see that there is already a manifesto for another Astro language. What! There is a manifesto for Astro?
+Good thing is, there was no proposed syntax for the language, and the last commit on the github repo was 4 months ago. I don't mean that the author has discarded his idea, but since there's been no useful progress on the repo, perhaps I can tell him about my idea and syntax.
+
+
+# 09/01/17
+Sh*t! Just discovered Nim uses Multi-methods and dot notation for objects, just the way I planned for Astro. Time to go to bed and cry!
+Wait! It doesn't have duck typing. Astro still has a selling point. :)
+Astro is quite similar to Nim.
+I'm thinking of discarding goroutines for a better concurrency model. I'm looking at a modified version of actors. Designing one without deadlocks and data race but allows concurrent access to data, ain't easy. Wit a new concurrency model, Astro may have a bigger selling point.
+
+
+# 12/01/17
+I found out about Pony a few months back, even tho I didn't go really deep. But recently after considering the adoption of actors over goroutines, so I had to revisit Pony cos I remember it being advertised as an actor-based language. I read the language documentation and interestingly it has a lot of similar parts to Dexter, the most interesting one being the capability-system revolving around keywords ref, iso, val, trn, box and tag. Dexter has ref, iso, val and rd (trn + box).
+Reading Pony's doc really opens my mind on how Dexter can be better.
+
+# 12/01/17
+Yesterday was a sad day. I had to change the language name from Astro to Quadro because another similar project on Github already uses the name. At first I was not very happy changing the name. Today, however, I decided to look for a better name, I didn't quite like Quadro. So I went to a site that shows latin word list and upon seeing 'dexter', I immediately liked the name. I made quick research just to make sure it's not in use by any other person with similar project.
+As of today, Astro is now Dexter.I have changed the repo's name but I haven't changed the nairaland thread title yet to reflect the change. When the language is released and the domain name is purchased, then I will reflect the change elsewhere.
+
+# 13/01/17
+I've been on this crazy journey into actors for a few days now. I've dropped all work on the frontend just to better understand actor concurrency model and to integrate it seamlessly into the language.
+Checking out Pony, with it's philosophical approach to safety is intriguing. Pony is a well thought out language with an academic backing. I'm not a CS student and I know little about type theory and PL papers.
+But looking into Pony's capabilities system has made me rethink certain aspects of Dexter and I'm glad I found out about the language, albeit almost late.
+I want to make Dexter capabilities-secure without as much complexity as Pony's.

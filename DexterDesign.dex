@@ -1,0 +1,577 @@
+--------------------- COMPLEX ----------------------
+complex:
+	type
+	refcount
+	len
+	body ptr
+
+body ptr:
+	type
+	refcount
+	size
+	fields
+
+---------------------- BUFFER ----------------------
+buffer:
+	type
+	refcount
+	dimens
+	bufferopt
+
+bufferopt:
+	primitive array (I8, U8, I16, U16, I32, U32, I64, U64, F32, F64, Bool)
+	body ptr array
+	inbuffer array
+
+inbuffer:
+	type
+	len
+	bufferopt
+
+----------------THINGS THAT LIVE STACK -------------
+stack primitive
+struct-buf
+struct-cmp
+el-cmpbuf
+el-cmpcmp
+el-cmpprim
+el-bufbuf
+el-bufcmp
+el-bufprim
+
+-------------- STACK OBJECTS MANAGEMENT ------------
+STACK HIERARCHY
+foo ← [P1] current_stack_size();
+try ← [P2] current_stack_size() | catch_instruction_pos();
+bar ← [P3] current_stack_size();
+----------------
+THROWN OBJECTS
+a # Nil Exception
+b # Cast Exception
+c
+ # others
+----------------
+RETURNED OBJECTS
+a
+----------------
+
+------------------------- ASTS ---------------------
+module definition:
+	(name, body)
+type definition:
+	(abstract, access, name, baseTypes[], body)
+type_extension definition:
+	(name, baseTypes[], body)
+function definition:
+	(access, name, bang, params[:]<call_name, definition>, signTypes[], abstract, body)
+catch_function definition:
+	(name, id, try_id, params[]<call_name, definition>, types[], typeArgs[], access, bang, body, abstract)
+destructor definition:
+	(name, access, destructorType, body, abstract)
+closure definition:
+	(name, params[]<call_name, body_name, definition>, types[], typeArgs[], bang, body, abstract)
+catch_closure definition:
+	(name, id, try_id, params[]<call_name, definition>, types[], typeArgs[], access, bang, body, abstract)
+closure_destructor definition:
+	(name, access, destructorType, body, abstract)
+global_subject declaration:
+	(name, type, const, access)
+type_subject declaration:
+	(name, type, const, access, pin, ref)
+func_subject declaration:
+	(name, type, const, pin, flo, ref)
+loop_subject declaration:
+	(name, type, const, hold, pin, flo, ref)
+global_property declaration:
+	(name, type, const, access, set_body, get_body)
+type_property declaration:
+	(name, type, const, access, pin, set_body, get_body)
+func_property declaration:
+	(name, type, const, pin, flo, set_body, get_body)
+loop_property declaration:
+	(name, type, const, hold, pin, flo, set_body, get_body)
+import statement:
+	(head, tails)
+if statement:
+	(expr, body, elif[], else)
+elif statement:
+	(expr, body, if)
+else statement:
+	(expr, body, if)
+match statement:
+	(args, body)
+select statement:
+	(args, body)
+forloop statement:
+	(labelName, id, loop_iterator, body)
+whileloop statement:
+	(labelName, id, expr, body)
+block statement:
+	(id, body)
+try statement:
+	(id, body)
+loop_iterator expression:
+	(iterators[], expr, semi-colon, ref)
+dot_call expression:
+	(name, expr[], semi-colon, ref)
+list_index expression:
+	(name, indices[], semi-colon, ref)
+function_call expression:
+	(name, args[]<name, expr>, typeArgs, semi-colon, ref, emit, run)
+new_call expression:
+	(name, args[]<name, expr>, parentCalls, semi-colon, ref)
+return expression:
+	(expr, ref)
+yield expression:
+	(expr, ref)
+break expression:
+	(labelName, loopI)
+continue expression:
+	(labelName, loopID)
+spill expression:
+	()
+subject_name expression:
+	(name, semi-colon, lhs_ref, ref)
+func_name expression:
+	(name, types[], semi-colon, lhs_ref, ref)
+unnamed_arg expression: # :$1 + $2
+	(number, semi-colon, ref)
+unary prefix expression:
+	(op, expr, semi-colon, ref)
+unary postfix expression:
+	(op, expr, semi-colon, ref)
+binary expression:
+	(op, lhs, rhs, semi-colon, ref)
+range expression: # {xx:yy}
+	(lhs, rhs, semi-colon, ref)
+indexer expression: # xx[:]
+	(expr, indices[], semi-colon, ref)
+tupling expression: # ...xx
+	(expr, semi-colon, ref)
+listing expression: # [xx]
+	(expr, semi-colon, ref)
+generating expression: # thru xx
+	(expr, semi-colon, ref)
+assignment expression:
+	(lhs, rhs, semi-colon, ref)
+integer_int literal:
+	(literal, semi-colon, ref)
+integer_uint literal:
+	(literal, semi-colon, ref)
+integer_i8 literal:
+	(literal, semi-colon, ref)
+integer_u8 literal:
+	(literal, semi-colon, ref)
+integer_i16 literal:
+	(literal, semi-colon, ref)
+integer_u16 literal:
+	(literal, semi-colon, ref)
+integer_i32 literal:
+	(literal, semi-colon, ref)
+integer_u32 literal:
+	(literal, semi-colon, ref)
+integer_i64 literal:
+	(literal, semi-colon, ref)
+integer_u64 literal:
+	(literal, semi-colon, ref)
+float_f32 literal:
+	(literal, semi-colon, ref)
+float_f64 literal:
+	(literal, semi-colon, ref)
+bool literal:
+	(literal, semi-colon, ref)
+string literal:
+	(strings[], expr[], semi-colon, ref)
+chars literal
+	(literal, semi-colon, ref)
+symbol literal:
+	(literal, semi-colon, ref)
+tuple literal:
+	(args[], semi-colon, ref)
+list literal:
+	(type, dimen[], expr[], semi-colon, ref)
+dict literal:
+	(args[], semi-colon, ref)
+regex literal:
+	(literal, semi-colon, ref)
+ns_number literal:
+	(literal, semi-colon, ref)
+ns_string  literal:
+	(strings[], expr[], semi-colon, ref)
+ns_symbol  literal:
+	(literal, semi-colon, ref)
+ns_list literal:
+	(type, dimen[], args[], semi-colon, ref)
+ns_dict literal:
+	(args[], semi-colon, ref)
+---------------- RUNTIME LISTS ---------------------
+globallist # globals, constants/loaded values, mockobject
+##
+funclist
+##
+typelist
+##
+instructionlist
+attributelist
+# switchlist
+##
+stack
+stackheadlist
+thrownlist
+returnedlist
+
+------------------ EXAMPLES ----------------------
+[SOURCE CODE]
+var score = TestScore
+var buffer = [15, 6, 8, 0, 21, 75, 3, 7]
+score = buffer[5:]
+[BYTECODE]
+mkcmp score ; TestScore ; TestScore()
+ret2
+mkbuf buffer; 1 ; 10
+pushbuf buffer t1
+call ; __setbuffer(=:Testcore, =:Buffer, =:Int, =:Int, =:Int)
+ret2
+
+
+[SOURCE CODE]
+type Person(name, age):
+	var name = Str
+	var age = Int
+..
+func getDetails person =: Person:
+	self.name, self.age
+..
+type Employee(super(name, age), job, company) <: Person:
+	var job, company = Str
+..
+type DivByZeroEx(super msg) <: Exception
+func main:
+	var someone =: Employee(
+		"David Copenhagen",
+		45,
+		"Managing Director",
+		"Pharmadise, Inc."
+	)
+	let name, age = dave.getDetails
+	let david = Employee(name, age)
+	let a = 5f
+	let b = 2f
+	let c = a.div(b)`divErr
+	catch divErr err =: DivByZeroEx: println 'Attempt to divide by zero!'
+..
+func div num & den =: Int:
+	if den == 0: throw DivByZeroEx
+	num / den
+..
+[BYTECODE]
+
+------------------ COMPILER ---------------------
+- stores known primitives, strings and buffers
+- Solving range ambiguity issue
+	1. only ranges can have semi-colon following a literal or name. apart from keywords which can also come before a semi-colon.
+	2. the operands and operators in a range are packed up
+	3. ranges come in two types. ranges without step (r1) and ranges with step (r2)
+	4. in places where a range is expected, the tokens are tested for r2, then r1.
+	r1 -> a:b:c:
+	r2 -> a:b:
+- Optimizations
+	- moving temporaries reference to assigned.
+	- reusing object containers
+		- in an rhs expression, sub-expressions overwrite each other as they go, if they
+		- have the same container type, and finally the ending expression overwrites the
+		- assigned object’s container if they have the same container type.
+- Notice
+	- When a function is called with lesser number of parameters.
+- Warnings
+	- When an object is declared but not accessed.
+	- When you call a function with arguments that can (potentially) cause an alias ambiguity call at runtime.
+- Errors
+	- When an object accesses a field name or function name its type did not provide.
+	- When a function without a bang signature writes to a referenced object passed in.
+	- When you call a bang function without annotating with a bang.
+- Guarantees
+	- If you throw an exception in a destructor, the object will be destroyed.
+	- If you throw an exception in a cpnstructor, the object will not be created
+	- Local automatic objects will be destroyed when the function returns.
+- Guideline Notice
+	- When a type name starts with a lowercase letter or underscore
+	- When a subject or function name starts with an uppercase letter.
+	- When nameless parameters are used inappropriately (i.e. not in first params or enum element params)
+	- When there is adjacent repetition of subject names in a condition.
+
+------------- TYPE INFERENCE ---------------------
+- get all types and id them
+- get all blocks and nested blocks and id them
+- assignment is the point of type transfer
+- flow branches
+- where does the flow begin?
+- function has types as signatures and a return type
+
+------------- OBJECTS THAT NEED WORK -------------
+- properties
+- events
+- indexer
+- generators
+- tuples
+- optional types (Nil)
+- scope and objects on stack
+
+------------ FUTURE IMLEMENTATIONS ---------------
+- Making fibers and threads work together to form coroutines
+- Detecting Cyclic Ref Using a Relationship Cyclic Tree
+	- Object -> [parents] [children] [siblings] [level] (all ordered aphanumerically)
+	- When an object points to its siblings or its parent siblings, then it is rouge object likely to cause a cyclic ref.
+	- Traverse the structure starting from the rouge object using a depth-first approach. Test all possible branches (infinite lookahead) and see if any of the encountered node is a parent of the rouge object. Once the trasversal goes below the rouge objects level, it is stopped and the next branch is tested.
+- Improving Automatic Reference Counting
+	- Counting refs at compile-time and determining objects destruction points while considering concurrency.
+- Detecting a cyclic ref at compile-time and determining destruction points
+- Tail call optimization
+- More Unicode support
+- Constant folding
+
+
+------------- OPCODE STRUCTURE ----------------
+8
+8, 8
+8, 8, 8
+8, 8, 8, 8
+32/64
+
+------------- ASTRO BYTECODE FILE -------------
+>HEADER
+	signature = 'ASTB' # 4Bytes
+	encoding = 1 # 1Byte # UTF-8
+	version = [
+		major : 0 # 1Byte
+		minor : 1 # 1Byte
+		patch : 0 # 1Byte
+	]
+	contentSize = 150 # 4Byte
+
+>TYPES
+	bytes = 150 # 4Byte
+	types = [
+		type1 : []
+		type2 : []
+	]
+
+>FUNCTIONS
+	bytes = 150
+	funcs = [
+		func1 : []
+		func2 : []
+	]
+
+>GLOBALS
+	bytes = 150
+	globals = [
+		constants : [
+			bytes : 30
+
+		]
+		globals : [
+			bytes : 30
+
+		]
+		typevars : [
+			bytes : 30
+
+		]
+		funcvars : [
+			bytes : 30
+
+		]
+	]
+
+>INSTRUCTIONS
+	bytes = 150
+	instructions = []
+
+>ATTRIBUTES
+	bytes = 150
+	attributes = []
+
+
+
+#########################OBJECTS SERIALISED###########################
+primitive = [
+	bytes = 12
+	type = t'I64'
+	value = 56
+]
+
+complex = [
+	bytes = 36
+	type = t'Person'
+	size = 2
+	string = []
+	primitive = []
+]
+
+buffer = [
+	bytes = 50
+	type = t'Buffer/Str'
+	dimen = 1
+	dimenSizes = [3]
+	array = [
+		string : [],
+		string : [],
+		string : []
+	]
+]
+
+func = [
+	bytes = 20
+	type = t'Func'
+	instrIndex = 32
+	overloadHead = 12
+	layout = [
+		bytes : 34
+		obj1 : [ kind = k'global', globalIndex = 55]
+		obj2 : [ kind = k'local', globalIndex = 0]
+		obj3 : [ kind = k'constant', globalIndex = 57]
+		obj4 : [ kind = k'funcvar', globalIndex = 58]
+	]
+]
+
+type = [
+	bytes = 6
+	type = t'DataType'
+	ancestorSize = 2
+	ancestors = [34, 64] # ancestors is sorted.
+	constructorsSize = 2
+	constructors = [23, 7]
+	normalDestructor = 56
+	exceptionDestructor = 71
+	mockobject = [
+		bytes : 34
+		type : t'Person'
+		size : 4
+		refCount : 0
+		string : []
+		primitive : []
+	]
+]
+
+----------------- BYTECODE -----------------------
+# primitive ops don't need nil checks because the compiler makes signature
+# the operands are bare primitives.
+# MOV
+mov_v a b
+mov_r a b
+mov_wr a b
+# ADD, SUB, MUL, DIV, MOD, EXP, ROOT, UNM
+add a b c
+sub a b c
+mul a b c
+div a b c
+mod a b c
+exp a b c
+root a b c
+unm a b
+# INCR, DECR, STEP
+incr a
+decr a
+step a b
+# CAST
+cast a b ; type_index
+# EQ, LT, LE
+eq a b c
+lt a b c
+le a b c
+eq2 a b ; jump_offset
+lt2 a b ; jump_offset
+le2 a b ; jump_offset
+# AND OR
+and a b c
+or a b c
+# BNOT, BAND, BOR, BXOR,
+bnot a b c
+band a b c
+bor a b
+bxor a b
+# SHL, SHR
+shl a b c
+shr a b c
+# FORLOOP
+forloop_ initial_value ; end_value ; instruction_index
+forloop2_ a b ; instruction_index
+# MK
+mkbuf a ; dimen ; dimensizes
+mkcmp a ; type_index; constructor_function_index
+# PULLGLOBAL
+pullglob_ a ; global_index # sets pointer to a particular object in global.
+pushbuf_v_ a b ; index
+pushbuf_r_ a b ; index
+pushbuf_wr_ a b ; index
+pushbuf_vnull_ a b ; index
+pushbuf_rnull_ a b ; index
+pushbuf_wrnull_ a b ; index
+pushcmp_v_ a b ; index
+pushcmp_r_ a b ; index
+pushcmp_wr_ a b ; index
+pushcmp_vnull_ a b ; index
+pushcmp_rnull_ a b ; index
+pushcmp_wrnull_ a b ; index
+--------
+# last index is checked to determine if pulling/pushing barePrimitive
+pullbufel_ a b
+pushbufel_ a b
+---------
+pullcmpel_ a b ; index # pullcmp pulls the ref onto the stack
+---------
+pushcmpel_v_ a b ; index
+pushcmpel_r_ a b ; index
+pushcmpel_wr_ a b ; index
+pushcmpel_vnull_ a b ; index
+pushcmpel_rnull_ a b ; index
+pushcmpel_wrnull_ a b ; index
+# INDEX
+index ; number
+index_ ; number
+# TYPECHECK
+typecheck_ a ; type_index ; switch_number ;
+typecheck a b
+typechecksub a b
+typecheck2 a ; type_index
+typechecksub2 a ; type_index
+# SWITCH
+switch ; instr_index ; instr_index ;
+# CALL, RUN, EMIT
+call a
+run a
+emit a
+call2 ; function_index
+run2 ; function_index
+emit2 ; function_index
+# STEPBACK
+stepback ; offset
+# LEN  # Cannot be Nil # Complex
+lencmp a b
+lenbuf a b
+# DIMEN # Cannot be Nil # Buffer
+dimen a b
+dimensize a b c # c is the dimension position
+# CATCH, THROW
+catch a b  # automatic clearance for just one object
+throw a
+# JMP, JMPBACK
+jmp ; jump_offset
+jmpback ; jump_offset
+# RET
+ret a
+ret2
+# CLEAR
+clear ; number
+# PRINT, SCAN
+print a
+println a
+scan a
+# FOPEN, FREAD, FWRITE, FCLOSE
+fopen a
+fread a b
+fwrite a b
+fclose a
+# EXIT
+exit a # error code

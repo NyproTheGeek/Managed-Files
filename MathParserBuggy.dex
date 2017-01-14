@@ -1,0 +1,243 @@
+# 18/12/16
+# Rewriting an old buggy code in Astro 0.2
+enum TokenType:
+	identifier, number, operator, punctuator, newline, others
+
+type Token(str = Str, kind = TokenType)
+
+let `input = Str
+var `charIndex = Int
+let `operators = '=-+*/^√'
+let `punctuators = ':}(),'
+
+func `getChar:
+	if ++charIndex < input.size:
+		input[charIndex]
+	nil
+..
+
+# LEXING
+func lex input = Str:
+	var tokens = Token[]
+	outer.input = input
+	charIndex = 0
+	var char = Str
+	loop:
+		char = getChar~
+		# Whitespace
+		while char == ' ':
+			char = getChar~break
+		# Identifier
+		if char.isAlpha | char == '_':
+			var idenStr = char
+			while str.isAlNum | char == '_':
+				idenStr += char
+				char = getChar~break
+			..
+			tokens += Token(idenStr, identifier)
+		..
+		# Number
+		var numStr = Str
+		while char.isDigit:
+			numStr += char
+			char = getChar~break
+		..
+		if !numStr.isEmpty: tokens += Token(numStr, number)
+		# Operator
+		if char in operators:
+			tokens += Token(idenStr, operator)
+		# Punctuator
+		if char in punctuators:
+			tokens += Token(idenStr, punctuator)
+		# NewLine
+		if char == '\n':
+			tokens += Token(char, newline)
+		elif char == '\r':
+			char += getChar~''
+			if char == '\n': tokens += Token('\r\n', newline)
+		..
+		# Nil
+		if !char: break
+		# Others
+		tokens += Token(char, others)
+	..
+	tokens
+..
+
+# PARSING
+type ab ExprAST
+type BinExprAST(operator, lhs, rhs)<: ExprAST:
+	let operator = Str
+	let lhs & rhs = ExprAST
+..
+type FuncCallExprAST(callee, args) <: ExprAST:
+	let callee = IdenExprAST
+	let args = ExprAST
+..
+type NumExprAST(value) <: ExprAST:
+	let value
+type IdenExprAST(name) <: ExpAST:
+	let name = Str
+type SyntaxEx(super(message)) <: Exception
+type NewlineEx(super(message)) <: Exception
+
+let `tokens = Token[]
+var `tokenIndex = 0
+var `currentToken = Token
+let `funcNames = ['bezier', 'lerp']
+let `binOpPrecedence = [
+	'=' => 10,
+	'+' => 20,
+	'-' => 20,
+	'*' => 30,
+	'/' => 30,
+	'^' => 40,
+	'√' => 40,
+]
+
+func `getToken:
+	if ++tokenindex < token.size:
+		currentToken = tokens[tokenIndex]
+	else: curToken = nil
+..
+
+func parse tokens = Token[]:
+	outer.tokens = tokens
+	getToken
+	if !currentToken | currentToken.kind == newline:
+		throw SyntaxEx 'Nothing to parse!'
+	let exprAST = parseExpr mid=false
+..
+
+func `parsePrimary mid = Bool -> ExprAST:
+	let exprAST = ExprAST
+	match currentToken.kind:
+		with> identifier: exprAST = parseIdenExpr
+		with number: exprAST = parseNumExpr
+		with punctuator where currentToken.kind == '(':
+			exprAST = parseParensExpr
+		with punctuator where currentToken.kind == ':':
+			exprAST = parseFuncCallExpr
+		with newline:
+			if mid == true: throw SyntaxEx 'Expected an expression!'
+			else: throw NewlineEx
+		with others: throw SyntaxEx 'Expected an expression!'
+	..
+	exprAST
+..
+
+func `parseExpr mid = Bool -> ExprAST:
+	let lhs = parsePrimary mid=mid
+	if currentToken~ & currentToken.kind != newline:
+		rt parseBinExpr 0, lhs
+	rt lhs
+..
+
+func `parseIdenExpr -> ExprAST:
+	let idenExprAST = IdenExprAST currentToken.str
+	getToken
+	idenExprAST
+..
+
+func `parseNumExpr -> ExprAST:
+	let numExprAST = NumExprAST currentToken.str.toF64
+	getToken
+	numExprAST
+..
+
+func `parseParensExpr:
+	getToken
+	let exprAST = parseExpr true
+	if currentToken.str != ')': throw SyntaxEx "Expected a ')'!"
+	getToken
+	exprAST
+..
+
+func `parseFuncCallExpr -> FuncCallExprAST:
+	getToken
+	if currentToken.str not in funcNames:
+		throw SyntaxEx 'Expected a function name!'
+	let funcName = currentToken.str
+	let args = ExprAST
+	getToken
+	if currentToken.str != '{': throw SyntaxEx "Expected a '{'!"
+	getToken
+	while currentToken.str != '}':
+		args += parseExpr true
+		if currentToken.str == ',':
+			getToken
+			if !currentToken | currentToken.kind == newline | currentToken == '}':
+				throw SyntaxEx "Expected an expression!"
+		..
+		if !currentToken | currentToken.kind == newline:
+			throw SyntaxEx "Expected a '}'!"
+	..
+	getToken
+	FuncCallExprAST funcName, args
+..
+
+func `parseBinExpr op1prec = Int, lhs = ExprAST -> BinExprAST:
+	if currentToken.str == ',':
+		rt lhs
+	loop:
+		if curToken.kind != operator: raise SyntaxEx "Expected an binary operator!"
+		let op2 = currenToken.str
+		let op2prec = binOpPrecedence[op2]
+
+		if op2prec < op1prec:
+			rt lhs
+		getToken
+
+		var rhs = parsePrimary true
+		if !curtoken | curToken.kind == operator:
+			throw SyntaxEx "Expected an binary operator!"
+		var op3 = currentToken.str
+		var op3prec = binOpPrecedence[op3]
+
+		if op2prec < op3prec:
+			rhs = parseBinExpr(op2prec, rhs)
+		lhs = BinExprAST op2, ls, rhs
+	..
+..
+
+# CODEGEN
+enum Opcode:
+	dload, dstore, dadd, dsub, dmul, ddiv, dexp, droot, goto, push, deq, dle, dlt
+
+type Bytecode(opcode = Opcode, param = Str)
+
+let `asts = ExprAST[]
+
+func codeGen:..
+
+func show ast = ExprAST:
+	with> NumExprAST:
+		print 'value: [self.value]'
+	with IdenExprAST:
+		print 'name: [self.name]'
+	with BinExprAST:
+		print '(op: [self.op], [self.lhs.show], [self.lhs.show])'
+	with FuncCallExprAST:
+		print '{function: [self.callee.show]->'
+		for arg thru self.args:
+            show(arg)
+            print ', '
+        ..
+		print '}'
+	..
+	println
+..
+
+func main:
+	var asts = ExprAST[]
+	loop:
+		asts = scanln('mathopia >>> ').lex.parse`parseExs
+		catch parseExs(ex = Exception):
+			with> SyntaxEx: println ex.message; next
+			with NewlineEx: next
+		..
+	..
+..
+
+if __direct:
+	main

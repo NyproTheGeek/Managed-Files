@@ -1,0 +1,186 @@
+# 03/01/17
+# Astro0.2 (13 SLOC)
+type Duck
+type Person name = Str
+
+func quack duck = Duck: println 'Quaaaaack!'
+func quack person = Person: println 'The person imitates a duck.'
+
+func feathers duck = Duck: println 'The duck has white and gray feathers.'
+func feathers person = Person:
+    println 'The person takes a feather from the ground and shows it.'
+
+func name person = Person: println self.name
+
+func inTheForest duck: duck->quack->feathers
+
+func game:
+    let donald, john = Duck, Person 'John Smith'
+    inTheForest donald && john
+..
+
+game
+
+# C# (24 SLOC)
+using static System.Console;
+
+class Duck{
+	public void Quack() => WriteLine("Quaaaaaack!");
+	public void Feathers() => WriteLine("The duck has white and gray feathers.");
+}
+
+class Person{
+	public void Quack() => WriteLine("The person imitates a duck.");
+	public void Feathers() => WriteLine("The person takes a feather from the ground and shows it.");
+}
+
+class Program{
+	static void InTheForest(dynamic duck){
+		duck.Quack();
+		duck.Feathers();
+	}
+
+	static void Game(){
+		Duck donald = new Duck();
+		Person john = new Person();
+		InTheForest(donald);
+		InTheForest(john);
+	}
+
+	static void Main(){
+		Game();
+	}
+}
+
+# JavaScript (21 SLOC)
+function Duck() {
+  this.quack = function() { alert('Quaaaaaack!'); };
+  this.feathers = function() { alert('The duck has white and gray feathers.'); };
+}
+
+function Person() {
+  this.quack = function() { alert('The person imitates a duck.'); };
+  this.feathers = function() { alert('The person takes a feather from the ground and shows it.'); };
+  this.name = function() { alert('John Smith'); };
+}
+
+function inTheForest(object) {
+  if (object.quack)     // Check that the .quack() function exists
+    object.quack();
+  if (object.feathers)  // Check that the .feathers() function exists
+    object.feathers();
+}
+
+function game() {
+  var donald = new Duck();
+  var john = new Person();
+  inTheForest(donald);
+  inTheForest(john);
+}
+
+game();
+
+# Julia (20 SLOC)
+type Duck end
+
+type Person
+    name::ASCIIString
+end
+
+quack(x::Duck) = println("Quaaaaaack!")
+quack(x::Person) = println("The person imitates a duck.")
+
+feathers(x::Duck) = println("The duck has white and gray feathers.")
+feathers(x::Person) = println("The person takes a feather from the ground and shows it.")
+
+name(x::Person) = println(x.name)
+
+function in_the_forest(duck)    # same as duck::Any
+    quack(duck)
+    feathers(duck)
+end
+
+function game()
+    donald = Duck()
+    john = Person("John Smith")
+
+    in_the_forest(donald)
+    in_the_forest(john)
+end
+
+game()
+
+# Lua (34 SLOC)
+local duck_mt = {}
+local duck_methods = {}
+duck_mt.__index = duck_methods
+
+function duck_methods:quack()
+	print "Quaaaaaack!"
+end
+
+function duck_methods:feathers()
+	return "The duck has white and gray feathers."
+end
+
+local function new_duck()
+	return setmetatable({}, duck_mt)
+end
+
+local person_mt = {}
+local person_methods = {}
+person_mt.__index = person_methods
+
+function person_methods:quack()
+	print "The person imitates a duck."
+end
+
+function person_methods:feathers()
+	return "The person takes a feather from the ground and shows it."
+end
+
+function person_methods:get_name()
+	return self.firstname .. " " .. self.lastname
+end
+
+local function new_person(t)
+	return setmetatable(t or {}, person_mt)
+end
+
+local function in_the_forest(duck)
+	duck:quack()
+	print(duck:feathers())
+end
+
+local donald = new_duck()
+local john = new_person {firstname="John", lastname="Smith"}
+in_the_forest(donald)
+in_the_forest(john)
+
+
+# Python (21 SLOC)
+class Duck:
+    def quack(self):
+        print("Quaaaaaack!")
+    def feathers(self):
+        print("The duck has white and gray feathers.")
+
+class Person:
+    def quack(self):
+        print("The person imitates a duck.")
+    def feathers(self):
+        print("The person takes a feather from the ground and shows it.")
+    def name(self):
+        print("John Smith")
+
+def in_the_forest(duck):
+    duck.quack()
+    duck.feathers()
+
+def game():
+    donald = Duck()
+    john = Person()
+    in_the_forest(donald)
+    in_the_forest(john)
+
+game()

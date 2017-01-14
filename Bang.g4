@@ -2,8 +2,8 @@
 // Bang0.0.83
 grammar Bang;
 
-DSP: NL[ \\t] -> skip;
-KSP: NL[ \\t];
+DSP: NL[ \t] -> skip;
+KSP: NL[ \t];
 NL: ('\r'?'\n')+;
 IDEN: [a-zA-Z][a-zA-Z_]*; // TODO Will extend this to UTF-8 later
 A_NUM: ('-'|'+')? [0-9] ('_'? [0-9])* ('e' ('-'|'+')? [0-9]+)?
@@ -22,7 +22,7 @@ NUM: A_NUM|B_NUM;
 LIT: STRING|NS_STRING|IDEN|NUM;
 
 // KEYWORDS
-REF: 'read'|'ref'|'iso'|'own';
+REF: ;
 MOD0: 'priv'|'pack'|'prod'|'rpriv'|'rpack'|'rprod';
 STICKY: 'sticky';
 HOLD: 'hold';
