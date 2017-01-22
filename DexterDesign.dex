@@ -56,154 +56,326 @@ a
 ----------------
 
 ------------------------- ASTS ---------------------
-module definition:
-	(name, body)
+# redesigned 16/01/17
 type definition:
-	(abstract, access, name, baseTypes[], body)
-type_extension definition:
-	(name, baseTypes[], body)
+	(abstract, access, name, base_types[], body)
+global_type_extension definition:
+	(access, name, base_types[], body)
+local_type_extension definition:
+	(name, base_types[], body)
+# FUNCTIONS
 function definition:
-	(access, name, bang, params[:]<call_name, definition>, signTypes[], abstract, body)
+	(access, name, bang, params[:]<call_name:expr>, body)
 catch_function definition:
-	(name, id, try_id, params[]<call_name, definition>, types[], typeArgs[], access, bang, body, abstract)
+	(access, name, param_type, body)
 destructor definition:
-	(name, access, destructorType, body, abstract)
+	(name, destructor_type, body)
 closure definition:
-	(name, params[]<call_name, body_name, definition>, types[], typeArgs[], bang, body, abstract)
+	(name, bang, params[:]<call_name:expr>, body)
 catch_closure definition:
-	(name, id, try_id, params[]<call_name, definition>, types[], typeArgs[], access, bang, body, abstract)
-closure_destructor definition:
-	(name, access, destructorType, body, abstract)
-global_subject declaration:
-	(name, type, const, access)
-type_subject declaration:
-	(name, type, const, access, pin, ref)
-func_subject declaration:
-	(name, type, const, pin, flo, ref)
-loop_subject declaration:
-	(name, type, const, hold, pin, flo, ref)
-global_property declaration:
-	(name, type, const, access, set_body, get_body)
-type_property declaration:
-	(name, type, const, access, pin, set_body, get_body)
-func_property declaration:
-	(name, type, const, pin, flo, set_body, get_body)
-loop_property declaration:
-	(name, type, const, hold, pin, flo, set_body, get_body)
+	(name, param_type, body)
+destructor_closure definition:
+	(name, destructor_type, body)
+# SUBJECTS
+global_subject definition: # global subjects
+	(let, access, name, assign_type, rhs)
+type_subject definition: # fields
+	(let, pin, access, name, assign_type, rhs)
+function_subject definition: # local subjects
+	(let, pin, name, assign_type, rhs)
+loop_subject definition:
+	(let, hold, pin, name, assign_type, rhs)
+# PROPERTIES
+global_property definition:
+	(let, access, name, assign_type, set_body, get_body)
+type_property definition:
+	(let, pin, access, name, assign_type, set_body, get_body)
+function_property definition:
+	(let, pin, name, assign_type, set_body, get_body)
+loop_property definition:
+	(let, hold, pin, name, assign_type, set_body, get_body)
+set_body definition:
+	(body)
+get_body definition:
+	(body)
+# STATEMENTS
 import statement:
-	(head, tails)
+	(path, names[], specifiers[])
 if statement:
-	(expr, body, elif[], else)
+	(exprs[], body, end)
 elif statement:
-	(expr, body, if)
+	(exprs[], body, end)
 else statement:
-	(expr, body, if)
+	(body)
+where statement:
+	(exprs[])
 match statement:
-	(args, body)
-select statement:
-	(args, body)
-forloop statement:
-	(labelName, id, loop_iterator, body)
-whileloop statement:
-	(labelName, id, expr, body)
+	(args[]<expr>, body)
+w:th statement:
+	(exprs[], body, end)
+c:se statement:
+	(exprs[], body, end)
+with statement:
+	(exprs[], body, end)
+case statement:
+	(exprs[], body, end)
+for_loop statement:
+	(loop_iterators[], body)
+while_loop statement:
+	(exprs[], body)
+repeat_loop statement:
+	(body, exprs[])
 block statement:
-	(id, body)
+	(body)
 try statement:
-	(id, body)
-loop_iterator expression:
-	(iterators[], expr, semi-colon, ref)
-dot_call expression:
-	(name, expr[], semi-colon, ref)
-list_index expression:
-	(name, indices[], semi-colon, ref)
-function_call expression:
-	(name, args[]<name, expr>, typeArgs, semi-colon, ref, emit, run)
+	(body)
+try_with statment:
+	(expr, body)
+catch statement:
+	(params[:]<name:expr>, body)
+ensure statement:
+	(body)
+# EXPRESSIONS
+label expression:
+	(name)
+loop_iterator expression: # x in y
+	(ref, lhs, rhs)
+dot_call expression: # x.y # for fields and bracketless no-arg functions only
+	(ref, name0, name1)
+arrow_call expression: # ->y # for fields and bracketless no-arg functions only
+	(ref, name0, name1)
+list_index expression: # x[y]
+	(ref, expr, indices[])
+function_call expression: # x(a, b, c)
+	(ref, emit, name, bang, vector, generic_type_args[], args[:]<name:expr>)
+chain_call expression: # >>(a, b, c)
+	(ref, args[:]<name:expr>)
+catch_call expression: # x`y
+	(expr, name)
 new_call expression:
-	(name, args[]<name, expr>, parentCalls, semi-colon, ref)
+	(ref,  parent_call_expr, args[:]<name:expr>)
 return expression:
-	(expr, ref)
+	(ref, expr)
 yield expression:
-	(expr, ref)
+	(ref, expr)
 break expression:
-	(labelName, loopI)
+	(labelName)
 continue expression:
-	(labelName, loopID)
+	(labelName)
 spill expression:
 	()
-subject_name expression:
-	(name, semi-colon, lhs_ref, ref)
-func_name expression:
-	(name, types[], semi-colon, lhs_ref, ref)
+nothing expression:
+	()
+reference expression:
+	(ref)
+name expression:
+	(ref, name)
+func_object expression:
+	(ref, name, args[]<expr>)
+type_object expression: # |Int|
+	(name)
 unnamed_arg expression: # :$1 + $2
-	(number, semi-colon, ref)
+	(ref, number)
+varargs expression: # ...args # only in function parameters
+	(let, pin, name, assign_type, rhs)
 unary prefix expression:
-	(op, expr, semi-colon, ref)
+	(ref, op, expr)
 unary postfix expression:
-	(op, expr, semi-colon, ref)
+	(ref, expr, op)
 binary expression:
-	(op, lhs, rhs, semi-colon, ref)
-range expression: # {xx:yy}
-	(lhs, rhs, semi-colon, ref)
+	(ref, lhs, op, rhs)
+generics_decl expression: # $T(y)
+	(ref, name, contraint_kind, expr)
+generics_type_of expression: # $(y)
+	(ref, expr)
+generics_just_like expression: # $T of y
+	(ref, name0, name1)
+range expression: # {x:y}
+	(ref, lhs, rhs)
 indexer expression: # xx[:]
-	(expr, indices[], semi-colon, ref)
+	(ref, expr, indices[])
 tupling expression: # ...xx
-	(expr, semi-colon, ref)
-listing expression: # [xx]
-	(expr, semi-colon, ref)
-generating expression: # thru xx
-	(expr, semi-colon, ref)
+	(ref, expr)
 assignment expression:
-	(lhs, rhs, semi-colon, ref)
+	(ref, lhs, rhs)
 integer_int literal:
-	(literal, semi-colon, ref)
+	(ref, literal)
 integer_uint literal:
-	(literal, semi-colon, ref)
+	(ref, literal)
 integer_i8 literal:
-	(literal, semi-colon, ref)
+	(ref, literal)
 integer_u8 literal:
-	(literal, semi-colon, ref)
+	(ref, literal)
 integer_i16 literal:
-	(literal, semi-colon, ref)
+	(ref, literal)
 integer_u16 literal:
-	(literal, semi-colon, ref)
+	(ref, literal)
 integer_i32 literal:
-	(literal, semi-colon, ref)
+	(ref, literal)
 integer_u32 literal:
-	(literal, semi-colon, ref)
+	(ref, literal)
 integer_i64 literal:
-	(literal, semi-colon, ref)
+	(ref, literal)
 integer_u64 literal:
-	(literal, semi-colon, ref)
+	(ref, literal)
 float_f32 literal:
-	(literal, semi-colon, ref)
+	(ref, literal)
 float_f64 literal:
-	(literal, semi-colon, ref)
+	(ref, literal)
 bool literal:
-	(literal, semi-colon, ref)
-string literal:
-	(strings[], expr[], semi-colon, ref)
-chars literal
-	(literal, semi-colon, ref)
-symbol literal:
-	(literal, semi-colon, ref)
-tuple literal:
-	(args[], semi-colon, ref)
-list literal:
-	(type, dimen[], expr[], semi-colon, ref)
-dict literal:
-	(args[], semi-colon, ref)
+	(ref, literal)
+string literal: # "Hello [name]!"
+	(ref, strings[], exprs[])
+chars literal: # ch."Hello [name]!"
+	(ref, chars[], exprs[])
+tuple literal: # (n:p, y:z)
+	(ref, args[:]<name:expr>)
+list literal: # |2*3 Int|[,]
+	(ref, dimen[], type, exprs[])
+dict literal: # |Str:Int|[:]
+	(ref, dimen[], types[], exprs[:]<key:value>)
 regex literal:
-	(literal, semi-colon, ref)
+	(ref, literal)
 ns_number literal:
-	(literal, semi-colon, ref)
-ns_string  literal:
-	(strings[], expr[], semi-colon, ref)
-ns_symbol  literal:
-	(literal, semi-colon, ref)
-ns_list literal:
-	(type, dimen[], args[], semi-colon, ref)
-ns_dict literal:
-	(args[], semi-colon, ref)
+	(ref, name, literal)
+ns_string literal:
+	(ref, name, literal)
+ns_list literal: # |2*3 Int| list.[,]
+	(ref, dimen[], type, name, exprs[])
+ns_dict literal: # |Str:Int| list.[:]
+	(ref, dimen[], types[], name, exprs[:]<key:value>)
+formatting expression: # price.%2f
+	(ref, expr, literal)
+------------------- FLOW GRAPH ---------------------
+scope:
+	(number, parent, children)
+type:
+    (name, template, generics_signature)
+
+function:
+    (name, args_signature, generics_signature)
+
+type_head:
+    (overload_size)
+
+function_head:
+    (overload_size)
+----------------- BYTECODE -----------------------
+# MOV
+mov_v a b ## b = val a [primitive]
+mov_r a b ## b = ref a [primitive]
+# ADD, SUB, MUL, DIV, MOD, EXP, ROOT, UNM
+add a b c ## c = a + b [primitive]
+sub a b c ## c = a - b [primitive]
+mul a b c ## c = a * b [primitive]
+div a b c ## c = a / b [primitive]
+mod a b c ## c = a % b [primitive]
+exp a b c ## c = a ^ b [primitive]
+sqrt a b ## b = √ a [primitive]
+unm a b ## b = -a [primitive]
+# INCR, DECR, STEP
+incr a b ## b = ++a [primitive]
+decr a b ## b = --a [primitive]
+# CAST
+cast a b ; type_index ## b = T(a) [primitive]
+# EQ, LT, LE
+eq a b c ## c = a == b [primitive]
+lt a b c ## c = a > b [primitive]
+le a b c ## c = a >= b [primitive]
+if a ; jump_offset ## a ? _ : _ [primitive]
+# AND OR
+and a b c ## c = a & b [primitive]
+or a b c ## c = a | b [primitive]
+# BNOT, BAND, BOR, BXOR,
+bnot a b c ## c = a .not b [primitive]
+band a b c ## c = a .and b [primitive]
+bor a b c ## c = a .or b [primitive]
+bxor a b ## c = a .xor b [primitive]
+# SHL, SHR
+shl a b c ## c = a .shl b [primitive]
+shr a b c ## c = a .shr b [primitive]
+# FORLOOP
+forloop_ a; begin; step; end; instruction_index ## for a in [begin:step:end] [primitive]
+forloop2_ a b; begin; step; end; instruction_index ## for a in b[begin:step:end] [complex]
+# MK
+mkbuf a ; dimen ; dimensizes
+mkcmp a ; type_index; constructor_function_index
+# PULLGLOBAL
+pullglob_ a ; global_index # sets pointer to a particular object in global.
+pushbuf_v_ a b ; index
+pushbuf_r_ a b ; index
+pushbuf_wr_ a b ; index
+pushbuf_vnull_ a b ; index
+pushbuf_rnull_ a b ; index
+pushbuf_wrnull_ a b ; index
+pushcmp_v_ a b ; index
+pushcmp_r_ a b ; index
+pushcmp_wr_ a b ; index
+pushcmp_vnull_ a b ; index
+pushcmp_rnull_ a b ; index
+pushcmp_wrnull_ a b ; index
+--------
+# last index is checked to determine if pulling/pushing barePrimitive
+pullbufel_ a b
+pushbufel_ a b
+---------
+pullcmpel_ a b ; index # pullcmp pulls the ref onto the stack
+---------
+pushcmpel_v_ a b ; index
+pushcmpel_r_ a b ; index
+pushcmpel_wr_ a b ; index
+pushcmpel_vnull_ a b ; index
+pushcmpel_rnull_ a b ; index
+pushcmpel_wrnull_ a b ; index
+# INDEX
+index ; number
+index_ ; number
+# TYPECHECK
+typecheck_ a ; type_index ; switch_number ;
+typecheck a b
+typechecksub a b
+typecheck2 a ; type_index
+typechecksub2 a ; type_index
+# SWITCH
+switch ; instr_index ; instr_index ;
+# CALL, RUN, EMIT
+call a
+run a
+emit a
+call2 ; function_index
+run2 ; function_index
+emit2 ; function_index
+# STEPBACK
+stepback ; offset
+# LEN  # Cannot be Nil # Complex
+lencmp a b
+lenbuf a b
+# DIMEN # Cannot be Nil # Buffer
+dimen a b
+dimensize a b c # c is the dimension position
+# CATCH, THROW
+catch a b  # automatic clearance for just one object
+throw a
+# JMP, JMPBACK
+jmp ; jump_offset
+jmpback ; jump_offset
+# RET
+ret a
+ret2
+# CLEAR
+clear ; number
+# PRINT, SCAN
+print a
+println a
+scan a
+# FOPEN, FREAD, FWRITE, FCLOSE
+fopen a
+fread a b
+fwrite a b
+fclose a
+# EXIT
+exit a # error code
+
 ---------------- RUNTIME LISTS ---------------------
 globallist # globals, constants/loaded values, mockobject
 ##
@@ -268,13 +440,6 @@ func div num & den =: Int:
 
 ------------------ COMPILER ---------------------
 - stores known primitives, strings and buffers
-- Solving range ambiguity issue
-	1. only ranges can have semi-colon following a literal or name. apart from keywords which can also come before a semi-colon.
-	2. the operands and operators in a range are packed up
-	3. ranges come in two types. ranges without step (r1) and ranges with step (r2)
-	4. in places where a range is expected, the tokens are tested for r2, then r1.
-	r1 -> a:b:c:
-	r2 -> a:b:
 - Optimizations
 	- moving temporaries reference to assigned.
 	- reusing object containers
@@ -284,15 +449,18 @@ func div num & den =: Int:
 - Notice
 	- When a function is called with lesser number of parameters.
 - Warnings
-	- When an object is declared but not accessed.
-	- When you call a function with arguments that can (potentially) cause an alias ambiguity call at runtime.
+	- When an subject is declared but not accessed.
+	- When you call a function with arguments that can (potentially) cause an ambiguous call.
 - Errors
 	- When an object accesses a field name or function name its type did not provide.
-	- When a function without a bang signature writes to a referenced object passed in.
-	- When you call a bang function without annotating with a bang.
+	- When a function without a bang signature writes to a referenced argument.
+	- When you call a bang function without annotating it with a bang.
+	- When you access a (potentially) uninitialized subject.
+	- When you don't initialize all the fields within initializer.
+	- When you write to a constant subject that has already been given a first value.
 - Guarantees
 	- If you throw an exception in a destructor, the object will be destroyed.
-	- If you throw an exception in a cpnstructor, the object will not be created
+	- If you throw an exception in a constructor, the object will not be created
 	- Local automatic objects will be destroyed when the function returns.
 - Guideline Notice
 	- When a type name starts with a lowercase letter or underscore
@@ -453,125 +621,3 @@ type = [
 		primitive : []
 	]
 ]
-
------------------ BYTECODE -----------------------
-# primitive ops don't need nil checks because the compiler makes signature
-# the operands are bare primitives.
-# MOV
-mov_v a b
-mov_r a b
-mov_wr a b
-# ADD, SUB, MUL, DIV, MOD, EXP, ROOT, UNM
-add a b c
-sub a b c
-mul a b c
-div a b c
-mod a b c
-exp a b c
-root a b c
-unm a b
-# INCR, DECR, STEP
-incr a
-decr a
-step a b
-# CAST
-cast a b ; type_index
-# EQ, LT, LE
-eq a b c
-lt a b c
-le a b c
-eq2 a b ; jump_offset
-lt2 a b ; jump_offset
-le2 a b ; jump_offset
-# AND OR
-and a b c
-or a b c
-# BNOT, BAND, BOR, BXOR,
-bnot a b c
-band a b c
-bor a b
-bxor a b
-# SHL, SHR
-shl a b c
-shr a b c
-# FORLOOP
-forloop_ initial_value ; end_value ; instruction_index
-forloop2_ a b ; instruction_index
-# MK
-mkbuf a ; dimen ; dimensizes
-mkcmp a ; type_index; constructor_function_index
-# PULLGLOBAL
-pullglob_ a ; global_index # sets pointer to a particular object in global.
-pushbuf_v_ a b ; index
-pushbuf_r_ a b ; index
-pushbuf_wr_ a b ; index
-pushbuf_vnull_ a b ; index
-pushbuf_rnull_ a b ; index
-pushbuf_wrnull_ a b ; index
-pushcmp_v_ a b ; index
-pushcmp_r_ a b ; index
-pushcmp_wr_ a b ; index
-pushcmp_vnull_ a b ; index
-pushcmp_rnull_ a b ; index
-pushcmp_wrnull_ a b ; index
---------
-# last index is checked to determine if pulling/pushing barePrimitive
-pullbufel_ a b
-pushbufel_ a b
----------
-pullcmpel_ a b ; index # pullcmp pulls the ref onto the stack
----------
-pushcmpel_v_ a b ; index
-pushcmpel_r_ a b ; index
-pushcmpel_wr_ a b ; index
-pushcmpel_vnull_ a b ; index
-pushcmpel_rnull_ a b ; index
-pushcmpel_wrnull_ a b ; index
-# INDEX
-index ; number
-index_ ; number
-# TYPECHECK
-typecheck_ a ; type_index ; switch_number ;
-typecheck a b
-typechecksub a b
-typecheck2 a ; type_index
-typechecksub2 a ; type_index
-# SWITCH
-switch ; instr_index ; instr_index ;
-# CALL, RUN, EMIT
-call a
-run a
-emit a
-call2 ; function_index
-run2 ; function_index
-emit2 ; function_index
-# STEPBACK
-stepback ; offset
-# LEN  # Cannot be Nil # Complex
-lencmp a b
-lenbuf a b
-# DIMEN # Cannot be Nil # Buffer
-dimen a b
-dimensize a b c # c is the dimension position
-# CATCH, THROW
-catch a b  # automatic clearance for just one object
-throw a
-# JMP, JMPBACK
-jmp ; jump_offset
-jmpback ; jump_offset
-# RET
-ret a
-ret2
-# CLEAR
-clear ; number
-# PRINT, SCAN
-print a
-println a
-scan a
-# FOPEN, FREAD, FWRITE, FCLOSE
-fopen a
-fread a b
-fwrite a b
-fclose a
-# EXIT
-exit a # error code

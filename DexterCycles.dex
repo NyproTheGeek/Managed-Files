@@ -1,164 +1,444 @@
-# 07/01/17
-OBJECT-TO-OBJECT REFERENCE CYCLE
-............................
-
-ASSIGNMENT DEFERRED CONSTANTS
-let a
-isHappy ? a = 5 #
-a = 6 # error!
-- If a is uinitialized and then accessed, compile-time error or runtime error?
-
-let a
-isHappy ? a = 4 || a = 35 # ok
-a = 6 # error!
-
-SELF REFERENCE CYCLE #SOLVED
-- As long as constructor doesn't contain a new function that assigns to the self-referencing field.
-type Bone:
-    let name = Str
-    let parent = Bone
-..
-
-func Bone(name):
-    new(name)
-
-func Bone(name, parentName):
-    new(name, Bone(parentName)) # should be Ok
-
-- If a default constructor is initializing a self-referencing field, it does not assign anything to it. The field is uinitialized. If such field is accessed, compile-time error or runtime error?
-
-
-FUNCTION CALL DEPENDENCY CYCLE #SOLVED # may be allowed
-- Needs a cycle detector
-- Mutually calling functions should include the call in a conditional along with a branch containing no dependency call. This still has potential to recurse endless.
-
-func a: c
-func b: a
-func c: b
-
-FORWARD FUNCTION-SUBJECT-TYPE USAGE #SOLVED
-- Functions can call each other irrespective of arrangement.
-- Types can reference each other irrespective of arrangement.
-- Subjects need functions and types to be already declared to access them.
-- Functions need subjects and types to be already declared to access them.
-- Types need function and subjects to be already declared to access them.
-- Non-assignment expressions can access subjects, functions and types in any order.
-print(foo)
-
-func foo:
-    rt bar
-
-func bar:
-    rt 5
-#####################
-let a = cro # error! undeclared function cro!
-
-func cro:
-    a
-####################
-func foo:
-    baz
-
-let a = 225
-
-func baz:
-    a
-####################
-func qux:
-    let a = Baz # error! undeclared type Baz
-
-type Baz:
-    let name = 25
-
-MUTUALLY DEPENDENT TYPE DECLARATION
-type Doo:
-    let a = Fux
-
-type Fux:
-    let a = Doo
-
-............................
-
-LIST DEFAULT VALUES #SOLVED
-- A resized list will contain garbage values for newly allocated section.
-let list = [1, 2, 3, 4]
-list.resize(10) # indices 5 to 10 contain garbage values
-list.resize(15, 0)  # indices 10 to 15 contain zeroes
-
-REFERENCE COUNTING AND COROUTINES
-- Dexter coroutines flo variables need runtime reference counting to deallocate them when not needed.
-
-CYCLE BREAKER
-..........................
-
-CONCURRENCY MODEL
-
-ERROR MODEL
-- There can't be an exception code in the top-level of the program
-- Fail vs Error vs Critical. Fails are returned values and are manageable. Errors ae critical and may or may not be handled. Criticals are system controlled errors, they cannot be handled.
-- An unhandled Error can only affect an actor, it doesn't take other actors with it.
-
-
-TYPE DECLARATION VS DEFAULT CONSTRUCTOR
-- When used in subject declaration, a bracketless zero-parameter constructor is a type specification. You need to include brackets to call the constructor itself.
-
-let x = Int = 0
-let x = Int()
-
-func foo a = Int: a
-foo 50
-
-type Bar:
-    let b = Boo
-
-let qux = Int
-qux = 25
-
-............................
-
-NOT PROUD OF
-- import statement and the but keyword.
-- using and hiding in relations with import. They don't cohere.
-- function object reference syntax
-    func foo: print 'Hello'
-    let x = foo$
-- nameless parameters (now refined)
-- bracketless call
-- curly braces for disambiguation of callee arguments
-- if-else nesting problem.
-
-POSSIBLE ELIMINATION
-- accessing a function pinned subjects. don't have a good reason for removal yet.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#
+# 18/01/17
+SELF-REFERENCING FIELDS
+- constructors that assign to self-referencing field must:
+    - not have a call-chain with an initializer that assigns the constructor to the self-referencing field.
+    - have a call-chain initializer that assigns nil to the self-referencing field
+    type Bone:
+        let name, parent = Str, Bone?
+
+    func Bone(name):
+        new(name, Bone(name))# warning! potentially recursive construction detected
+
+    func Bone(name, parentName):
+        new(name + parentName, nil) # ok!
+
+INITIALIZATION
+- reading from an uninitialized subject evokes a compile time error
+    let a
+    let b = a # error! 'a' is unintialized
+- if an uninitialized subject is not given a value in all possible flow branches, it remains unintialized.
+    let a
+    if x == y:
+        a = 5
+    b = a # error! 'a' may end up being uninitialized
+- if an uninitialized variable is declared optional, it is assigned nil by default
+    let a = Str?
+    println(a)
+
+
+CONSTRUCTOR & FIELD INITIALIZATION
+- constructors must initialize all fields without default values
+    type Book:
+        let title & author = Str
+
+    func Book(title):
+        self.title = title # error! 'author' is uninitialized
+
+COMPILE-TIME REF COUNTING & CYCLE BREAKER
+- Objects:
+    # ref counting starts with the initialization of a subject with a unique reference object
+    # reference are passed thru assignments and arguments
+
+    var a = Car('Camaro')
+    var b = a
+    ###################
+    var a = 10
+    var b = ref a
+    ###################
+    var a = Car('Camaro')
+    println a
+    ###################
+    var a = Company('Thrift')
+    var b = Company('Windrake')
+    a.affiliate = b
+    b.affiliate = c
+    ###################
+    block: # scope
+        var a = ref Num(0) # new object ref'd by a
+        if x == y:
+            foo(ref a) # ref'd by foo
+        else:
+            bar(ref a) # ref'd by bar
+        ..
+        qux(ref a) # last ref'd by qux
+        # release object
+        doSomething()
+        doSomethingElse()
+    ..
+    ###################
+    func doo(a = ref): # function is ref_in & ref_out
+        return ref a
+    ..
+
+    block: # scope
+        var a = ref Num(1) # new object ref'd by a
+        var b = ref doo(ref a) # ref'd by doo which passes it to b
+        doo(ref b) # last ref'd by doo
+        # release object
+        doSomething()
+        doSomethingElse()
+    ..
+
+    ###################
+
+    func foo(a = ref): # ref_in & ref_out
+        return ref bar(a)
+    ..
+
+    func bar(a = ref): # ref_in & ref_out
+        var b = ComplexNum(1, 3)
+        b.real = a
+        return ref b.real
+    ..
+
+    block:
+        var a = ref Num(2)
+        foo(a)
+        doSomething()
+        doSomethingElse()
+    ..
+
+    ###################
+
+    block:
+        var a = ref Yin()
+        var b = ref Yan()
+        b.yin = ref a
+        a.yan = ref b
+        # Yin.yan nils its ref
+        # Yan.yin nils its ref
+        # Yin is released
+        # Yin is released
+        doSomething()
+        doSomethingElse()
+    ..
+
+    - parent objects
+        var a = ref Yin()
+        a.yan = ref Yan()
+        # a refers to the parent object
+        # a.yan refers to the child object.
+
+    - 'val' is a deep copy construct.
+
+- Closures:
+    -
+
+WHAT ARE FUNCTIONS AND TYPES REALLY?
+- a type is a template for creating objects.
+    - each instantion of a type has a generic signature that maps to its fields.
+    type Car(make, model):
+        let make, model
+
+    var a = Car("Camaro", "Toyota") # a's type is Car{Str, Str}
+
+- a function is a template which has a body of operations.
+    - each function call has argument and generic signatures.
+    func printDetails(a):
+        a.name, a.age
+    ..
+    printDetails(Person("Sizwe Banzi", 45)) # printDetails here has a type printDetails{}(Person)
+
+MULTIPLE DISPATCH
+
+MULTIPLE INHERITANCE
+- the type hierarchy is linearized, top-to-bottom, right-to-left
+    type A
+    type B <: A
+    type C <: A
+    type D <: B
+    type E <: B
+
+        A
+       / \
+      B   C
+     / \
+    D   E
+
+    A : B{A} : C{A} : D{B} : E{B}
+
+- a type's diamond ambiguity is resolved using its supertype declaration order.
+    type A
+    type B <: A
+    type C <: A
+    type D
+    type E <: B
+    type F <: C, B, D
+
+        A
+       / \
+      B   C   D
+      |\  |  /
+      |  \|/
+      E   F
+
+    A : B{A} : C{A} : D : E{B} : F{C > B : D}
+- a type can inherit a sibling of its supertype.
+- a type cannot inherit its subtype.
+- a type cannot inherit the parent of it's supertype.
+
+
+COMPILE-TIME TYPE INFERRING (Dynamic Subject Example)
+- a subject's type after a block is the type of it's last assignment
+        block:
+            a = 5
+            # a's type is Int
+            a = "Hi"
+            # a's type is Str
+        ..
+- if statement no else:
+    - union of types of the previous assignment and the last assignment in the then branch.
+        a = 24
+        # a's type is Int
+        if x == y:
+            a = "Hi"
+        ..
+        # a's type is Str & F64
+- if statement with else:
+    - union of types of the last assignments in both then, elif and else branches.
+        a = 2
+        # a's type is Int
+        if x == y:
+            a = "Hi"
+            # a's type is Str
+        else:
+            a = 5.0
+            # a's type is F64
+        ..
+        # a's type is Str & F64
+- while statment:
+    - the subject's type at the beginning of the while loop is the union of types of the last assignment before the loop and the last assignment in the loop
+    - the subject's type at the after the while loop is the union of types of the last assignment before the loop and the last assignment in the loop
+    a = 5
+    # a's type is Int
+    while x == y:
+        # a's type is Int & Str
+        a = "Hi"
+    ..
+     # a's type is Int & Str
+- return, yield, throw:
+    - if an inner scope ends with any of thes, then the type of last assignment doesn't spill into enclosing scope
+        a = 5.0
+        # a's type is F64
+        if x == y:
+            a = 23
+            # a's type is F64 & Str
+            return a
+        ..
+        # a's type is F64
+        a = 56
+- while statement with breaks/returns/continue/yield:
+    - the subject's type at the beginning of the while loop is the union of types of the last assignment before the loop, the last assignments before a yield/break/return/continue/end-of-loop.
+    - the subject's type at the after the while loop is the union of types of the last assignment before the loop, the last assignments before a yield/break/return/continue/end-of-loop.
+    - break adds to the type of exit
+    a = 5
+    # a's type is Int
+    while x == y:
+        # a's type is Int|F64
+        a = 6.5
+        # a's type is F64
+        break
+    ..
+     # a's type is Int & F64
+     - next adds to the type of the beginning of the loop.
+    while x == y:
+        a = 5
+        a <- "Hello"
+        continue
+    ..
+- match statement:
+    - the subject's type is the union of types of the last assignments in each branch that is not ended with a spill statement.
+    w:th x == y: a <- 5
+    with x >= y: a = "Hi"; spill
+    with x <= y: a = 0.2
+    # a's type is Int|F64
+- functions:
+    - the return type is the union of the last assignments before all returns and end of function.
+    func foo:
+        var a =: Car("Camaro")
+        # a's type is Car
+        a <- 56
+        # a's type is Int
+        if x == y:
+            a <- "Hi"
+            # a's type is Str
+            return a # Str
+        ..
+        # a's type is Int
+        return 5.5 # F64
+        # return type is Str|F64
+    ..
+- if at any point a subject's type is a union of more than two types, any subsequent field or method access must available in all the union types.
+    a <- 24
+    # a's type is Int
+    if x == y:
+        a = "Hi"
+    ..
+    # a's type is Int & Int
+    a.abs # error! 'a' can be of type Str, but Str has no 'abs' method
+    - the only exception to this rule is an optional type, with a '?' operator it returns nil if the type is Nil.
+        a <- 24
+        # a's type is Int
+        if x == y:
+            a = nil
+        ..
+        # a's type is Int & Nil
+        a?.abs # a.abs or nil
+    - also with a '?!' operator it throws a NilErr if the type is Nil.
+        a = 24
+        # a's type is Int
+        if x == y:
+            a = nil
+        ..
+        # a's type is Int & Nil
+        a?!.abs # a.abs or throw NilErr
+        - Note that a '?!' operator introduces a throw into the body of the block. This should be considered in further type inference.
+            func foo:
+                a <- 24
+                # a's type is Int
+                if x == y:
+                    a <- nil
+                ..
+                # a's type is Int & Nil
+                a?!.abs # a.abs or throw NilErr
+                # a's type is Int & Nil & NoReturn
+                a <- "Hi"
+                # a's type is Str
+                a.size
+                # return type Int & Nil & Str & NoReturn
+            ..
+- throws, noreturn:
+    - these can gebnerate a NoReturn type used at compile time
+        func foo:
+            a = 5; _ # NoReturn
+        ..
+- if union types are the same, they are merged
+    a = 5
+    # a's type is Int
+    if x == y:
+        a = "Hello"
+        # a's type is Str
+    else:
+        a = 'Hi'
+        # a's type is Str
+    ..
+    # a's type is Str
+- type checks are safe points where types can be assumed correctly
+    # a's type is Str & F64 & Int
+    if a == |F64|:
+        # a's type is F64
+        doSth(a)
+    elif a == |Str|:
+        # a's type is Str
+        doSth(a)
+    else:
+        # a's type is |Str & F64 & Int| - |Str & F64| = |Int|
+        doSth(a)
+    ..
+
+- Buffers:
+    var buf <- Buffer [1, 3f, 5.6, "Dan"] # buf's type is [Int & F32 & F64 & Str]
+    buf[1]
+    # buf[1]'s type is Int & F32 & F64 & Str
+
+- Dependency Graph
+    - recursive function call is mildly acceptable.
+    - recursive construction call is seriously unacceptable.
+
+    - dependency starts from assignments and function calls in global scope.
+    - dependency graph is needed for cycle detection and plays a part in type inference.
+    - it is also used to cache dependencies for incremental compilation.
+
+    - leaf nodes must be primitive instances.
+    - if a branch cycles back to preceding complex instance, it is unsound.
+        func foo:
+            return bar
+
+        type A(a = foo)
+
+        var a = A()
+
+        type B(b = A)
+
+        func bar:
+            return B()
+
+        a -> A().a -> foo().return -> bar().return -> B().a -> A().a -> [UNSOUND!]
+    - if a branch cycles back to preceding variable or function instance, it is unsound.
+        func foo:
+            return bar
+
+        var a = foo
+
+        var b = a
+
+        func bar:
+            return b
+
+        a -> foo().return -> bar().return -> b -> a -> [UNSOUND!]
+        ###############################################
+        type Yin(a, b)
+
+        func foo:
+            x.a = "hi"
+
+        func bar:
+            x.b = 5
+        ---------------------------
+        var x <- Yin(5, "hi")
+        bar
+        foo
+        x -> Yin(Int, Str)
+        bar -> @x -> Yin(Int, Int)
+        foo -> @x -> Yin(Str, Int)
+        ---------------------------
+        var x <- Yin(5, "hi")
+        foo
+        bar
+        x -> Yin(Int, Str)
+        foo -> @x -> Yin(Str, Str)
+        bar -> @x -> Yin(Str, Int)
+
+- Incremental Compilation
+    - global functions, subjects, types, and enums are hashed for changes
+
+TYPE/ENUM/FUNCTION/OBJECT DECLARATION & ACCESS
+- an enum/type can access another enum/type before its declaration, but it requires function/subject to be declared before access.
+- a function can access another function before its declaration, but it requires type/enum/subject to be declared before access.
+- a subject (temporary or explicit) requires a function/enum/type/subject to be declared before it can access.
+
+MUTUALLY DEPENDENT USAGE (Functions & Types)
+- the problem arises when there is a (in)directly mutually recursive construction.
+- and that can be solved using the solutions provided in SELF-REFERENCING FIELDS section.
+    type Doo:
+        let a = Fux?
+        func _:
+            new(Fux()) # warning! potentially recursive call detected
+
+    type Fux:
+        let a = Doo?
+        func _:
+            new(Doo()) # warning! potentially recursive call detected
+- a recursive call is detected by following every calls made in a function until it loops back to the function itself.
+    func foo:
+        bar # warning! potentially recursive call detected
+
+    func bar:
+        foo # warning! potentially recursive call detected
+    - detecting one recursive call means detecting other recursive calls.
+    - above if foo is detected to be recursive, bar is automatically marked as recursive.
+- irrespective of whether the recursive call is in a control structure branch or all of its branches, it's still potentially recursive.
+- this applies to constructors too.
+    func foo:
+        if x == y:
+            bar # warning! potentially recursive call detected
+
+    func bar:
+        if x == y:
+            bar # warning! potentially recursive call detected
+        else:
+            bar # warning! potentially recursive call detected
+    ..
+
+COMPILER-GENERATED DEFAULT CONSTRUCTOR
+- The compiler does not generate a default constructor!

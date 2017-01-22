@@ -1,5 +1,17 @@
 # Astro 0.2
 # 29/12/16
+SIGNIFICANT WHITESPACE
+	foo[1]
+# is different from...
+	foo [1]
+# the first could be a function call or subject accessing an index
+# the second is a function call , where the first argument is a 1-element list literal.
+# a possible cure to this wart is to require a comma for single-element list and dict literals.
+	foo [1,]
+
+
+# Astro 0.2
+# 29/12/16
 
 CALLING FUNCTIONS WITHOUT BRACKETS
 - Nested Calls: Commas Belong To The Outer Functions

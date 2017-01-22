@@ -1,3 +1,269 @@
+# 21/01/17
+# Dexter0.2
+My Plans For Nigeria
+> cd /home/africa
+> mkdir canaan
+> mkdir canaan/population
+> mv nigeria/population/useful_ones canaan/population
+> rm -rf nigeria
+> rm -rf history/nigeria
+> cd canaan/population
+> touch start_from_a_new_beginning.sh
+> echo "This is your last chance. F**k up again and I'll delete all of you!" >> start_from_a_new_beginning.sh
+> ./start_from_a_new_beginning.sh
+
+
+if x == :Int:
+    print "x is an Int"
+
+match x
+with :Int:
+with :Str:
+with :F64:
+
+doSomething()`{:KeyNotFoundErr|:NameErr: print "This is an Error"}
+
+# 18/01/17
+# Dexter0.2
+"The price is [price.%2f]"
+
+# 17/01/17
+# Dexter0.2
+
+type Person:
+    let name, age
+    func details:
+        name, age
+..
+
+extend Person:
+    let friends = []
+..
+
+func Person(name, age):
+    new(name, age)
+..
+
+func makeFriends(~Person, :with-friend = Person):
+    ~friends .add friend
+..
+
+let tade = Person("Tade", 25)
+let tony = Person("Tony", 45)
+
+tade.makeFriends with: tony
+
+
+# functions in type's body
+type Lexer:
+    let input = |UnicodeScalar| []
+    var index = 0
+
+    func Lexer(input = Str):
+        new(input.unicodeScalars)
+
+    func .currentChar:
+        index < input ? input[index] : nil
+
+    func .advanceIndex:
+        ++index
+
+    func .readIdentifier:
+        var str = ''
+        while (let char = currentChar), char.isAlphanumeric:
+            str.unicodeScalars.append char
+            advanceIndex
+        ..
+        str
+    ..
+
+    func .advanceToNextToken:
+    	# Skip all spaces until a non-space token
+    	while (let char = currentChar), char.isSpace:
+    		advanceIndex
+
+    	# If we hit the end of the input, then we're done
+    	let char = currentChar?{nil}
+
+    	# Handle single-scalar tokens, like comma,
+    	# leftParen, rightParen, and the operators
+    	let singleTokMapping = [
+    		",": Comma, "(": LeftParen, ")": RightParen,
+    		";": SemiColon, "+": Operator(Plus),
+    		"-": Operator(Minus), "*": Operator(Times),
+    		"/": Operator(Divide), "%": Operator(Mod)
+    	]
+
+    	if let tok = singleTokMapping[char]:
+    		advanceIndex
+    		rt tok
+    	..
+
+    	# This is where we parse identifiers or numbers
+    	# We're going to use Swift's built-in double parsing
+    	# logic here.
+    	if char.isAlphanumeric:
+    		var str = readIdentifier
+    		if Int(str) != nil:
+    			let backtrackIndex = index
+    			if currentChar == ".":
+    				advanceIndex
+    				let decimalStr = readIdentifier
+    				if Int(str) != nil:
+    					str.append(".")
+    					str += decimalStr
+    				else:
+    					index = backtrackIndex
+    			..
+    			rt Number(Double(str)!)
+    		..
+
+    		# Look for known tokens, otherwise fall back to
+    		# the identifier token
+    		match str
+    		with "def":
+    			rt Def
+    		with "extern":
+    			rt Extern
+    		with:
+    			rt Identifier(str)
+    	..
+    	rt nil
+    ..
+
+    func lex:
+    	var toks = |Token|[]
+    	while let tok = advanceToNextToken:
+    		toks.append(tok)
+    	rt toks
+    ..
+..
+
+let toks = Lexer(input: "def foo(n) (n * 100.34);").lex
+println toks
+
+
+# 16/01/17
+# Dexter0.2
+# type objects and function values
+let `dan = 5 # private
+let .naira = 400 # hidden
+
+
+$[x] # is generics-like feature, that gets replced by a zero-arg constructor of the subject in braces at compile-time.
+|x| # is a typeObject.
+
+let sum = add$(Int, Int)
+if sum == add$(5, 3)
+if sum == $[add$(5, 3)]
+
+let x = $[5]
+let y = $[2 + 3 / 5]
+
+a >: |Int|
+b <: |Int|
+c :: |Int|
+d == |Int|
+
+match Days(Sunday)
+with |Sunday|:
+with |Friday|:
+
+mage .bitor |game|
+
+Chnage function value
+
+# 15/01/17
+# Dexter0.2
+# LOGO REDESIGN
+"""
+  ___ __  ______  _      __ ____  ______
+ /  _'  |/  ____|/ |____|  / ___|/  _   |
+|  / |  |___ \__'   ___/|   /   |  | |  |
+|  \_|  |___\_  |  |____|  |    |  |_|  |
+ \___'__|_______/\______|__|    |_______/
+                             0.2 by Nypro
+       _   ___________     ____, _        _______ __ _____,
+      | \ /  __   |__  \  /  __|/ |_____ /  __   |  / ____|
+______|  |  |__|  |  \  \/  /  '   ____/|  |__|  |   /
+|   __   |   _____|  /  __  \  |  |     |   _____|  |
+|  |__|  |  |_______/  /  \  \_|  |_____|  |_____|  |
+\________|_______/|___|    |___|\______/|_______/|__|
+                                              0.2 by Nypro
+
+
+       _   _______.____    ____. _        _______ __ _____,
+______| \ /  __   |__  |  |  __|/ |_____ /  __   |  / ____|
+|   __   |  |__|  |  \  \/  /  |   ____/|  |__|  |   /
+|  |__|  |   _____|__/  /\  \__|  |_____|   _____|  |  ,__,
+\________|_______/|____|  |____|\______/|_______/|__|  |__|
+                                               0.2 by NYPRO
+"""
+# 14/01/17
+# Dexter0.2
+# nest linearizing
+for i in {1:3} for j in {1:2} while file.hasNextLine:
+    let hoof = positions.pull index:i
+    2 >> NEST
+    let scss, pper = positions.pull index:j, >> index:0
+    let player1WinCount, player2WinCount = 0
+    let file = open(filePath, 'w')`ferr
+    3 >> NEST
+    let game = file.nextLine.split /\s+/
+    let player1, player2 = Int game[1], >> game[2]
+    if
+      (player1 == hoof & player2 == scss)
+    | (player1 == scss & player2 == pper)
+    | (player1 == pper & player2 == hoof):
+        ++player1WinCount
+    elif
+      (player2 == hoof & player1 == scss)
+    | (player2 == scss & player1 == pper)
+    | (player2 == pper & player1 == hoof):
+        ++player2WinCount
+    3 << NEST
+    ensure: file.close
+    if player1WinCount > player2WinCount: ++winCount
+    positions[j] = scss
+    2 << NEST
+    positions[i] = hoof
+..
+
+# Hoof Scissors Paper
+func hoofScissorsPaper(filePath = Str):
+    var winCount = 0
+    let positions = [1, 2, 3]
+    for i in {1:3}:
+        let hoof = positions.pull index:i
+        for j in {1:2}:
+            let scss, pper = positions.pull index:j, >> index:0
+            let player1WinCount, player2WinCount = 0
+            let file = open(filePath, 'w')`ferr
+            while file.hasNextLine:
+                let game = file.nextLine.split /\s+/
+                let player1, player2 = Int game[1], >> game[2]
+                if
+                  (player1 == hoof & player2 == scss)
+                | (player1 == scss & player2 == pper)
+                | (player1 == pper & player2 == hoof):
+                    ++player1WinCount
+                elif
+                  (player2 == hoof & player1 == scss)
+                | (player2 == scss & player1 == pper)
+                | (player2 == pper & player1 == hoof):
+                    ++player2WinCount
+            ..
+            ensure: file.close
+            if player1WinCount > player2WinCount: ++winCount
+            positions[j] = scss
+        ..
+        positions[i] = hoof
+    ..
+    println winCount, "wins";
+    catch ferr ~FileNotFoundErr: println self.msg
+..
+
+
 # 13/01/17
 # Dexter0.2
 # pony

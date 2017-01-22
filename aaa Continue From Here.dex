@@ -1,0 +1,6 @@
+# 223/01/17
+- And again, I'm taking a break from Dexter, just because I need money. Will continue back once I get my feet.
+- Where I left off.
+	- DexterCycles:
+		- Having trouble with developing a dependency graph that will allow contain flow of changing subjects (their types) and also allow incremental compilation.
+		- I've not yet develop vivid intuitipon for reference counting and cycle breaking.

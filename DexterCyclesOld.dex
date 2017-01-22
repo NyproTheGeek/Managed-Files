@@ -1,0 +1,141 @@
+# 07/01/17
+OBJECT-TO-OBJECT REFERENCE CYCLE
+- Planning a compile time ref counting and cycle detection system for Dexter
+var pan = Object
+var nap = Object
+
+pan.sideKick = nap
+nap.sideKick = pan
+............................
+
+ASSIGNMENT DEFERRED CONSTANTS # SOLVED
+let a = Int
+isHappy ? a = 5 # no else branch
+a = 6 # error!
+- If a is uinitialized and then accessed, compile-time error or runtime error?
+
+let b
+isHappy ? b = 4 || b = 35 # ok
+b = 6 # error!
+
+SELF REFERENCE CYCLE #SOLVED
+- As long as constructor doesn't contain a new function that assigns a self value to the self-referencing field.
+type Bone:
+    let name = Str
+    let parent = Bone?
+..
+
+func Bone(name):
+    new(name, parent = nil)
+
+func Bone(name, parentName):
+    new(name, Bone(parentName)) # should be Ok
+
+- If a default constructor is initializing a self-referencing field, it does not assign anything to it. The field is uinitialized. If such field is accessed, compile-time error ~or runtime error?~
+
+
+FUNCTION CALL DEPENDENCY CYCLE #SOLVED # may be allowed
+- Needs a cycle detector
+- Mutually calling functions should include the call in a conditional along with a branch containing no dependency call. This still has potential to recurse endless.
+
+func a: c
+func b: a
+func c: b
+
+FORWARD FUNCTION-SUBJECT-TYPE USAGE #SOLVED
+- Functions can call each other irrespective of arrangement.
+- Types can reference each other irrespective of arrangement.
+- Subjects need functions and types to be already declared to access them.
+- Functions need subjects and types to be already declared to access them.
+- Types need function and subjects to be already declared to access them.
+- Non-assignment expressions can access subjects, functions and types in any order.
+print(foo)
+
+func foo:
+    return bar
+
+func bar:
+    return 5
+#####################
+let a = cro # error! undeclared function cro!
+
+func cro:
+    a
+####################
+func foo:
+    baz
+
+let a = 225
+
+func baz:
+    a
+####################
+func qux:
+    let a = Baz # error! undeclared type Baz
+
+type Baz:
+    let name = 25
+
+MUTUALLY DEPENDENT TYPE DECLARATION
+type Doo:
+    let a = Fux
+
+type Fux:
+    let a = Doo
+
+............................
+
+LIST DEFAULT VALUES #SOLVED
+- A resized list will contain garbage values for newly allocated section.
+let list = [1, 2, 3, 4]
+list.resize(10) # indices 5 to 10 contain garbage values
+list.resize(15, 0)  # indices 10 to 15 contain zeroes
+
+REFERENCE COUNTING AND COROUTINES
+- Dexter coroutines flo variables need runtime reference counting to deallocate them when not needed.
+
+CYCLE BREAKER
+..........................
+
+CONCURRENCY MODEL
+
+ERROR MODEL
+- There can't be an exception code in the top-level of the program
+- Fail vs Error vs Critical. Fails are returned values and are manageable. Errors ae critical and may or may not be handled. Criticals are system controlled errors, they cannot be handled.
+- An unhandled Error can only affect an actor, it doesn't take other actors with it.
+
+
+TYPE DECLARATION VS DEFAULT CONSTRUCTOR
+- When used in subject declaration, a bracketless zero-parameter constructor is a type specification. You need to include brackets to call the constructor itself.
+
+let x = Int = 0
+let x = Int()
+
+func foo a = Int: a
+foo 50
+
+type Bar:
+    let b = Boo
+
+let qux = Int
+qux = 25
+
+............................
+
+NOT PROUD OF
+- import statement and the but keyword.
+- using and hiding in relations with import. They don't cohere.
+- function object reference syntax
+    func foo: print 'Hello'
+    let x = foo$
+- nameless parameters (now refined)
+- bracketless call
+- curly braces for disambiguation of callee arguments
+- if-else nesting problem.
+
+POSSIBLE ELIMINATION
+- accessing a function pinned subjects. don't have a good reason for removal yet.
+###################################################################################################################
+###########################################################################################################################################################################################################
+###############################################################################################################################################################
+###################################################################################################################
