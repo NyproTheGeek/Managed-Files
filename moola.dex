@@ -1,0 +1,99 @@
+# 30/01/17
+import moola Moola
+- Basic Money object
+var money = -42_00moola # creates a new Moola object
+money.cents  # -4200
+money.isZero # false
+money.toF32 # -42.0
+money.toStr # '-42.00'
+abs money == abs 42_00moola
+
+- Comparisons
+5_00moola == 5_00moola # true
+5_00moola == 7_00moola # false
+5_00moola == (Moola 5_00, "EUR") # false
+[5_00moola, 2_00moola, 7_00moola].sort # sorted by amount
+
+- Arithmetic
+5_00moola + 10_00moola == 15_00moola
+15_00moola + 12_00moola == 3_00moola
+15_00moola / 3 == 5_00moola
+5_00moola * 3 == 15_00moola
+
+- Conversion
+addConversion "USD", "CAD", 1.3
+var money = Moola 1_00, "USD"
+(money .convertTo "CAD") == (Moola 1_30, "CAD")
+
+- Code
+var currencies = [::]
+
+def addConversion(currency1 = Str, currency2 = Str, exchangeRate = F64):
+    currencies[currency1, currency2] = exchangeRate;
+
+def clearConversion():
+    currencies = [::]
+
+type InvalidConversion <: Error
+type CompatibilityError <: Error
+
+type Moola:
+    var .value = I64
+    var .currency = Str
+
+    def init(value, currency = "USD")
+    def convertTo(currency = Str):
+        if let exchange = currencies[self.currency, currency]:
+            (Moola exchange * value, currency)
+        else:
+            raise InvalidConversion
+    ..
+    def cents: value * 0.01
+    def isZero: value == 0
+    def toF32: F32 value
+    def toStr: Str value
+    def abs: abs value
+..
+
+def +(~Moola, ~Moola):
+    if sameCurrency $1,  $2:
+        (Moola $1.value + $2.value)
+    else:
+        raise CompatibilityError
+..
+
+def -(~Moola, ~Moola):
+    if sameCurrency $1,  $2:
+        (Moola $1.value - $2.value)
+    else:
+        raise CompatibilityError
+..
+
+def *(~Moola, ~Moola):
+    if sameCurrency $1,  $2:
+        (Moola $1.value * $2.value)
+    else:
+        raise CompatibilityError
+..
+
+def /(~Moola, ~Moola):
+    if sameCurrency $1,  $2:
+        (Moola $1.value / $2.value)
+    else:
+        raise CompatibilityError
+..
+
+def sameCurrency(~Moola, ~Moola):
+    $1.currency == $2.currency
+
+def ==(~Moola, ~Moola):
+    $1.value == $2.value & sameCurrency $1,  $2
+
+def <(~Moola, ~Moola):
+    $1.value < $2.value & sameCurrency $1,  $2
+
+def >(~Moola, ~Moola):
+    $1.value > $2.value & sameCurrency $1,  $2
+
+def _moola(value = Int):
+    return (Moola value)

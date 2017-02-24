@@ -5,6 +5,6 @@
     'softTabs': true
     'tabLength': 4
     # 'foldEndPattern': '^\\s*"""\\s*$'
-    'commentStart': '\\(*'
-    'increaseIndentPattern': '='
+    'commentStart': '// '
+    'increaseIndentPattern': '^\\s*[a-zA-Z_][a-zA-Z_0-9]+\\s*:?$'
     # 'decreaseIndentPattern': ""

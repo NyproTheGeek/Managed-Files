@@ -55,10 +55,33 @@ Reading Pony's doc really opens my mind on how Dexter can be better.
 
 # 12/01/17
 Yesterday was a sad day. I had to change the language name from Astro to Quadro because another similar project on Github already uses the name. At first I was not very happy changing the name. Today, however, I decided to look for a better name, I didn't quite like Quadro. So I went to a site that shows latin word list and upon seeing 'dexter', I immediately liked the name. I made quick research just to make sure it's not in use by any other person with similar project.
-As of today, Astro is now Dexter.I have changed the repo's name but I haven't changed the nairaland thread title yet to reflect the change. When the language is released and the domain name is purchased, then I will reflect the change elsewhere.
+As of today, Astro is now Dexter. I have changed the repo's name but I haven't changed the nairaland thread title yet to reflect the change. When the language is released and the domain name is purchased, then I will reflect the change elsewhere.
 
 # 13/01/17
 I've been on this crazy journey into actors for a few days now. I've dropped all work on the frontend just to better understand actor concurrency model and to integrate it seamlessly into the language.
 Checking out Pony, with it's philosophical approach to safety is intriguing. Pony is a well thought out language with an academic backing. I'm not a CS student and I know little about type theory and PL papers.
 But looking into Pony's capabilities system has made me rethink certain aspects of Dexter and I'm glad I found out about the language, albeit almost late.
 I want to make Dexter capabilities-secure without as much complexity as Pony's.
+
+# 05/02/17
+COMPILATION TARGETS
+I would love for Dexter to be compiled for LLVM, JVM, Dexter VM, WASM and Dart VM. But today I'm rethinking Dexter VM implementation. I feel like I should work on a WASM target first. I won't have to worry about the runtime design, just the front-end, which is Dexter's main selling point anyway. Dexter is a specification language, but it's compile-time type system is it's most interesting part, more than it's runtime. So instead of worrying about the runtime, I might as well just focus on improving it's type system for WASM and if the need arise, I can develop an official standalone runtime implementation.
+
+# 09/02/17
+SWITCH TO INDENTATION BASED BLOCKS (:/ I know)
+Today while typing a Dexter equivalent of a simple program I saw on Youtube, I was greeted by insane amount of uneasiness. I felt like I was keeping a lot in my brain just to code Dexter properly. Bracketless has been the single most controversial syntax in Dexter. I rewrote the same code using an identation-based style and it cleared up a lot of the warts. It made the code look cleaner. 
+After several hours of painful contemplation, I've finally come to the conclusion that Dexter needs to be indentation-based. Block enders are still available optionally.
+To prevent some of the problems associated with Python's indentation, only one of single tab or four spaces can be used for indentation in a single file. No mixture. 
+A tab with 4 tabstops is the convention.  
+It's also a syntactical error to have more than one indentation where one is required.
+I'm also looking at ways of storing indentation information of a source file using a nice encoding. > for indent; < for dedent; | for no indent/dedent.
+> > | > | | < | << 
+Indentation-aware lexer brings with it some nice benefits though. Disambiguation of nested if-elif-else structure; dotted/arrowed subject associates with previous subject on the same indentation level; a comma associates with the next subject with the same indentation level; The brackets in list and dicts can be stripped to use a clean hierarchical indentation-based arrangement; nim-style block declaration is a also possible. In general, this leads reduces clutter and eliminates some ambiguities. 
+As for those who hate identation-based languages. I'm sorry I betrayed you :(. Dart is a nice language, you can look into that instead.
+
+# 10/02/17 
+FOCUSING ON JUST THE SPECIFICATION AND FRONT-END
+Now that WASM has registered itself in my system, I think I need to throttle down my development of the runtime or maybe not develop it at all. The big brains are doing the work for me already. Thanks guys.
+With WASm on ground, my focus is now on just the language specification and compiler front-end. I will be implementing the front-end in Python initially just to take advantage of ANTLR4 powerful system and then I will drift to bootstrapping the compiler. The compiler will be compiled down to wasm so that it can be run in-browser.
+Dexter is probably going to be one of the first new programming languages to target WASM, and that gets me really excited. 
+There's very little documentation on WASM specs (something I've been hunting for for days now) and it's been slowing me down. I hope the spec is finalised soon and doc'd as well. 

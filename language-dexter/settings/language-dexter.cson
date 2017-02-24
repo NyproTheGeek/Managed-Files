@@ -1,11 +1,11 @@
 # 14/11/16
 '.source.dexter':
-  editor:
+  'editor':
     'autoIndentOnPaste': false
     'softTabs': false
     'tabLength': 4
     'commentStart': '# '
     'increaseIndentPattern': '((?![(label\\s+.*)]):|=|=>|=:|::|<:|>:|\\\\|\\[[^\\]]*|\\{[^\\}]*|\\([^\\)]*)\\s*$'
-    'decreaseIndentPattern': '^\\s*((elif|else|catch|with|case|ensure)\\b.*:|\\.{2}|\\]|\\}|\\))\\s*$'
+    'decreaseIndentPattern': '^\\s*(:|\\.{2}|\\]|\\}|\\))\\s*$'
     # in '^\\s*\\]...' the space symbol should be \\s* rather than \\s+ for the
     # block dedent tobe implemented properly

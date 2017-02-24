@@ -1,5 +1,13 @@
-# Astro 0.2
-# 29/12/16
+# Dexter 0.2
+# 11/02/17
+TABS VS SPACES
+- 2-space or 4-space indentation or single tab indentation only. No mix. 4-space indentation is advised though.
+- a reformatter comes with the compiler, that can reformat all source to any of the accepted indentation formats.
+- if there is a mix, a reformat notice will given.
+
+
+# Dexter 0.2
+# 17/01/17
 SIGNIFICANT WHITESPACE
 	foo[1]
 # is different from...
@@ -8,11 +16,24 @@ SIGNIFICANT WHITESPACE
 # the second is a function call , where the first argument is a 1-element list literal.
 # a possible cure to this wart is to require a comma for single-element list and dict literals.
 	foo [1,]
+# EDIT: 29/01/17
+    foo[1] # getIndex
+    foo [1] # is also getindex
+    foo([1]) # is function call
+# EDIT: 13/02/17
+	foo[2]	| foo[2:1] # getIndex
+	foo [2]	| foo [2:1] # function call
+
+
+WHERE CALL BRACKETS ARE ACTUALLY NEEDED
+    foo([1]) # passing a one-element list to a single arg call
+    foo [1] # this means something else
+    foo((1 - 4).abs) # when bracketing the first agument of a function
+    foo (1 - 4).abs # this means something else
 
 
 # Astro 0.2
 # 29/12/16
-
 CALLING FUNCTIONS WITHOUT BRACKETS
 - Nested Calls: Commas Belong To The Outer Functions
 	println(sum qty, price)

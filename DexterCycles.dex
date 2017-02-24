@@ -6,10 +6,10 @@ SELF-REFERENCING FIELDS
     type Bone:
         let name, parent = Str, Bone?
 
-    func Bone(name):
+    def Bone(name):
         new(name, Bone(name))# warning! potentially recursive construction detected
 
-    func Bone(name, parentName):
+    def Bone(name, parentName):
         new(name + parentName, nil) # ok!
 
 INITIALIZATION
@@ -31,13 +31,13 @@ CONSTRUCTOR & FIELD INITIALIZATION
     type Book:
         let title & author = Str
 
-    func Book(title):
+    def Book(title):
         self.title = title # error! 'author' is uninitialized
 
-COMPILE-TIME REF COUNTING & CYCLE BREAKER
+COMPILE-TIME REF COUNTING & CYCLE BREAKING
 - Objects:
     # ref counting starts with the initialization of a subject with a unique reference object
-    # reference are passed thru assignments and arguments
+    # reference are passed through assignments and arguments
 
     var a = Car('Camaro')
     var b = a
@@ -66,7 +66,7 @@ COMPILE-TIME REF COUNTING & CYCLE BREAKER
         doSomethingElse()
     ..
     ###################
-    func doo(a = ref): # function is ref_in & ref_out
+    def doo(a = ref): # function is ref_in & ref_out
         return ref a
     ..
 
@@ -81,11 +81,11 @@ COMPILE-TIME REF COUNTING & CYCLE BREAKER
 
     ###################
 
-    func foo(a = ref): # ref_in & ref_out
+    def foo(a = ref): # ref_in & ref_out
         return ref bar(a)
     ..
 
-    func bar(a = ref): # ref_in & ref_out
+    def bar(a = ref): # ref_in & ref_out
         var b = ComplexNum(1, 3)
         b.real = a
         return ref b.real
@@ -120,9 +120,25 @@ COMPILE-TIME REF COUNTING & CYCLE BREAKER
         # a.yan refers to the child object.
 
     - 'val' is a deep copy construct.
-
 - Closures:
     -
+- Implementation
+    - last use:
+        - an object is deleted at the point of last usage
+    - carry along:
+        - when an object from an outer scope depends on an object from inner scope, the inner-scope
+        - object's destruction along with its dependecies are deferred and deleted with the outer-scope object.
+    - cycle breaking:
+        -
+
+FIELD EXTENSION
+- when a subject extends it's field, an extended type is created to accomodate the extension.
+    var appy = Person 'AppCypher'
+    block:
+        appy.+address = 'North Pole'
+        .+age = 34
+        .+job = 'Programmer'
+    ..
 
 WHAT ARE FUNCTIONS AND TYPES REALLY?
 - a type is a template for creating objects.
@@ -134,12 +150,24 @@ WHAT ARE FUNCTIONS AND TYPES REALLY?
 
 - a function is a template which has a body of operations.
     - each function call has argument and generic signatures.
-    func printDetails(a):
+    def printDetails(a):
         a.name, a.age
     ..
     printDetails(Person("Sizwe Banzi", 45)) # printDetails here has a type printDetails{}(Person)
 
 MULTIPLE DISPATCH
+- .
+    def add a, b:
+        a + b
+
+    def add a = Integer, b = Integer:
+        a + b
+
+    def add a = F64, b = Int:
+        a + b
+
+    def add a = Int, b = Integer: # ambigous
+        a + b
 
 MULTIPLE INHERITANCE
 - the type hierarchy is linearized, top-to-bottom, right-to-left
@@ -156,7 +184,6 @@ MULTIPLE INHERITANCE
     D   E
 
     A : B{A} : C{A} : D{B} : E{B}
-
 - a type's diamond ambiguity is resolved using its supertype declaration order.
     type A
     type B <: A
@@ -254,7 +281,7 @@ COMPILE-TIME TYPE INFERRING (Dynamic Subject Example)
     # a's type is Int|F64
 - functions:
     - the return type is the union of the last assignments before all returns and end of function.
-    func foo:
+    def foo:
         var a =: Car("Camaro")
         # a's type is Car
         a <- 56
@@ -293,7 +320,7 @@ COMPILE-TIME TYPE INFERRING (Dynamic Subject Example)
         # a's type is Int & Nil
         a?!.abs # a.abs or throw NilErr
         - Note that a '?!' operator introduces a throw into the body of the block. This should be considered in further type inference.
-            func foo:
+            def foo:
                 a <- 24
                 # a's type is Int
                 if x == y:
@@ -309,7 +336,7 @@ COMPILE-TIME TYPE INFERRING (Dynamic Subject Example)
             ..
 - throws, noreturn:
     - these can gebnerate a NoReturn type used at compile time
-        func foo:
+        def foo:
             a = 5; _ # NoReturn
         ..
 - if union types are the same, they are merged
@@ -335,12 +362,10 @@ COMPILE-TIME TYPE INFERRING (Dynamic Subject Example)
         # a's type is |Str & F64 & Int| - |Str & F64| = |Int|
         doSth(a)
     ..
-
 - Buffers:
     var buf <- Buffer [1, 3f, 5.6, "Dan"] # buf's type is [Int & F32 & F64 & Str]
     buf[1]
     # buf[1]'s type is Int & F32 & F64 & Str
-
 - Dependency Graph
     - recursive function call is mildly acceptable.
     - recursive construction call is seriously unacceptable.
@@ -351,7 +376,7 @@ COMPILE-TIME TYPE INFERRING (Dynamic Subject Example)
 
     - leaf nodes must be primitive instances.
     - if a branch cycles back to preceding complex instance, it is unsound.
-        func foo:
+        def foo:
             return bar
 
         type A(a = foo)
@@ -360,29 +385,29 @@ COMPILE-TIME TYPE INFERRING (Dynamic Subject Example)
 
         type B(b = A)
 
-        func bar:
+        def bar:
             return B()
 
         a -> A().a -> foo().return -> bar().return -> B().a -> A().a -> [UNSOUND!]
     - if a branch cycles back to preceding variable or function instance, it is unsound.
-        func foo:
+        def foo:
             return bar
 
         var a = foo
 
         var b = a
 
-        func bar:
+        def bar:
             return b
 
         a -> foo().return -> bar().return -> b -> a -> [UNSOUND!]
         ###############################################
         type Yin(a, b)
 
-        func foo:
+        def foo:
             x.a = "hi"
 
-        func bar:
+        def bar:
             x.b = 5
         ---------------------------
         var x <- Yin(5, "hi")
@@ -398,11 +423,18 @@ COMPILE-TIME TYPE INFERRING (Dynamic Subject Example)
         x -> Yin(Int, Str)
         foo -> @x -> Yin(Str, Str)
         bar -> @x -> Yin(Str, Int)
-
 - Incremental Compilation
     - global functions, subjects, types, and enums are hashed for changes
+- Implementation
+    - scope register:
+        - enter ast
+        - register scope and scope type (if, while, function)
+        - register subjects, functions, enums and types as the ast is walked
+        - ensure no declaration access violation
+        - leave ast
+        - delete identifier registered in scope.
 
-TYPE/ENUM/FUNCTION/OBJECT DECLARATION & ACCESS
+TYPE/ENUM/FUNCTION/SUBJECT DECLARATION ACCESS
 - an enum/type can access another enum/type before its declaration, but it requires function/subject to be declared before access.
 - a function can access another function before its declaration, but it requires type/enum/subject to be declared before access.
 - a subject (temporary or explicit) requires a function/enum/type/subject to be declared before it can access.
@@ -412,28 +444,28 @@ MUTUALLY DEPENDENT USAGE (Functions & Types)
 - and that can be solved using the solutions provided in SELF-REFERENCING FIELDS section.
     type Doo:
         let a = Fux?
-        func _:
+        def _:
             new(Fux()) # warning! potentially recursive call detected
 
     type Fux:
         let a = Doo?
-        func _:
+        def _:
             new(Doo()) # warning! potentially recursive call detected
 - a recursive call is detected by following every calls made in a function until it loops back to the function itself.
-    func foo:
+    def foo:
         bar # warning! potentially recursive call detected
 
-    func bar:
+    def bar:
         foo # warning! potentially recursive call detected
     - detecting one recursive call means detecting other recursive calls.
     - above if foo is detected to be recursive, bar is automatically marked as recursive.
 - irrespective of whether the recursive call is in a control structure branch or all of its branches, it's still potentially recursive.
 - this applies to constructors too.
-    func foo:
+    def foo:
         if x == y:
             bar # warning! potentially recursive call detected
 
-    func bar:
+    def bar:
         if x == y:
             bar # warning! potentially recursive call detected
         else:

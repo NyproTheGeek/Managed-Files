@@ -13,6 +13,9 @@ patterns: [
         include: "#keyword"
     }
     {
+        include: "#labels"
+    }
+    {
         include: "#comment"
     }
     {
@@ -83,26 +86,43 @@ repository:
     keyword:
         patterns: [
             {
-                match: '\\b(?:grammar)\\b',
-                name: 'support.class.g4'
+                begin: '\\b(?:grammar|locals|\\@[A-Za-z_0-9]+)\\b'
+                beginCaptures:
+                    "0":
+                        name: 'support.class.g4'
+                end: '[A-Za-z_0-9]+'
+                endCaptures:
+                    "0":
+                        name: "g4"
             }
             {
-                match: '\\-\\>\\s*(?:[a-zA-Z0-9]+)',
+                match: '\\-\\>\\s*[A-Za-z_0-9]+',
                 name: 'support.class.g4'
             }
         ]
-
+    labels:
+        patterns: [
+            {
+                begin: "\\#"
+                end: "$"
+                name: "punctuation.definition.comment.begin.g4"
+            }
+        ]
     head:
         patterns: [
             # PARSER NON-TERMINALS
             {
-                match: "(?:[a-z][A-Za-z_0-9]*)\\s*\\:"
+                match: "^\\s*[a-z][A-Za-z_0-9]*\\s*(?=\\:|$)"
                 name: "variable.language.g4"
             }
             # LEXER NON-TERMINALS
             {
-                match: "\\b[A-Z][A-Za-z_0-9]*\\:\\b"
-                name: "storage.type.g4"
+                match: "^\\s*[A-Z][A-Za-z_0-9]*\\s*(?=\\:|$)"
+                name: 'support.function.macro.g4'
+            }
+            {
+                match: "[A-Z][A-Za-z_0-9]*"
+                name: 'support.function.macro.g4'
             }
         ]
 
@@ -125,16 +145,17 @@ repository:
                 name: "entity.name.function.g4"
             }
         ]
+
     raw_braces:
         patterns:[
             {
-                begin: '\\[.*'
+                begin: '\\['
                 beginCaptures:
-                    "1":
+                    "0":
                         name: "constant.numeric.g4"
                 end: '\\]'
                 endCaptures:
-                    "1":
+                    "0":
                         name: "constant.numeric.g4"
             }
         ]

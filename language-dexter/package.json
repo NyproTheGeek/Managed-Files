@@ -3,7 +3,7 @@
   "version": "0.2.0",
   "description": "Dexter Programming Language Support in Atom",
   "engines": {
-    "atom": ">=0.174.0 <2.0.0"
+    "atom": ">=0.174.0"
   },
   "dependencies": {},
   "repository": {

@@ -1,59 +1,37 @@
---------------------- COMPLEX ----------------------
-complex:
-	type
-	refcount
-	len
-	body ptr
+--------------------------------------------------
+------------------COMPILE TIME--------------------
+--------------------------------------------------
 
-body ptr:
-	type
-	refcount
-	size
-	fields
+-----------------COMPILER GIST--------------------
+- stores known primitives, strings and buffers
+- Optimizations
+	- moving temporaries reference to assigned.
+	- reusing object containers
+		- in an rhs expression, sub-expressions overwrite each other as they go, if they
+		- have the same container type, and finally the ending expression overwrites the
+		- assigned object’s container if they have the same container type.
+- Notice
+	- When a function is called with lesser number of parameters.
+- Warnings
+	- When an subject is declared but not accessed.
+	- When you call a function with arguments that can (potentially) cause an ambiguous call.
+- Errors
+	- When an object accesses a field name or function name its type did not provide.
+	- When a function without a bang signature writes to a referenced argument.
+	- When you call a bang function without annotating it with a bang.
+	- When you access a (potentially) uninitialized subject.
+	- When you don't initialize all the fields within initializer.
+	- When you write to a constant subject that has already been given a first value.
+- Guarantees
+	- If you throw an exception in a destructor, the object will be destroyed.
+	- If you throw an exception in a constructor, the object will not be created
+	- Local automatic objects will be destroyed when the function returns.
+- Guideline Notice
+	- When a type name starts with a lowercase letter or underscore
+	- When a subject or function name starts with an uppercase letter.
+	- When nameless parameters are used inappropriately (i.e. not in first params or enum element params)
+	- When there is adjacent repetition of subject names in a condition.
 
----------------------- BUFFER ----------------------
-buffer:
-	type
-	refcount
-	dimens
-	bufferopt
-
-bufferopt:
-	primitive array (I8, U8, I16, U16, I32, U32, I64, U64, F32, F64, Bool)
-	body ptr array
-	inbuffer array
-
-inbuffer:
-	type
-	len
-	bufferopt
-
-----------------THINGS THAT LIVE STACK -------------
-stack primitive
-struct-buf
-struct-cmp
-el-cmpbuf
-el-cmpcmp
-el-cmpprim
-el-bufbuf
-el-bufcmp
-el-bufprim
-
--------------- STACK OBJECTS MANAGEMENT ------------
-STACK HIERARCHY
-foo ← [P1] current_stack_size();
-try ← [P2] current_stack_size() | catch_instruction_pos();
-bar ← [P3] current_stack_size();
-----------------
-THROWN OBJECTS
-a # Nil Exception
-b # Cast Exception
-c
- # others
-----------------
-RETURNED OBJECTS
-a
-----------------
 
 ------------------------- ASTS ---------------------
 # redesigned 16/01/17
@@ -111,10 +89,10 @@ where statement:
 	(exprs[])
 match statement:
 	(args[]<expr>, body)
-w:th statement:
-	(exprs[], body, end)
-c:se statement:
-	(exprs[], body, end)
+# w:th statement:
+# 	(exprs[], body, end)
+# c:se statement:
+# 	(exprs[], body, end)
 with statement:
 	(exprs[], body, end)
 case statement:
@@ -140,20 +118,40 @@ label expression:
 	(name)
 loop_iterator expression: # x in y
 	(ref, lhs, rhs)
-dot_call expression: # x.y # for fields and bracketless no-arg functions only
-	(ref, name0, name1)
-arrow_call expression: # ->y # for fields and bracketless no-arg functions only
-	(ref, name0, name1)
-list_index expression: # x[y]
-	(ref, expr, indices[])
+# dot_call expression: # x.y # for fields and bracketless no-arg functions only
+# 	(ref, name0, name1)
+# arrow_call expression: # ->y # for fields and bracketless no-arg functions only
+# 	(ref, name0, name1)
+# list_index expression: # x[y]
+# 	(ref, expr, indices[])
 function_call expression: # x(a, b, c)
-	(ref, emit, name, bang, vector, generic_type_args[], args[:]<name:expr>)
-chain_call expression: # >>(a, b, c)
-	(ref, args[:]<name:expr>)
+	(ref, emit, name, bang, generic_type_args[], args[:]<name:expr>) # vector??
+# chain_call expression: # >>(a, b, c)
+# 	(ref, args[:]<name:expr>)
 catch_call expression: # x`y
 	(expr, name)
 new_call expression:
-	(ref,  parent_call_expr, args[:]<name:expr>)
+	(ref, super_or_self_call_expr, args[:]<name:expr>)
+super_call expression:
+	(generic_type_args[], args[:]<name:expr>)
+self_call expression:
+	(ref, generic_type_args[], args[:]<name:expr>)
+as expression:
+	(ref, lhs, rhs)
+equal expression:
+	(ref, lhs, rhs)
+not_equal expression:
+	(ref, lhs, rhs)
+greater_than expression:
+	(ref, lhs, rhs)
+greater_than_or_equal expression:
+	(ref, lhs, rhs)
+lesser_than expression:
+	(ref, lhs, rhs)
+lesser_than_or_equal expression:
+	(ref, lhs, rhs)
+not expression:
+	(ref, expr)
 return expression:
 	(ref, expr)
 yield expression:
@@ -195,6 +193,8 @@ range expression: # {x:y}
 indexer expression: # xx[:]
 	(ref, expr, indices[])
 tupling expression: # ...xx
+	(ref, expr)
+transpose expression: # [1, 2, 3]@
 	(ref, expr)
 assignment expression:
 	(ref, lhs, rhs)
@@ -260,6 +260,13 @@ type_head:
 
 function_head:
     (overload_size)
+
+
+--------------------------------------------------
+------------------RUNTIME-------------------------
+--------------------------------------------------
+
+
 ----------------- BYTECODE -----------------------
 # MOV
 mov_v a b ## b = val a [primitive]
@@ -298,83 +305,83 @@ shr a b c ## c = a .shr b [primitive]
 forloop_ a; begin; step; end; instruction_index ## for a in [begin:step:end] [primitive]
 forloop2_ a b; begin; step; end; instruction_index ## for a in b[begin:step:end] [complex]
 # MK
-mkbuf a ; dimen ; dimensizes
-mkcmp a ; type_index; constructor_function_index
+mkbuf a ; dimen ; dimensizes # NEEDS REVISION !!!!!!!
+mkcmp a ; type_index; constructor_function_index # NEEDS REVISION !!!!!!!
 # PULLGLOBAL
-pullglob_ a ; global_index # sets pointer to a particular object in global.
-pushbuf_v_ a b ; index
-pushbuf_r_ a b ; index
-pushbuf_wr_ a b ; index
-pushbuf_vnull_ a b ; index
-pushbuf_rnull_ a b ; index
-pushbuf_wrnull_ a b ; index
-pushcmp_v_ a b ; index
-pushcmp_r_ a b ; index
-pushcmp_wr_ a b ; index
-pushcmp_vnull_ a b ; index
-pushcmp_rnull_ a b ; index
-pushcmp_wrnull_ a b ; index
+pullglob_ a ; global_index # sets pointer to a particular object in # NEEDS REVISION !!!!!!! global.
+pushbuf_v_ a b ; index # NEEDS REVISION !!!!!!!
+pushbuf_r_ a b ; index # NEEDS REVISION !!!!!!!
+pushbuf_wr_ a b ; index # NEEDS REVISION !!!!!!!
+pushbuf_vnull_ a b ; index # NEEDS REVISION !!!!!!!
+pushbuf_rnull_ a b ; index # NEEDS REVISION !!!!!!!
+pushbuf_wrnull_ a b ; index # NEEDS REVISION !!!!!!!
+pushcmp_v_ a b ; index # NEEDS REVISION !!!!!!!
+pushcmp_r_ a b ; index # NEEDS REVISION !!!!!!!
+pushcmp_wr_ a b ; index # NEEDS REVISION !!!!!!!
+pushcmp_vnull_ a b ; index # NEEDS REVISION !!!!!!!
+pushcmp_rnull_ a b ; index # NEEDS REVISION !!!!!!!
+pushcmp_wrnull_ a b ; index # NEEDS REVISION !!!!!!!
 --------
 # last index is checked to determine if pulling/pushing barePrimitive
-pullbufel_ a b
-pushbufel_ a b
+pullbufel_ a b # NEEDS REVISION !!!!!!!
+pushbufel_ a b # NEEDS REVISION !!!!!!!
 ---------
-pullcmpel_ a b ; index # pullcmp pulls the ref onto the stack
+pullcmpel_ a b ; index # pullcmp pulls the ref onto the stack # NEEDS REVISION !!!!!!!
 ---------
-pushcmpel_v_ a b ; index
-pushcmpel_r_ a b ; index
-pushcmpel_wr_ a b ; index
-pushcmpel_vnull_ a b ; index
-pushcmpel_rnull_ a b ; index
-pushcmpel_wrnull_ a b ; index
+pushcmpel_v_ a b ; index # NEEDS REVISION !!!!!!!
+pushcmpel_r_ a b ;  # NEEDS REVISION !!!!!!!
+pushcmpel_wr_ a b ; index # NEEDS REVISION !!!!!!!
+pushcmpel_vnull_ a b ; index # NEEDS REVISION !!!!!!!
+pushcmpel_rnull_ a b ; index # NEEDS REVISION !!!!!!!
+pushcmpel_wrnull_ a b ; index # NEEDS REVISION !!!!!!!
 # INDEX
-index ; number
-index_ ; number
+index ; number # NEEDS REVISION !!!!!!!
+index_ ; number # NEEDS REVISION !!!!!!!
 # TYPECHECK
-typecheck_ a ; type_index ; switch_number ;
-typecheck a b
-typechecksub a b
-typecheck2 a ; type_index
-typechecksub2 a ; type_index
+typecheck_ a ; type_index ; switch_number ; # NEEDS REVISION !!!!!!!
+typecheck a b # NEEDS REVISION !!!!!!!
+typechecksub a b # NEEDS REVISION !!!!!!!
+typecheck2 a ; type_index # NEEDS REVISION !!!!!!!
+typechecksub2 a ; type_index # NEEDS REVISION !!!!!!!
 # SWITCH
-switch ; instr_index ; instr_index ;
+switch ; instr_index ; instr_index ; # NEEDS REVISION !!!!!!!
 # CALL, RUN, EMIT
-call a
-run a
-emit a
-call2 ; function_index
-run2 ; function_index
-emit2 ; function_index
+call a # NEEDS REVISION !!!!!!!
+run a # NEEDS REVISION !!!!!!!
+emit a # NEEDS REVISION !!!!!!!
+call2 ; function_index # NEEDS REVISION !!!!!!!
+run2 ; function_index # NEEDS REVISION !!!!!!!
+emit2 ; function_index # NEEDS REVISION !!!!!!!
 # STEPBACK
-stepback ; offset
+stepback ; offset # NEEDS REVISION !!!!!!!
 # LEN  # Cannot be Nil # Complex
-lencmp a b
-lenbuf a b
+lencmp a b # NEEDS REVISION !!!!!!!
+lenbuf a b # NEEDS REVISION !!!!!!!
 # DIMEN # Cannot be Nil # Buffer
-dimen a b
-dimensize a b c # c is the dimension position
+dimen a b # NEEDS REVISION !!!!!!!
+dimensize a b c # c is the dimension position # NEEDS REVISION !!!!!!!
 # CATCH, THROW
-catch a b  # automatic clearance for just one object
-throw a
+catch a b  # automatic clearance for just one object # NEEDS REVISION !!!!!!!
+throw a # NEEDS REVISION !!!!!!!
 # JMP, JMPBACK
-jmp ; jump_offset
-jmpback ; jump_offset
+jmp ; jump_offset # NEEDS REVISION !!!!!!!
+jmpback ; jump_offset # NEEDS REVISION !!!!!!!
 # RET
-ret a
-ret2
+ret a # NEEDS REVISION !!!!!!!
+ret2 # NEEDS REVISION !!!!!!!
 # CLEAR
-clear ; number
+clear ; number # NEEDS REVISION !!!!!!!
 # PRINT, SCAN
-print a
-println a
-scan a
+print a # NEEDS REVISION !!!!!!!
+println a # NEEDS REVISION !!!!!!!
+scan a # NEEDS REVISION !!!!!!!
 # FOPEN, FREAD, FWRITE, FCLOSE
-fopen a
-fread a b
-fwrite a b
-fclose a
+fopen a # NEEDS REVISION !!!!!!!
+fread a b # NEEDS REVISION !!!!!!!
+fwrite a b # NEEDS REVISION !!!!!!!
+fclose a # NEEDS REVISION !!!!!!!
 # EXIT
-exit a # error code
+exit a # error code # NEEDS REVISION !!!!!!!
 
 ---------------- RUNTIME LISTS ---------------------
 globallist # globals, constants/loaded values, mockobject
@@ -391,6 +398,63 @@ stack
 stackheadlist
 thrownlist
 returnedlist
+
+--------------------- COMPLEX ----------------------
+complex:
+	type
+	refcount
+	len
+	body ptr
+
+body ptr:
+	type
+	refcount
+	size
+	fields
+
+---------------------- BUFFER ----------------------
+buffer:
+	type
+	refcount
+	dimens
+	bufferopt
+
+bufferopt:
+	primitive array (I8, U8, I16, U16, I32, U32, I64, U64, F32, F64, Bool)
+	body ptr array
+	inbuffer array
+
+inbuffer:
+	type
+	len
+	bufferopt
+
+----------------THINGS THAT LIVE STACK -------------
+stack primitive
+struct-buf
+struct-cmp
+el-cmpbuf
+el-cmpcmp
+el-cmpprim
+el-bufbuf
+el-bufcmp
+el-bufprim
+
+-------------- STACK OBJECTS MANAGEMENT ------------
+STACK HIERARCHY
+foo ← [P1] current_stack_size();
+try ← [P2] current_stack_size() | catch_instruction_pos();
+bar ← [P3] current_stack_size();
+----------------
+THROWN OBJECTS
+a # Nil Exception
+b # Cast Exception
+c
+ # others
+----------------
+RETURNED OBJECTS
+a
+----------------
 
 ------------------ EXAMPLES ----------------------
 [SOURCE CODE]
@@ -438,36 +502,6 @@ func div num & den =: Int:
 ..
 [BYTECODE]
 
------------------- COMPILER ---------------------
-- stores known primitives, strings and buffers
-- Optimizations
-	- moving temporaries reference to assigned.
-	- reusing object containers
-		- in an rhs expression, sub-expressions overwrite each other as they go, if they
-		- have the same container type, and finally the ending expression overwrites the
-		- assigned object’s container if they have the same container type.
-- Notice
-	- When a function is called with lesser number of parameters.
-- Warnings
-	- When an subject is declared but not accessed.
-	- When you call a function with arguments that can (potentially) cause an ambiguous call.
-- Errors
-	- When an object accesses a field name or function name its type did not provide.
-	- When a function without a bang signature writes to a referenced argument.
-	- When you call a bang function without annotating it with a bang.
-	- When you access a (potentially) uninitialized subject.
-	- When you don't initialize all the fields within initializer.
-	- When you write to a constant subject that has already been given a first value.
-- Guarantees
-	- If you throw an exception in a destructor, the object will be destroyed.
-	- If you throw an exception in a constructor, the object will not be created
-	- Local automatic objects will be destroyed when the function returns.
-- Guideline Notice
-	- When a type name starts with a lowercase letter or underscore
-	- When a subject or function name starts with an uppercase letter.
-	- When nameless parameters are used inappropriately (i.e. not in first params or enum element params)
-	- When there is adjacent repetition of subject names in a condition.
-
 ------------- TYPE INFERENCE ---------------------
 - get all types and id them
 - get all blocks and nested blocks and id them
@@ -485,7 +519,7 @@ func div num & den =: Int:
 - optional types (Nil)
 - scope and objects on stack
 
------------- FUTURE IMLEMENTATIONS ---------------
+------------ FUTURE IMPLEMENTATIONS ---------------
 - Making fibers and threads work together to form coroutines
 - Detecting Cyclic Ref Using a Relationship Cyclic Tree
 	- Object -> [parents] [children] [siblings] [level] (all ordered aphanumerically)

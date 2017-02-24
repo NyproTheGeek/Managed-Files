@@ -16,9 +16,9 @@ patterns: [
     {
         include: "#numbers"
     }
-    {
-        include: "#macros"
-    }
+    # {
+    #     include: "#macros"
+    # }
     {
         include: "#lambda_var"
     }
@@ -69,12 +69,12 @@ repository:
     functions:
         patterns: [
             {
-                match: "(?<=func |catch )(?:\\.|`)?[A-Za-z_][A-Za-z0-9_!]*|[A-Za-z_][A-Za-z0-9_!]*\\$"
+                match: "(?<=def |catch |ensure )(?:\\.|`)?[a-z_][A-Za-z0-9_!]*|[A-Za-z_][A-Za-z0-9_!]*\\$"
                 name: "entity.name.function.dexter"
             }
             # CONSECUTIVE CALL CHAIN
             {
-                match: '\\|>'
+                match: '>>|@@'
                 name: "entity.name.function.dexter"
             }
             # LAMBDAS
@@ -103,14 +103,14 @@ repository:
                 name: 'support.function.macro.dexter'
             }
         ]
-    macros:
-        patterns:[
-            # HINTS
-            {
-                match: "\\@(?:[A-Za-z_][A-Za-z_0-9]*)"
-                name: 'support.function.macro.dexter'
-            }
-        ]
+    # macros:
+    #     patterns:[
+    #         # HINTS
+    #         {
+    #             match: "(?:[A-Za-z_0-9]+)|(?<=macro )[A-Za-z_0-9]+"
+    #             name: 'support.function.macro.dexter'
+    #         }
+    #     ]
     brackets:
         patterns: [
             {
@@ -163,7 +163,7 @@ repository:
         patterns: [
             # REAL NUMBERS
             {
-                match: "\\b[+-]?[0-9]([A-Za-z0-9]_?)*(\\.([0-9]_?)*(e[+-]?)?([0-9]_?)+)?(_[A-Za-z0-9]+)?"
+                match: "\\b[0-9][A-Za-z0-9_]*((\\.[0-9_]+)?e[+-]?[0-9_]+)?([A-Za-z][A-Za-z0-9]*)?"
                 name: "constant.numeric.dexter"
             }
         ]
@@ -181,17 +181,17 @@ repository:
             }
             # CONTROL FLOW
             {
-                match: '\\b(?:for|spill|if|where|\\?|opt|else|elsif|elif|rt|yd|while|redo|match|with|case|w:th|c:se|until|do|loop|label|op|block|try|catch|ensure|throw|continue|break|skip|select|import|but|tar|using|hiding|\\.\\.)\\b',
+                match: '\\b(?:for|spill|if|where|\\?|opt|else|elsif|elif|return|yield|while|match|of|with|case|until|loop|label|block|try|catch|ensure|raise|continue|break|skip|select|import|but|tar|using|hiding|\\.\\.)\\b',
                 name: 'keyword.control.dexter'
             }
             # MODIFIERS
             {
-                match: '\\b(?:pin|abstr|actor|obj|rd|wr|hold|NaN|lock|iso|val|ref|wref|def)\\b',
+                match: '\\b(?:pin|(?<=type )abs|actor|obj|rd|wr|NaN|lock|iso|val|ref)\\b',
                 name: 'storage.modifier.dexter'
             }
             # CATEGORIES
             {
-                match: '\\b(?:type|extend|func|enum|let|var|as)\\b',
+                match: '\\b(?:type|extend|def|enum|macro|let|var|as)\\b',
                 name: 'storage.type.dexter'
             }
             # CLASSES
@@ -227,18 +227,21 @@ repository:
         ]
     dot_members:
         patterns: [
-            # OTHERS
             {
-                match: "(?<!let |var |type |extend | wr | rd | pin |\\.\\.)(?:(\\-\\>|\\.)\\{?)([A-Za-z_][A-Za-z_0-9]*\\!?)\\b"
+                match: "(?<!let |var |type |extend | wr | rd | pin |\\.\\.)(?:(\\-\\>|(?<!, )\\.)\\(?)([A-Za-z_][A-Za-z_0-9]*\\!?\\??)\\b"
                 captures:
                     "2":
                         name: "variable.language.dexter"
             }
+            # {
+            #     match: "(\\~[a-z_][A-Za-z_0-9]*\\!?\\??)\\b"
+            #     name: "variable.language.dexter"
+            # }
         ]
     function_calls:
         patterns: [
             {
-                begin: "([A-Za-z_][A-Za-z_0-9]*\\!?)\\s*({(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*})?\\("
+                begin: "([A-Za-z_][A-Za-z_0-9]*\\!?\\??)\\s*({(?:[^{}]|{(?:[^{}]|{[^{}]*})*})*})?\\("
                 beginCaptures:
                     "1":
                         name: "entity.name.function.dexter"
@@ -258,7 +261,7 @@ repository:
     infix_call:
         patterns:[
             {
-                match: "(?<!let |var |rd |wr )([^\\=|\\:|\\;|\\.|\\<|\\>|\'|\"|\\*|\\/|\\-|\\+|\\^|\\%|\\\\|\\}|\\{|\\)|\\(|\\!|\\&|\\$|\\@|\\||\\~|type|extend|func|enum|let|var|as|for|spill|if|where|\\?|opt|else|elsif|elif|rt|yd|while|redo|match|with|case|w:th|c:se|until|do|loop|label|op|block|try|catch|ensure|throw|continue|break|skip|select|import|but|tar|using|hiding|\\.\\.|pin|abstr|actor|obj|const|rd|wr|hold|NaN|lock|iso|val|ref|wref|own|set|get|emit|and|or|in|ref|not\\s+in|in]|\\b[a-z_][A-Za-z_0-9!]*)\\s+(?=[A-Za-z_0-9]+|\"|\'|\\{|\\(|\\[|,)(?!(but|if|for|while|and|or|as|where|iso|val|ref|wref|def|not\\s+in)\\b)"
+                match: "(?<!let |var |rd |wr )([^\\=|\\:|\\;|\\.|\\<|\\>|\'|\"|\\*|\\/|\\-|\\+|\\^|\\%|\\\\|\\}|\\{|\\)|\\(|\\!|\\&|\\$|\\@|\\||\\~|type|extend|def|enum|let|var|as|for|spill|if|where|\\?|opt|else|elsif|elif|return|yield|while|match|of|with|case|until|loop|label|block|try|catch|ensure|raise|continue|break|skip|select|import|but|tar|using|hiding|\\.\\.|pin|(?<=type )abs|actor|obj|const|rd|wr|NaN|lock|iso|val|ref|own|set|get|emit|and|or|in|ref|not\\s+in|in]|\\b[a-z_][A-Za-z_0-9!\\?]*)\\s+(?=[A-Za-z0-9][A-Za-z_0-9]*|\\$|\"|\'|\\{|\\(|,)(?!(but|if|for|while|and|or|as|where|iso|val|ref|not\\s+in)\\b)|^\\s*([A-Za-z][A-Za-z_0-9]*[^ensure|case|with|loop|block])\\s*(?=\\:)"
                 name: 'entity.name.function.dexter'
             }
         ]

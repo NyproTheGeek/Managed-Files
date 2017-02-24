@@ -3,4 +3,5 @@
 - Where I left off.
 	- DexterCycles:
 		- Having trouble with developing a dependency graph that will allow contain flow of changing subjects (their types) and also allow incremental compilation.
+		- Crystal's issue on this: https://github.com/crystal-lang/crystal/issues/1824
 		- I've not yet develop vivid intuitipon for reference counting and cycle breaking.

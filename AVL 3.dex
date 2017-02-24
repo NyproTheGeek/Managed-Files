@@ -1,0 +1,291 @@
+# 20/02/17
+# 24/02/17 updated syntax `def` to '`fun`; function calls `Int(56.5)` to `Int.(56.5)`
+#:: Node?
+type Tree root
+
+let comp = (Node, Node -> Int)
+
+#:: (Node, Node -> Int) -> Tree
+fun Tree comparator:
+	comp = comparator
+	return new
+..
+
+#:: Tree, _ -> !
+fun insert tree, value:
+	var node = Node value
+	var rootNode = tree.root
+	if rootNode != nil:
+		node.height = 0
+		tree.root = node
+	else:
+		rootNode.add node, tree
+..
+
+#:: Tree, (Node -> _) -> !
+fun inOrderTrasversal tree, f:
+	inOrderTrasversal tree.root, f
+
+#:: Node, (Node -> _) -> !
+fun inOrderTrasversal node, f:
+	if node != nil:
+		inOrderTrasversal node.left, f
+		f node
+		inOrderTrasversal node.right, f
+..
+
+#:: Tree, (Node -> _) -> !
+fun preOrderTrasversal tree, f:
+	preOrderTrasversal tree.root, f
+
+#:: Node, (Node -> _) -> !
+fun preOrderTrasversal node, f:
+	if node != nil:
+		f node
+		preOrderTrasversal node.left, f
+		preOrderTrasversal node.right, f
+..
+
+#:: Tree, (Node -> _) -> !
+fun postOrderTrasversal tree, f:
+	postOrderTrasversal tree.root, f
+
+#:: Node, (Node -> _) -> !
+fun postOrderTrasversal node, f:
+	if node != nil:
+		postOrderTrasversal node.left, f
+		postOrderTrasversal node.right, f
+		f node
+..
+
+#:: Node -> Nil
+fun delete node:
+	if node == nil:
+		raise Error "Couldn't find node with the value specified"
+
+	if node.isLeaf:
+		let parent = node.parent
+		parent.detachChild node
+		tree.rebalance parent
+	else:
+		let parent = node.parent
+		parent.right = node.right
+		tree.rebalance parent
+
+	if node.left != nil & node.right == nil:
+		let parent = node.parent
+		parent.right = node.left
+		tree.rebalance parent
+	elif node.left == nil & node.right != nil:
+		let parent = node.parent
+		parent.right = node.right
+		tree.rebalance parent
+
+	if node.|left and right| != nil:
+		let _, successor = tree.successor node
+		node.value = successor.value
+		tree.delete successor
+	nil
+..
+
+#:: _ -> Error, Node?
+fun find value:
+	let node = Node value
+	let foundNode = tree.compare node, tree.root
+	if foundNode == nil:
+		return (Error "Node, wasn't found"), nil
+	nil, foundNode
+..
+
+#:: Tree, Node -> Error, Node?
+fun successor tree, node:
+	if node.right != nil:
+		return nil, tree.min node.right
+	(Error "Node has no right child"), nil
+..
+
+#:: Tree, Node -> Node
+fun min tree, node:
+	if node.left == nil:
+		return node
+	tree.min node.left
+..
+
+#:: Node, Node -> Node?
+fun compare node, current:
+	if current == nil:
+		return nil
+	let comparison = comp current, node
+	if comparison = 0:
+		return current
+	elif comparison > 0:
+		return tree.compare node, current.right
+	else:
+		return tree.compare node, current.left
+..
+
+#:: Tree, Node -> !
+fun rebalance tree, node:
+	if node != nil;
+	node.updateHeight;
+	if !node.isBalanced;
+	let bf = node.balancedFactor;
+	if bf > 0:
+		let bfNext = balancedFactor node.left
+		if bfNext == 1 or 0:
+			leftLeftRotate node, tree
+		else:
+			leftRightRotate node, tree
+	else:
+		let bfNext = balancedFactor node.right
+		if bfNext == 1 or 0:
+			rightRightRotate node, tree
+		else:
+			rightLeftRotate node, tree
+	else:
+		tree.rebalance node.parent
+..
+
+type Node:
+	var left =
+		set node: #:: Node?
+			left = node
+			if node != nil:
+				node.parent = self
+		..
+	var right =
+		set node: #:: Node?
+			right = node
+			if node != nil:
+				node.parent = self
+		..
+	var height = 0
+	var parent = Node?
+	var value
+..
+
+#:: _ -> Node
+fun Node value:
+	new value:value
+
+#:: Node -> Int
+fun balancedFactor node:
+	let left, right = node.|left, right|.height
+	left - right
+
+
+#:: Node, Node -> !
+fun add node, child, tree:
+	let greaterFactor = comp node, child
+	if greaterFactor > 0:
+		if node.right != nil:
+			node.right.add child, tree
+		else:
+			node.right = child
+	else:
+		if node.left != nil:
+			node.left.add child, tree
+		else:
+			node.left = child
+	!
+..
+
+#:: Node -> !
+fun updateHeight node:
+	let
+		leftHeight = node.left.height
+		rightHeight = node.right.height
+	node.height = Int.(chooseMax.(F64  leftHeight, >>  rightHeight)) + 1
+	# node.height = Int(chooseMax(F64(leftHeight), F64(rightHeight))) + 1
+	!
+..
+
+#:: Node -> Bool
+fun isLeaf node:
+	node.|right and left| == nil
+
+#:: Node -> Bool
+fun isBalanced node:
+	abs (F64 node.balancedFactor) < 2
+
+#:: Node, Node -> Nil
+fun detachChild node, other:
+	if node.left =:= other:
+		node.left == nil
+		other.parent = nil
+	if node.right =:= other:
+		node.right == nil
+		other.parent = nil
+	else:
+		raise Error "Node wasn't found"
+..
+
+#:: Node, Tree -> !
+fun rotate node, tree:
+	if !node.isBalanced;
+	let bf = balancedFactor node;
+	if bf > 0:
+		let bfNext = balancedFactor node.left
+		if bfNext > 0:
+			leftLeftRotate node, tree
+		else:
+		 	leftRightRotate node, tree
+	else:
+		let bfNext = balancedFactor node.right
+		if bfNext > 0:
+			rightLeftRotate node, tree
+		else:
+		 	rightRightRotate node, tree
+	..
+..
+
+#:: Node, Tree -> !
+fun leftLeftRotate pivot, tree:
+	let child = pivot.left
+	fixTree pivot, child, tree
+	pivot.left = child.right
+	child.right = pivot
+	updateChild child
+..
+
+#:: Node, Tree -> !
+fun leftRightRotate pivot, tree:
+	rightRightRotate pivot.left, tree
+	leftRightRotate pivot, tree
+..
+
+#:: Node, Tree -> !
+fun rightRightRotate pivot, tree:
+	let child = pivot.left
+	fixTree pivot, child, tree
+	pivot.left = child.left
+	child.right = pivot
+	updateChild child
+..
+
+#:: Node, Tree -> !
+fun rightLeftRotate pivot, tree:
+	leftLeftRotate pivot.right, tree
+	rightRightRotate pivot, tree
+..
+
+#:: Node, Node, Tree -> !
+fun fixTree pivot, pivotChild, tree:
+	if tree.root =:= pivot:
+		tree.root = pivotChild
+		pivotChild.parent = nil
+	elif pivot.parent.left =:= pivot:
+		pivot.parent.left = pivotChild
+	else:
+		pivot.parent.left = pivotChild
+	!
+..
+
+#:: Node -> !
+fun updateChild child:
+	if child.left != nil:
+		child.left.updateHeight
+	if child.right != nil:
+		child.left.updateHeight
+	child.updateHeight;
+..

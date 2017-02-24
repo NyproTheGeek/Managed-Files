@@ -1,0 +1,20 @@
+# 10/02/17
+UNFINISHED (12/02/17)
+- 1. Implementing the parser
+
+UNFINISHED
+- 2. Implementing type inference and dependency graph
+
+UNFINISHED
+- 3. Implementing automatic reference counting and cycle breaking.
+
+UNFINISHED
+- 4. Implementing multiple inheritance method resolution order.
+
+UNFINISHED
+- 5. Implementing multiple dispatch.
+
+UNFINISHED
+- 6. Implementing static checks.
+	- a. type hint assertion
+	- b.

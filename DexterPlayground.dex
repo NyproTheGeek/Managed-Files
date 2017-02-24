@@ -1,3 +1,337 @@
+# 09/02/17
+# Dexter0.2
+def add a, a = b -> Int:
+	return a + b
+
+def
+	foo:
+		println 'Hello'
+	bar:
+		println 'Hi'
+..
+
+
+# CONSIDERING INDENTATION BASED STRUCTURE
+# formatter saves indentation reference along with file.
+# no tab, 4 spaces.
+var
+	sum = 0
+	count = 0
+
+type
+	Person name, age
+	Car make, model, year
+
+Promise.all
+	loadImage 'images/cat1.jpg',
+	loadImage 'images/cat2.jpg',
+	loadImage 'images/cat3.jpg'
+.then |images| => # NOTE1
+	console.log images
+	images.each |image| => addImage image.src
+.catch |error| =>
+	println error.message
+
+if foo == bar:
+	println 'I love rock n\' roll'
+	if qux > doo: # NOTE2
+		println 'I love RNB'
+else:
+	println 'I love Pop'
+
+var a =
+	get: a
+	set value: a = value
+
+array.foldLeft 0,
+|a, b| => a + b
+
+# optional block enders, must be the only token on a line
+def show person:
+	person
+	->name
+	->age
+..
+# indentation awareness
+# - if-elif-else association
+# - dedent back to parent (arguments, childDict)
+
+let x = [
+	teacher:
+		name: 'Mr Beans',
+		course: 'Mathematics'
+	dad:
+		name: 'Sunday Adams',
+		[Person.attribute[2]]: 78
+]
+
+x['dad']
+
+let y = [
+	9, 8, 7
+	5, 4, 3
+]
+
+# arguments against indentation-based syntax
+- problems when tabs and spaces are mixed
+- problems with varying tabstops
+- code cannot be automatically formatted
+- newlines get stripped when copying from certain places
+
+
+# WART 1
+foo[2] # getIndex, no-space
+foo [2]  # function call
+foo [2, 3] # function call
+foo [1:3] # function call
+# WART 2
+Int # type specification
+Int() # construction
+
+[for x in list where x > 70]
+list .where => $1 > 70
+
+# 08/02/17
+# Dexter0.2
+# Python
+import imageLoader loadImage
+
+def addImage src:
+	let imageElement =
+		document .createElement 'img'
+	imageElement.src = src
+	document.body .appendChild imageElement
+..
+
+Promise.all(
+	loadImage 'images/cat1.jpg',
+	loadImage 'images/cat2.jpg',
+	loadImage 'images/cat3.jpg',
+).then(|images| =>
+	console.log images
+	images.each |image| => addImage image.src
+).catch |error| =>
+	println error.message
+
+-------------------------------------
+var regex = /reg(ular\s+)?ex(pression)?/
+
+while True:
+	print('>>> ', interpret(compile(parse(lex(input())))))
+# Julia
+while true
+ 	println(">>> ", interpret(compile(parse(lex(input()))))
+end
+# Astro0.2
+loop:
+    println '>>> ', scan .lex .parse .compile .interpret
+
+loop:
+    println '>>> ', interpret compile parse lex scan
+
+# 06/02/17
+# Dexter0.2
+# Try-Await over Yield
+def async doSomething:
+    let p = await getPerson randomName.split /\s+/
+    p->name, ->age
+..
+
+# 04/02/17
+# Dexter0.2
+var block_regex = ///^(
+  ?: [-=]>
+   | [-+*/%<>&|^!?=]=
+)
+///
+
+true, yes, on
+false, no, off
+
+# 04/02/17
+# Dexter0.2
+def foo x:
+    return x.abs
+
+list.eachIndex |i, e| => println '[i]: [e]'
+
+# just like subjects, objects can also be let or var
+# new objects assigned to let subjects are let by default
+# new objects assigned to var subjects are var by default
+let beetle = Car # Car object is let
+let beetle = var Car
+var beetle = let Car
+
+# 01/02/17
+# Dexter0.2
+# MACRO TO BE CONTINUED
+class Person name, age:
+    let name, age = Str, Int
+
+macro class ~TypeDefinition:
+    match class with <type>
+    $1.type = <type>
+    $1
+..
+
+var x <- 23
+var x dynamic 23
+
+macro dynamic ~SubjectDeclaration:
+    match dynamic with <\<->
+    $1.dynamic = <\<->
+    $1
+..
+
+html "mainpage":
+    head:
+        title "The Dexter Programming Language"
+    body:
+        ul:
+            li "Efficient"
+            li "Expressive"
+            li "Scalable"
+        ..
+    ..
+..
+
+macro html title, body:
+    "<html>[body]<html>"
+
+macro head body:
+    "<head>[body]<head>"
+
+macro title body:
+    "<title>[body]<title>"
+
+macro ul body:
+    "<ul>[body]<ul>"
+
+macro li body:
+    "<li>[body]<li>"
+
+
+# 31/01/17
+# Dexter0.2
+# RETURN TYPES
+def add a = 0, b = 0 -> Int: # though there was a clash
+    a + b
+
+# GENERICS
+var x = $T
+var y = $V as Int
+# IMPROVING MACROS
+def _class
+    params = ParamExpr,
+    iden = Identifier,
+    colon = Colon?,
+    body = TypeBody? # the '?' means optional
+:
+    if body and colon != nil:
+        return {type}, iden, params
+    return {type}, iden, params, colon, body
+..
+
+_class Person name, age:
+    let name, age = Str, Int
+
+################
+
+if x and y == 5
+if a and y _.exists
+
+#########
+type Duck
+type Person name = Str
+
+def quack ~Duck:
+    println 'Quaaaaack!'
+
+def quack ~Person:
+    println 'The person imitates a duck.'
+
+def feathers ~Duck:
+    println 'The duck has white and gray feathers.'
+
+def feathers ~Person:
+    println 'The person takes a feather from the ground and shows it.'
+
+def name ~Person:
+    println self.name
+
+def inTheForest duck:
+    duck->quack->feathers
+
+def game:
+    let donald = Duck
+    let john = Person 'John Smith'
+    inTheForest donald
+    inTheForest john
+..
+######################################
+
+var a, b = (1, 2) # a = 1, b = 2
+var a, b = 1, 2 # a = 1, b = 2
+var a & b = (1, 2) # a = (1, 2), b = (1, 2)
+var a & b = 1, 2 # a = 1, b = 2
+
+WHERE CALL BRACKETS ARE ACTUALLY NEEDED
+    foo([1]) # passing a one-element list to a single arg call
+    foo [1] # this means something else
+    foo((1 - 4).abs) # when bracketing the first agument of a function
+    foo (1 - 4).abs # this means something else
+
+# 30/01/17
+# Dexter0.2
+loop:
+    println 56
+while x < 6
+
+loop:
+    println 56
+
+list.each |x| =>
+    println x
+
+list.each |x| => println x
+
+list.fold 0, |x, y| => x + y
+
+# 29/01/17
+# Dexter0.2
+_operator[20]
+func ϵ(a, b):
+    a in b
+
+if a ϵ b: println "Booyah!"
+
+# 28/01/17
+# Dexter0.2
+- match
+func compare(a, b):
+    match a, b
+    with 5, 6:_
+    with 4, 7:_
+..
+
+- rest
+var a, b... = 1, 2, 3, 4
+
+func sum(a, b...):
+    a + b.foldLeft 0, => $1 + $2
+..
+
+var a, b = ...list[1:4], ->[2:6]
+
+a->[1] # a.getIndex(1)
+a->("Hi") # a.call("Hi")
+
+- unpacking
+var a = [1, 2, 3]
+var b = (1, 2, 3)
+var x = ...a
+var y = ...b
+
 # 21/01/17
 # Dexter0.2
 My Plans For Nigeria

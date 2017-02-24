@@ -33,7 +33,6 @@ class FunctionDefinition(Expression):
         self.params = params
         self.body = body
 
-
 class CatchFunctionDefinition(Expression):
     def __init__(self, access, name, paramType, access, body):
         self.access = access
@@ -181,18 +180,6 @@ class MatchStatement(Expression):
         self.args = args
         self.body = body
 
-class W_thStatement(Expression):
-    def __init__(self, exprs, body, end):
-        self.exprs = exprs
-        self.body = body
-        self.end = end
-
-class C_seStatement(Expression):
-    def __init__(self, exprs, body, end):
-        self.exprs = exprs
-        self.body = body
-        self.end = end
-
 class WithStatement(Expression):
     def __init__(self, exprs, body, end):
         self.exprs = exprs
@@ -245,38 +232,14 @@ class LoopIterator(Expression):
         self.lhs = lhs
         self.rhs = rhs
 
-class DotCall(Expression):
-    def __init__(self, ref, name0, name1):
-        self.ref = ref
-        self.name0 = name0
-        self.name1 = name1
-
-class ArrowCall(Expression):
-    def __init__(self, ref, name0, name1):
-        self.ref = ref
-        self.name0 = name0
-        self.name1 = name1
-
-class ListIndex(Expression):
-    def __init__(self, ref, expr, indices):
-        self.ref = ref
-        self.expr = expr
-        self.indices = indices
-
 class FunctionCall(Expression):
-    def __init__(self, ref, emit, name, bang, vector, genericTypeArgs, args):
+    def __init__(self, ref, emit, name, bang, genericTypeArgs, args):
         self.ref = ref
         self.emit = emit
         self.emit = name
         self.bang = bang
-        self.vector = vector
+        # self.vector = vector
         self.genericTypeArgs = genericTypeArgs
-        self.args = args
-
-
-class ChainCall(Expression):
-    def __init__(self, ref, args):
-        self.ref = ref
         self.args = args
 
 class CatchCall(Expression):
@@ -285,9 +248,63 @@ class CatchCall(Expression):
         self.name = name
 
 class NewCall(Expression):
-    def __init__(self, parentCall, args):
-        self.parentCall = parentCall
+    def __init__(self, super_or_self_call_expr, args):
+        self.super_or_self_call_expr = super_or_self_call_expr
         self.args = args
+
+class SuperCall(Expression):
+    def __init__(self, generic_type_args, args):
+        self.generic_type_args = generic_type_args
+        self.args = args
+
+class SelfCall(Expression):
+    def __init__(self, generic_type_args, args):
+        self.generic_type_args = generic_type_args
+        self.args = args
+
+class As(Expression):
+	def __init__(self, ref, lhs, rhs):
+        self.ref = ref
+        self.lhs = lhs
+        self.rhs = rhs
+
+class Equal(Expression):
+	def __init__(self, ref, lhs, rhs):
+
+class NotEqual(Expression):
+	def __init__(self, ref, lhs, rhs):
+        self.ref = ref
+        self.lhs = lhs
+        self.rhs = rhs
+
+class GreaterThan(Expression):
+	def __init__(self, ref, lhs, rhs):
+        self.ref = ref
+        self.lhs = lhs
+        self.rhs = rhs
+
+class GreaterThanOrEqual(Expression):
+	def __init__(self, ref, lhs, rhs):
+        self.ref = ref
+        self.lhs = lhs
+        self.rhs = rhs
+
+class lesserThan(Expression):
+	def __init__(self, ref, lhs, rhs):
+        self.ref = ref
+        self.lhs = lhs
+        self.rhs = rhs
+
+class LesserThanOrEqual(Expression):
+	def __init__(self, ref, lhs, rhs):
+        self.ref = ref
+        self.lhs = lhs
+        self.rhs = rhs
+
+class Not(Expression):
+	def __init__(self, ref, expr):
+        self.ref = ref
+        self.expr = expr
 
 class Return(Expression):
     def __init__(self, expr):

@@ -1,0 +1,28 @@
+# 31/01/17
+# Dexter0.2
+type Duck
+type Person name = Str
+
+def quack duck = Duck:
+    println 'Quaaaaack!'
+
+def quack person = Person:
+    println 'The person imitates a duck.'
+
+def feathers duck = Duck:
+    println 'The duck has white and gray feathers.'
+
+def feathers person = Person:
+    println 'The person takes a feather from the ground and shows it.'
+
+def name person = Person:
+    println self.name
+
+def inTheForest duck:
+    duck->quack->feathers
+
+def game:
+    let donald = Duck
+    let john = Person 'John Smith'
+    inTheForest donald >> john
+..
