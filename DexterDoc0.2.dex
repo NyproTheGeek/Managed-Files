@@ -24,18 +24,12 @@ SUBJECT DECLARATION & DEFINITION
     # just like subjects, objects can also be let or var
     # new objects assigned to let subjects are let by default
     # new objects assigned to var subjects are var by default
-    let beetle = var Car
-    var beetle = let Car
+    let beetle = var "BEETLE"
+    var mantle = let "MANTLE"
 
 	let b = 5 # covariant subject declaration.
 	let c <- 'OroboGenius' # dynamic subject declaration.
 	let d # uninitialized dynamic subject declaration.
-
-	# the difference between '=' and '<-' is only relevant in declarations
-	# they can be used interchangeably for other assignment operations.
-	# maybe in the future, '<-' will only be used with dynamic variables and '=' for covariant variables.
-	b <- 23
-	c = "Name"
 
 	var Ω = 5, δ = 6 # multiple subject definition.
 	let x, y, z
@@ -45,11 +39,11 @@ IDENTIFIERS
 	# can be followed with characters, digits or underscore.
 	# names must not end with an underscore
 	var name
-	def show_99_bottles_of_beer:
+	fun show_99_bottles_of_beer:
 		println lyrics
 
 	# by convention, names use camel case style
-	def createMeme:
+	fun createMeme:
 		println memes.[rand]
 
 	# by convention, subject and function names start with a lowercase character
@@ -64,20 +58,16 @@ ASSIGNMENT
 	let one, two = (1, 2) # one = 1, two = 2
 	let one & two = (1, 2) # one = (1, 2), two = (1, 2)
 
-	# Bracketless zero-arg constructors are for specifying types only.
- 	let count = Int # Int is not a constructor call here. It's a type specification.
+	# Bracketless zero-arg initializers are for specifying types only.
+ 	let count = Int # Int is not a initializer call here. It's a type specification.
 
-	let count = Int() # Int() is a constructor call here. count is initialized.
-
-	# elsewhere bracketless zero-arg constructor are constructor calls
-	a = Car # also Car()
-	print(Label) # also Label()
+	let count = Int.() # Int.() is a initializer call here. count is initialized.
 
 CONSTANTS
 	let b # deferred constant initialization
-	b <- 56
+	b = 56
 
-	let d = Int() # d == 0
+	let d = Int.() # d == 0
 	d = 10 # error!
 
 FUNCTION DEFINITION (1)
@@ -107,7 +97,7 @@ BLOCK DECLARATION
 		sum = 0
 		count = 0
 
-	def
+	fun
 		add a, b:
 			a + b
 
@@ -124,38 +114,37 @@ BLOCK DECLARATION
 
 
 EXPRESSION-ORIENTED
-	var isNyproCrazy <- faveHobby == 'CountingBirds' # returns true or false to isNyproCrazy
+	var isNyproCrazy = faveHobby == 'CountingBirds' # returns true or false to isNyproCrazy
 
-	def add(a, b):
+	fun add a, b:
 		a + b # 'return' is not needed here. result of a + b will be returned to the caller.
 	..
-	nypro.hieght = add(aditya.height, -tripleo.height)
+	nypro.hieght = add.(aditya.height, -tripleo.height)
 
 	# a semi-colon at the end of a block, stops it from returning its evaluated
 	# result
-	def setName(var p = Person, var name <- Str()):
+	fun setName var p, name:#:: Person, Str
 		p.name = name;
 	..
 
-	let name <- setName('John Smith') # error! setName returns no result.
+	let name = setName.('John Smith') # error! setName returns no result.
 
 SPECIFYING TYPES
 	var number = 5
-	var task <- Str('Create a programming language')
+	var todo <- Str.('Create a programming language')
 
 	let salary = Pay # type specification
-	salary = Pay(5_000, 12) # construction.
+	salary = Pay.(5_000, 12) # construction.
 
 	var identifier = Str|Int # optional type specification.
 
 	var address = Int = 506 # initialization
-	let job = Str() # default costruction.
-	let task = Str # same as above
+	let job = Str.() # default costruction.
 
 SOME BUILT-IN TYPES
 	var index = UInt = 2_000 # UInt represents unsigned integer; no negative values.
 
-	var debt <- Int = -100 # Int represents signed integer; you can have negative values.
+	var debt = Int = -100 # Int represents signed integer; you can have negative values.
 
 	let e = F64 = 2.718281828459045
 	let dogBreed <- Str = 'German Shepherd' # Str represents immutable UTF-8 string.
@@ -164,13 +153,13 @@ SOME BUILT-IN TYPES
 
 	var listOfGroceries = ['Oranges', 'Cabbages', 'Tomatos', 'Bananas'] # this is a list.
 
-	var game, year <- 'BioShock Infinite', 2014 # this is a tuple.
+	var game, year = 'BioShock Infinite', 2014 # this is a tuple.
 
 VALUES & REFERENCES
 	# by default primitive objects (UInt, Int, Float, Bool) are passed around by value and
 	# by default complex objects (Str, user-defined types) are passed around by reference.
 	var number = 502
-	var account <- .getAccount('Dumbledore')
+	var account <- getAccount.('Dumbledore')
 
 	# however, you can change this behavior with 'ref' and 'val'.
 	var newAccount = val account # passing a complex object by value.
@@ -179,46 +168,45 @@ VALUES & REFERENCES
 	# Dexter uses compile-time reference counting to manage memory, unlike Python or
 	# Javascript which use runtime tracing GC.
 	# It also does reference cycle breaking at compile-time. :)
-	myCompany.affiliate <- ref yourCompany
+	myCompany.affiliate = ref yourCompany
 	yourCompany.affiliate = ref myCompany
 
-	let myAccount = iso Account('Nypro')
+	let myAccount = iso Account.('Nypro')
 	# iso means only the subject can hold a reference to the object.
 
-	let player <- team.player
+	let trooperClone = acq trooper # acq is shallow copy operation.
+
+	let player = team.player
 
 	# you can specify a dynamic subject reference beforehand
-	let library <- iso
+	let library <- acq
 
-	def getAmount():
+	fun getAmount:
 		return rd amount
 	# 'rd' means an object is passed by reference, but it cannot be written to,
 	# only read from.
 
-	def swap!(var a = ref, var b = ref):
+	fun swap!(var a = ref, var b = ref):
 		a, b = b, a;
 	..
 
 NUMBERS
 	var index = 5
 	var axis = -3
-	let meters <- 0.25e-5
+	let meters = 0.25e-5
 	let salary = 10_000f
 	var color = 0x6FFF00p+12 # hex
 	var opCode = 0b10110001 # bin
-	var interest <- 0o566768 # oct
-    let pi = 3.14bf
+	var interest = 0o566768 # oct
+    let pi = 3.14bf # BigFloat
 
 ACCESS MODIFIERS
 	var money = 0 # subjects, functions, types, etc. are public by default.
-	var `laptopModel = 'HP Pavilion' # private to a module.
 
-	# hidden functions and fields are accessible only by a type's methods and fields
-	def .sub(a & b <- Num): a + b
+	fun `sub a, b: # becomes inaccessible outside module
+		a - b
 
-READ-ONLY/WRITE-ONLY ACCESS MODIFIERS # @INC
-	var wr `keep = []
-	let rd pi = 3.14
+	var *pi =  3.14 # becomes read-only outside module
 
 TUPLES
 	var name, age = 'Emeka Okorafor', 27 # this is an open tuple
@@ -227,9 +215,9 @@ TUPLES
     # game and year are assigned to 'Uncharted 4' and 2016 correspondingly.
 
 	# NOTE: an open tuple is passed by value, a closed tuple is not
-	name, age <- age, name
+	name, age = age, name
 
-	let make, year <- car.details()
+	let make, year = car.details.()
 
 	let index, car = 15, ('Ferrari', 1995) # car is a tuple.
 
@@ -239,67 +227,82 @@ TUPLES
 	let http200Status = (statusCode: 200, description: 'Ok')
 
 PROPERTIES
-	# properties provide getter/setter behavior, so that implementation
-	# of a subject can be flexible.
+	# properties provide getter/setter behavior.
 	var age =
 		set value:
-			age = value - 4
+			this = value # this refers to the property itself
 		get:
-			age
-		..
+			this
 
-    let name =
-        set value: name = value
-        get: !name.isEmpty ? name : firstname + lastname
+	# `this = <arg>` is always provided for set unless overridden.
+	# a closing `this` is always provided for get unless overridden.
 
-	var name, attribute = 'Daniel Olaniyan', 15
+	var age = set \\ get # same as above
+
+	var delegatedProperty =  set x: delegateSet \\ get: delegateGet
+
+LAZY EVALUATION
+	# an operation marked lazy will only execute on access, not before
+	let appComponent = lazy iso self.getAppComponent
+	var lazyField = lazy
+		set x: println "I'm lazy!"
 
 
 LISTS
 	var unorderedList = [7, 3, 8, 5, 4, 0, 9, 1, 2, 6]
 
-	var names <- [] # empty list
+	var emptyList =  []
+
+	var names = [Str] # list of type specified
 
 	var contestants = [Str]['Steve', 'Aditya', 'Sizwe', 'Pierre']
 
 	# Dexter uses 1-based indexing, so every list indices start at 1.
-	var disqualified = contestants.[mid:last] # 1st index to the 3rd index.
+	var disqualified = contestants.[1..4]
 
-	var reversed = contestants.[-1:] # -1 is the 1st index from behind, i.e. the last index.
-	# [-1:] means the last index to the 1st index.
+	var reversed = contestants.[-1..] # -1 is the 1st index from behind, i.e. the last index.
 
-	reversed.[2] # when indexing a list, there shouldn't be any space between
-	# the subject identifier and the open (square) bracket.
+	let myGarage = [Car][.('Mustang'), .('Eleanor'), .('Bugatti'), .('Lamborghini')]
 
-	let myGarage <- [Car][('Mustang'), ('Eleanor'), ('Bugatti'), ('Lamborghini')]
+	let yearSalary = [12 Int][] # you can specify a size for the list.
 
-	let yearSalary = [12 Int][] # you can specify a static size for the list.
+	yearSalary.[1..3] = [2_000, 2_000, 2_500]
 
-	yearSalary.[1..3] = [2_000, 2_000, 2_500] # you can assign to a range of indices.
+	let calendar = [12][]
 
+	# proposed operations with lists.
+	var concatenate = [1, 2] ++ [3] # [1, 2, 3]
+	var multiply = [1, 2] ** 2 # [1, 2, 1, 2]
+	let subtract = [1, 2, 3, 4, 3] -- [4, 3] # [1, 2]
+	let divide = [1, 2, 5, 6, 3, 4] // [5, 6] # [[1, 2], [3, 4]]
+
+MATRICES
+	# Dexter lists can be used as matrices
 	let a = [
 		1, 2
-		[3, 4, # This line is [3, 4, 5, 6]
+		[3, 4, # this line is [3, 4, 5, 6]
 		5, 6]
 	]
 
-	var matrix = [2*2 Int][
+	var matrix = [2 2 Int][
 		1, 0
 		0, 1
 	]
-	var column2 = matrix.[1:,2] # Content on row 1 to end, on column 2.
+	var column2 = matrix.[1.., 2] # content on row 1 to end, on column 2.
 
-	var matA = [2*age] [,] # 2 rows with unknown column length
+	var matA = [2 age] [,] # 2 rows with unknown column length
 
-	matA.[:,:] <- [
+	matA.[.., ..] = [
 		[1, 6, 3]
 		[3, 7, 4]
 	]
 
-	let subset = mat4.[1:, 1:2]
+	let subset = mat4.[1.., 1..2]
 	var matB = matA * 2
+
 	# vectorised operations
-	var matA = matB *. matC # dot here signifies an element-wise operation.
+	var matA = matB _* matC # the preceding `_` signifies an element-wise operation.
+	matA _dot matB
 
 	# Dexter's lists are by default, row-major order, but you can make it
 	# column major by using the transpose function
@@ -311,7 +314,7 @@ LISTS
 	# 2
 	# 3
 
-	let x <- y.[..2].tr
+	let x = y.[..2].tr
 
 	# splatting a list
 	let a = [
@@ -334,13 +337,6 @@ LISTS
 	# 1 2 1 0
 	# 0 4 2 4
 
-	# proposed operations with lists.
-	var concatenate = [1, 2] ++ [3] # [1, 2, 3]
-	var multiply <- [1, 2] ** 2 # [1, 2, 1, 2]
-	let subtract <- [1, 2, 3, 4, 3] -- [4, 3] # [1, 2]
-	let divide = [1, 2, 5, 6, 3, 4] // [5, 6] # [[1, 2], [3, 4]]
-
-
 DICTIONARIES
 	# dictionaries are basically key-value lists.
 	let family = [
@@ -352,15 +348,15 @@ DICTIONARIES
 			age : 46
 		sister:
 			name: 'Shade Williams'
-			$attribute.[0]: 15
-			# to a subject as a key, it should start with '$'
+			age: 15
 	]
 
 	let sisterName = family.['sister', 'name']
 
+	# to use variables from the outer scope, the variable name needs to be escaped wit `\`
 	var professor = [
-		$id1: 'Charles Xavier'
-		$id2: 56
+		\id1: 'Charles Xavier'
+		\id2: 56
 	]
 
 	var name = house.['dad', 'name']
@@ -372,7 +368,8 @@ DICTIONARIES
 	var class1Scores = testScores.['class room 1']
 
 	var contacts <- [:] # empty dictionary
-	var user = [2*2 Str User][:]
+	var user = [2 2 Str:User][:]
+	var scoreList = [Str:Int]
 
 LISTS, DICTS, INCLUSION, DIMENSIONS # NEEDS REVIEW !!!!!
     var a = [] # a list
@@ -382,8 +379,8 @@ LISTS, DICTS, INCLUSION, DIMENSIONS # NEEDS REVIEW !!!!!
     var z = [:,] # a dict containing a list
     var b = [,:] # a list containing another list, which contains a dict.
     var t = [12 Str Int] [:]
-    var u = [7*5 Str Str Int][::]
-    var u = [60*5 Str Int][:,]
+    var u = [7 5 Str Str Int][::]
+    var u = [60 5 Str Int][:,]
 
 OTHER TYPES OF LISTS
 	var range = [1..20] # range is a type of list
@@ -393,8 +390,8 @@ OTHER TYPES OF LISTS
 PACKING & UNPACKING
 	var list = [for x in 10: yield x] # [ ] turns a generator into a list.
 	var open = ...list # ... turns a generator, list or closed tuple to an open tuple.
-	var dict <- [:tuple] # [:] turns a closed tuple or a tuple generator to a table.
-	var closed <- (a, b, c) # turn an open tuple to closed tuple
+	var dict = [:tuple] # [:] turns a closed tuple or a tuple generator to a table.
+	var closed = (a, b, c) # turn an open tuple to closed tuple
 
 	let primes = [2, 3, 5, 7, 11]
 	let numbers = [2, 4, 8, ...primes]
@@ -402,9 +399,14 @@ PACKING & UNPACKING
 REST
     var a, ...b = 1, 2, 3, 4
 
-    def sum(a, ...b):
+    fun sum a, ...b:
         a + b.foldLeft 0, |a, b| => a + b
     ..
+
+RANGED VALUE
+	var lowercase = 'a'``'z'
+	lowercase = 'a'
+	lowercase = 'A' # error
 
 STRINGS
 	let language = 'Dexter'
@@ -419,7 +421,7 @@ STRINGS
 
 	# non-standard string literals preceded by characters are not affected
 	# by escape sequences, because they are processed verbatim.
-	var verbatimStr <- r."Use '\t' to represent tab"
+	var verbatimStr = r_"Use '\t' to represent tab"
 
 	# here string (DEPRECATED). first and last new lines are always ignored.
 	var verbatimStr = '''
@@ -431,56 +433,79 @@ STRINGS
 
 	# proposed operations with strings.
 	var concatenate = 'ab' + 'c' # 'abc'
-	var multiply <- 'ab' * 2 # 'abcabc'
-	let subtract <- 'abcac' - 'ca' # 'abc'
+	var multiply = 'ab' * 2 # 'abcabc'
+	let subtract = 'abcac' - 'ca' # 'abc'
 	let divide = 'abcdeabc' / 'de' # ['abc', 'abc']
 	let escapeSequences = '\t \n \' \" \[ \# \\'
 
-	var greeting <- # multiline string.
+	var greeting = # multiline string.
 	'Hello,'
 	'World!'
 
-MULTILINE EXPRESSIONS # @INC
+MULTILINE EXPRESSIONS
 	# expressions that spread accross multiple lines must be enclosed in brackets
-	# or used with an isolated dot ending the previous line.
-	var zero = - 100 .
+	# or used with an isolated three dots ending the previous line.
+	var zero = - 100 ...
 	+ 100
 
 	# notable exceptions :
 	# statements expecting a bock-begin punctuator ':'
 	if x < y
 	& a == b:
-		doTask()
+		doTask.()
 
 	# assignment operator
     var x =
-    25 + 6
+    	25 + 6 # should be indented
 
 	# fragmented string
 	var greeting = 'Hello,'
-	'World!'
+	' World!'
 
 	# comma operator
 	sum 1, 2, 3, 4, 5, 6, 7, 8,
 	9, 10, 11, 12
 
-INDENTATION # NEEDS REVIEW!!!!!!
-	let myName = nypro
-		->name
-		->strip!
-		->reverse!
-	->println
+BLOCK SCOPE
+	# a block represents a scope
+	let country = 'India'
+	block:
+		let country = 'Nigeria'
+		println country # Nigeria
 
+	println country # India
+
+	# multiple statements can be written on one line separated by semi-colons.
+	var temp = a ; a = b ; b = temp
+
+	# multiple blocks can also be written on the same line using the '\\' punctuator.
+	if studio.isLive: blockAccess \\ else: openAccess
+
+INDENTATION # NEEDS REVIEW!!!!!!
+	# Dexter is an indentation-based language
 	if x == y:
 		if a == b:
 			doTask
+	# indentation is used here to disambigute if-else association
 	else:
 		doNothing
+
+	let myName = " Nypro "
+		->trim!
+		->reverse!
+		# indented dot/arrow notation links with the argument of the previous  line.
+	->println
 
 	play music
 		'Asa',
 		'Jailer'
+		# arguments to function can be laid out on the next indented lines
 	.rewind 2
+
+	var x =
+    	25 + 6
+		# a continued line following an assignemnt operator should be indented
+
 
 SANDWICHED STATEMENTS
 	var faveSoccerClub =
@@ -488,44 +513,34 @@ SANDWICHED STATEMENTS
 
 	# you can sandwich multiple expressions where a single expression is expected.
 	# by putting them in brackets.
-	println('Hello, ', (println('World'); '!'))
+	println.('Hello, ', (println.('World'); '!'))
 	var add = ()
 
 IF STATEMENT
 	if isAdrianRich:
-		spendAll('on parties')
+		spendAll.('on parties')
 
 	elif isOroboRich:
-		spendAll('on legos')
+		spendAll.('on legos')
 
 	elif isSyconRich:
-		spendAll('on suits')
+		spendAll.('on suits')
 
 	else:
-		cry('we are broke')
+		cry.('we are broke')
 
 	if phoneNumber == nil:
-		useEmail()
+		useEmail.()
 
-	if var stockCode <- getStockCode('APPLE'): # block is evaluated if stockCode is not nil
-		println('APPLE: [stockCode]')
+	if let stockCode = getStockCode.('APPLE'): # block is evaluated if stockCode is not nil
+		println 'APPLE: [stockCode]'
 
-	if copy = getCopy():
-		println(copy)
-
-	# the nesting problem
-	# which 'if' does the 'else' belong
-	if x > y:
-		if y > z: _
-	else: _
-	# answer is the closest 'if'. To disallow this use a block-end punctuation
-	if x > y:
-		if y > z: _ ..
-	else: _
+	if copy = getCopy:
+		println copy
 
 	# nested if statements can be written together with their corresponding
 	# else statements stacked accordingly
-	if tim.age > 16 if car.state == 'good':
+	if tim.age > 16; if car.state == 'good':
 		tim.drive car
 	else:
 		raise Error 'Driver must over the age of 16'
@@ -539,27 +554,26 @@ NIL
 	var program = Str|Nil = 'println \"Hello World\"'
 	var anotherProgram = Str? = nil
 
-	# a nilable cannot be assigned to a non-nilable subject without a proper
-	# nil coalescing with a fallback value.
-	var programList = Str()?
-	var cartoonList <- [Str?][]
+	# a nilable cannot be assigned to a non-nilable subject without a proper nil coalescing with a fallback value.
+	var programList = Str.()?
+	var cartoonList = [Str?]
 
 	let profile = server
-		.user('Name')?{Account 'default'}
+		.user.('Name')?{Account 'default'}
 		.profile?{Profile 'default'}
 
-	if feeds: println('no feeds') # = if feeds equals nil or false.
+	if feeds: println 'no feeds' # = if feeds equals nil or false.
 
 	(getAccount "default")?
 
 	# nil-then-raise operator
-	getAccount("Default")?! # if result is nil, raise NilError
+	getAccount.("Default")?! # if result is nil, raise NilError
 	game.fix?!
 
 	if isRecieving == nil:
-		println('remote server stopped recieving')
+		println 'remote server stopped recieving'
 
-	let john <- Person dave?.name # unwrapping a nilable object
+	let john = Person dave?.name # unwrapping a nilable object
 
 	var isNight = true?
 
@@ -571,31 +585,32 @@ NIL
 
 CONDITIONS
 	# Dexter discourages reptition in conditional expression.
-	if x < y & y < z: doTask() # deprecation warning!
-	if x < y < z: doTask()
+	x < y & y < z # deprecation warning!
+	x < y < z
 
-	if x == y & y == z: doTask() # deprecation warning!
-	if x and y == z: doTask() # if both x and y equals z.
-	if x == y == z: doTask()
+	x == y & y == z # deprecation warning!
+	x and y == z # if both x and y equals z.
+	x == y == z
 
-	if x == y | y < z: doTask() # deprecation warning!
-	if x == y or < z: doTask() # if x equals y and also greater than z.
+	x == y | y < z # deprecation warning!
+	x == y or < z # if x equals y and also greater than z.
 
-	if x == y & a == b: doTask() # no warning
+	x == y & a == b # no warning
 
 	if x != y: println 'x does not equal y'
 	if x not in list: println 'x is not inside list'
 	if !x:  println 'x is not nil'
 
-    if a.trim == b.trim: doTask()
-	if |a == b|.trim: doTask()
+    a.trim == b.trim
+	|a == b|.trim
 
-	if x.trim and y.trim = z.trim: doTask()
-	if |x and y == z|.trim: doTask()
+	#:: Node -> Bool
+	fun isSymmetric node:
+		node.|right == left|.height
 
 FOR LOOP
 	for i in [1..10]:
-		println(i)
+		println i
 
 	let interestingNumbers = [
 		'prime' : 2, 3, 5, 7, 11, 13
@@ -604,7 +619,7 @@ FOR LOOP
 	]
 
 	for kind, number in interestingNumbers: # parallel pairing through a dictionary.
-		println('[kind]: [number]')
+		println '[kind]: [number]'
 
 	# an extra tuple param serves as the iteration index
 	for names, index in register:
@@ -617,68 +632,65 @@ FOR LOOP
 	for num in 50: num
 
 	for up, down in [1..20], [20..1]: # parallel pairing through ranges.
-		println('[up] <::> [down]')
+		println '[up] :: [down]'
 
-	for upper in [1..20] for lower in [1..20]: # @INC # nested iterations through ranges.
-		println('[upper] -:> [lower]')
+	for upper in [1..20]; for lower in [1..20]: # nested iterations through ranges.
+		println '[upper] :: [lower]'
 
 	for i in [1..20]:
 		i += 1 # error! immutable subject.
-		j <- i
+		j = i
 	..
 
 	for var i in [1..20]:
 		i += 1
-		j <- i
+		j = i
 	..
 
 	for _ in [1..fifty]:
 		println 'Hello'
 
 LIST COMPREHENSION
-	var oddList <- [for i in [1..20] where i .mod 2 != 0: yield x]
-	var oddList <- x || x <- [1..20] ~ x .mod 2 != 0
+	var oddList = [for i in [1..20] where i .mod 2 != 0: yield x]
+	var oddList = x || x <- [1..20] ~ x .mod 2 != 0
 	fun times: x * y || x <- [1..10]; y <- [20..1] ~ even y
 
 BLOCK SUBJECTS
 	for color in colors:
 		var hold i = 1 # a block subject's state persist for the duration of the loop.
-		println(i, color)
+		printl=i, color)
 		i += 1
 	..
 
-	def sum(list):
+	fun sum list:
 		var hold index = 1 # you can also have block subjects for recursive functions.
 		if x.size < 1:
 			return 0
 		else:
-			list.[index] + sum(list.[++index:])
+			list.[index] + sum.(list.[++index:])
 	..
 
-LABELS # @INC
-	# labels allow you to break out of or continue a specific loop or block or function.
-	for [class] class in classes:
+EXT
+	# `ext` is used to refer to the outside scope
+	for class in classes:
 		for student in students:
 			if student.position == 'captain':
-				record.save(student.name)
-				continue class
+				record.save.(student.name)
+				continue ext # refers to parent loop scope
 		..
 	..
 
-    # return using a label
-    def [addLabel] add a, b:
-        def [inner] _:
-            if a and b == 0:
-                return [addLabel] 0
-        a + b
+    fun add a, b:
+        fun plus:
+            if a and b > 0:
+                return ext a + b
+        plus
     ..
 
-	block [upper]:
-		if x > y:
-			play game
-		else:
-			break [upper]
-		save game
+	new view.addListener obj Listener:
+		fun onScroll view, dX, dY: #:: View?, Int, Int
+			scrollList.each |it| =>
+				it.invoke ext.self
 	..
 
 BREAK WITH
@@ -689,13 +701,13 @@ BREAK WITH
 
 IN
 	if student.name in defaulterList:
-		println('[student.name] hasn\'t paid yet. Contact parents')
+		println '[student.name] hasn\'t paid yet. Contact parents'
 
 	if 'ps4' not in birthdayPresents:
-		println('Aaargh! Everyone hates me')
+		println 'Aaargh! Everyone hates me'
 
 	if /dollar[s]?/ in sentence:
-		println('Change occurrences of "Dollar" to "Pound"')
+		println 'Change occurrences of "Dollar" to "Pound"'
 
 WHERE # @INC
 	# where is used to establish an extensive condition especially where it is
@@ -703,29 +715,29 @@ WHERE # @INC
 	if person in auditionRoster where person.mark > 40.0:
 		acceptanceList.add person
 
-	for book in library where book.title.contains('adventure'):
+	for book in library where book.title.contains.('adventure'):
 		personalLibrary.add book
 
 WHILE LOOP & LOOP
-	while file.hasNext():
-		println(file.next())
+	while file.hasNext:
+		println file.next
 	..
 	# loop
 	loop: # synonymous with while true
-		println('>>> ')
-		let input = scan()
-		let tokens = lex(input)
-		let ast = parse(tokens)
-		let bytecodes = compile(ast)
-		let result = interpret(bytecodes)
-		println(result)
+		println '>>> '
+		let input = scan
+		let tokens = lex input
+		let ast = parse tokens
+		let bytecodes = compile ast
+		let result = interpret bytecodes
+		println result
 
 	loop:
-		lines <- gen.readLine() # evaluated at least once.
-	while gen.hasNext()
+		lines = gen.readLine # evaluated at least once.
+	while gen.hasNext
 
-	while var user = genRandomUser():
-		println(user.name)
+	while var user = genRandomUser:
+		println user.name
 
 	while list.size > 0 for name in list:
 		print name, sp
@@ -743,39 +755,8 @@ TERNARY OPERATOR
 	# where a semicolon is expected
 	if a == (b > c ? b : c): print a
 
-BLOCKS AND LINES
-	# a block represents a scope
-	let country <- 'India'
-	block:
-		let country = 'Nigeria'
-		println country # Nigeria
-	..
-	println country # India
-
-	# block structures must be closed with a corresponding end punctuator '..'.
-	for color in colors:
-		var hold i <- 1
-		println(i, color)
-		++i
-	..
-
-	# but if the block only contains one line of statement, an end puntuator is
-	# not necessary.
-	def mul(a, b):
-		a * b
-
-	# a blocks statements can be defined on the same line as the block, with an
-	# optional end puntuator.
-	def div(a, b): a / b
-
-	# multiple statements can be written on one line separated by semi-colons.
-	var temp = a ; a = b ; b = temp
-
-	# multiple blocks can also be written on the same line using the '\\' punctuator.
-	if studio.isLive(): blockAccess() \\ else: openAccess()
-
 FUNCTION DEFINITION (2)
-	def multiply a, b:
+	fun multiply a, b:
 		a * b
 
 	# if a function returns nothing, it's return type may be `!` or left empty
@@ -784,7 +765,7 @@ FUNCTION DEFINITION (2)
 		println "Hello [name]"
 
 	# to make sure nothing is returned from a function you can use `;` to terminate an exit expression or `!` as the exit expression.
-	def effect mood:
+	fun effect mood:
 		if mood.isHappy:
 			happySong->play;
 		else:
@@ -794,8 +775,8 @@ FUNCTION DEFINITION (2)
 
 	# varargs.
 	#:: Int -> F64
-	def arithMean ...numbers:
-		var total <- 0d
+	fun arithMean ...numbers:
+		var total = 0d
 		for number in numbers:
 			total += number
 		total / numbers.size
@@ -805,13 +786,17 @@ FUNCTION DEFINITION (2)
 	arithMean 1, 2, 3, 4
 	arithMean.(1, 2, 3, 4)
 
+	# GOTCHA: this two function call return different results
+	toUppercase ('hello ' + name).toLowerCase
+	toUppercase.('hello ' + name).toLowerCase
+
 	# anonymous functions ae nameless fuinctions
 	# and they are excuted at the point its declared.
-	def _:
+	fun _:
 		return a + b
 
 	# the states of `keep` subjects are preserved between function calls.
-	def callCount:
+	fun callCount:
 		var keep count = 0
 		println '[count += 1]'
 
@@ -820,16 +805,16 @@ FUNCTION DEFINITION (2)
 
 	# functions that change values of arguments must be annotated with `!`.
 	#:: ref Person, ref Person
-	def swap! var a, b:
+	fun swap! var a, b:
 		a, b = b, a;
 
 	swap! john, jane
 
 	# when an argument name isn't given, they can be referred to with their argument notation
-	def add _, _: $1 + $2
+	fun add _, _: $1 + $2
 
 	# default parameter values and shared value with `&` binder
-	def login email & username & password = 'demo':
+	fun login email & username & password = 'demo':
 		access Account username, password
 
 	login.(_, 'nyprothegeek', 'bazinga!')
@@ -841,10 +826,17 @@ FUNCTION DEFINITION (2)
 
 	signUp username:'appcypher', password:'bazinga'
 
-	fun sendMessage message, .to.recipient:
+	fun sendMessage message, to.recipient:
 		println (message + recipient).toUppercase
 
 	sendMessage 'Hello', to:'Cantell'
+
+CONSECUTIVE CALL CHAIN
+	greet 'John'; greet 'Jane' ; greet 'Lagbaja'
+	greet 'John' >> 'Jane' >> 'Lagbaja'
+	greet->('John')->('Jane')->('Lagbaja')
+
+	list.getPerson 'Anthony', >> 'Barney', >> 'Rodney'
 
 FIRST-CLASS FUNCTIONS
 	# creating new functions from existing functions
@@ -863,152 +855,77 @@ FIRST-CLASS FUNCTIONS
 	fun compress image, f = (Int, Str -> Int):
 		f image
 
-FUNCTION PATTERN MATCHING
-
-BRACKETLESS CALL
-	def plus(a = Numero, b = Numero):
-		Numero a.value + b.value
-	def minus(a = Numero, b = Numero):
-		Numero a.value - b.value
-	def sum(...args = Numero):
-		Numero args.fold add$
-
-	var numero1 <- Numero 15
-	var numero2 <- Numero 70
-
-	var numero3 <- numero1 .plus numero2 .minus Numero(23) # bracketless function call
-	var numero4 <- numero1 .sum numero2, numero3 # tuple args passed to a bracketless
-	# sum
-
-	5 .plus 6 .minus 7 == 5.plus(6).minus(7) != 5.plus(6.minus(7))
-	5 .plus (6 .minus 7) == 5 .plus(6 .minus(7))
-
-	loop: println('>>>', scanln() .lex .parse .compile .interpret)
-
-	# using '(' and ')' to enccpasulate a bracketless call can make it more readable
-	profile ->(deleteContact 'Tosin', 'Tunde') ->changeAvatar '/album/grad/0123.png'
-
-	makeCar make:'Toyota', model:'Sienna', date:(Date 1, 1, 17)
-
-	# GOTCHAS to watch out for
-	# commas belong to the outermost function call
-	foo bar bin, ben # parsed as foo((bar bin), ben)
-	foo bar(bin, ben)
-
-	# a function always takes the closest brackets
-	print (bin + ben).size # parsed as '(print(bin + ben)).size'
-	print((bin + ben).size)
-
-	# when using operator names as a function call, always enclose it in brackets
-	foo + bar # parsed as '(foo + bar)'
-	foo +(bar)
-
-
-BRACKETLESS CALL VS ELEMENTWISE
-	var mA, mB = rand(5, 5)
-
-	mA + mB
-	mA * mB
-	mA.plus mB
-	mA .times mB
-
-	mA +. mB
-	mA *. mB
-	mA.plus. mB
-	mA .times. mB
-
-	mA.cross.(mB)
-	mA .cross. mB
-
-CONSECUTIVE CALL CHAIN
-    # consecutive call chain can nly be used with functions with one or more arguments
-	check(lhs); check('=') ; check(rhs) # can be shortened to
-	check(lhs) >> ('=') >> (rhs)
-
-	println 'Hello' >> '[name.isEmpty?'John Doe':name]' >> '!'
-
-	var e = Employee
-	e.setName 'Badmus' >> 'Travis' >> 'Gabriel'
-
-	# consecutive call chain tupling
-	let tony, barn, rod <-
-		list.getPerson 'Anthony', >> 'Barney', >> 'Rodney'
-
 FUNCTIONS AS ARGUMENTS & LAMBDAS
-	# a function can be passed as an argument.
-	let scoreListWithExtraMarks = scoreList.map(def _(score): score + 5)
-	let scoreListWithExtraMarks = scoreList.map(myFunc$)
+	let scoreListWithExtraMarks = scoreList.map (fun _ score: score + 5)
+	let scoreListWithExtraMarks = scoreList.map markFilter$ Int
 
-	fixtureList .filter |game| => !game.isCancelled
-	fixtureList .filter => !$1.isCancelled
-.
+	fixtureList.filter |game| => !game.isCancelled
+	fixtureList.filter => !$1.isCancelled
+
 	var pplBelow25 = census.filter |person| => (
         person.age += 1
         person.age < 25
     )
 
-	greet 45, => (
-		println "Hello"
-		println "World"
-	), true
-
-	var foo = def _(name): println 'Hi [name]'
-	var foo = |name| => println 'Hi [name]'
-	def foo(name): println 'Hi [name]'
-
 CLOSURE
 	# a closure is an inner function.
-	def genDBConnector(:host & :username & :password = Str):
-		def makeDBConection():
-			return db.connect(host, username, password) # a closure can be returned.
-		makeDBConection
+	fun genDBConnector .host, .username, .password:
+		return fun makeDBConection: # a closure can be returned.
+			db.connect.(host, username, password)
 	..
-	var dbCallback = genDBConnector(host:'localhost', username:'nypro', password:'willdiearobot')
+	var dbCallback = genDBConnector.(host:'localhost', username:'nypro', password:'willdiearobot')
 
-	# nameless closures are executed at point of definition.
-	def basicOps(number):
-		var calc = 0
-		def _():
-			calc += number
-			calc *= number
-			calc /= number
-			calc -= number
-		..
-		calc
-	..
-
-OUTER SUBJECTS
-	let state = 'Idle'
-
-	def changeState(state = Str):
-		if state != nil:
-			activateState(state)
-		else:
-			activateState(outer.state) # outer refers to the parent scope.
-	..
-
-COFUNCTIONS # @INC
-	def remove!(var list = [], index = Int):
+COFUNCTIONS
+	fun remove! var list, index:
 		list -= list.[index]
 
-	remove$ += refreshUI$ # attaching a cofunction to a generic overload.
-	emit movieList.remove(2) # emit is used to run the function along with its cofunctions.
+	(remove$ [F64], Int) += refreshUI$ # attaching a cofunction.
+	emit movieList.remove.(2) # emit is used to run the function along with its cofunctions.
 
-	remove$(List, Int) += refreshUI$ # attaching a cofunction to a specific overload.
+FUNCTION PATTERN MATCHING
+	fun fact 0: 1
+	fun fact n: n * fact n  - 1
+	fun head [x, ...y]: x
+	fun vecAdd (x, y), (a, b): (a + a, y + b)
+	fun keys [a:b]: a
+	fun range [a..b]: a, b
+	fun height 1``20: 10
+	fun add _, _: $1 + $2
+	fun fact \zero: 1 # bad idea! NEEDS REVIEW!!!!
 
-USEFUL FUNCTIONS # @INC
-	typeOf(24)
+	# named pattern
+	fun width x .1``20: println x
+	fun array all .[x, ...xs]: println all
+	fun integer num ./[-+]\d+/: Int num
+
+	# mixing pattern and parameters
+	#:: Int, Int -> Int
+	fun multiply x .1``1_000, y:
+		x * y
+
+EXT SUBJECTS
+	let state = 'Idle'
+
+	fun changeState state:
+		if state != nil:
+			activateState.(state)
+		else:
+			activateState.(ext.state) # ext refers to the parent scope.
+	..
+
+USEFUL FUNCTIONS
+	typeOf.(24)
 	size [1, 2, 3, 4] # size is a constant-time operation.
-	count("Hello, world!") # count may be a linear-time operation.
+	count.("Hello, world!") # count may be a linear-time operation.
 	iter array, 5 # array{5:3}
 	enumerate array # for x, y in array
 	map names, => $1 + ' '
-	filter(list, |a| => isPrime a)
+	filter.(list, |a| => isPrime a)
 	each list, => (println $1, ', ')
     eachIndex list, |i, e| => println "[i]: [e]"
 	noneMatch numbers, |a| => isEven a
-	printf('The circumference of a circle with radius 5 is %f', pi * 5^2)]
-	respondsTo(object, add$)
+	printf.('The circumference of a circle with radius 5 is %f', pi * 5^2)]
+	respondsTo.(object, add$)
 	getHighest list
 	getLowest list
 	getRank list, 21
@@ -1024,64 +941,59 @@ USEFUL CONSTANTS
 
 CACHED EXPRESSION
 # sometimes one needs to cache an expression for an iterative task, without declaring a variable.
-var num = 25
-for it in [1:*(num*2)]:
-	print it
+for i in [1..keep 35*2]:
+	println i
 
-MATCH EXPRESSION & CASE STATEMENT
-	# match statement is like switch-case.=
-	for char in chars:
-		match char
-		| '\0': println 'This is a null character'
-		# '|', '~' returns immediately after evaluating block.
-		# spill is used to go to the next with or where
-		~ isNumber(char): println 'This is a null character'; spill
-		~ isAlphabet(char): println('[char] is ascii')
-		~ isHangul(char): println('[char] is hindu')
-		~ _: #= default =# println "This is the default block"
-	..
-
-	# there's no need for a 'match' keyword if a match starts a function
-	def status message:
-		| Int: println message
-		| Started("Fail"): println message.info
-		| Started(info): println info # named match
-		| Started($info): println message.info # using an info subject from outer scope
-		| Terminated("Success"): println message.info
-
-	# same applies to loops and if bloocks
-	while turn != 'y' or 'Y' or 'n' or 'N':
-		| 'y' or 'Y': return 1
-        | 'n' or 'N': return 0
-        | _: print "its an invalid choice."
-
-	def opCodeDispatch(opCode = Str, args = [], var index & result = Int):
-		result <- 0
-        match opCode
-		| 'ADD' : return result = args.[index] + args.[++index]
-		| 'SUB' : return result = args.[index] - args.[++index]
-		| 'MUL' : return result = args.[index] * args.[++index]
-		| 'DIV' : return result = args.[index] / args.[++index]
+PATTERN MATCHING
+	# match block is like switch-case statement, and it matches against the expression on the previous line.
+	#:: Str, List, Int, Int -> _
+	fun opCodeDispatch opCode, args, var index & result:
+		result = 0
+        opCode
+		| 'ADD' : return result = args.[index] + args.[index += 1]
+		| 'SUB' : return result = args.[index] - args.[index += 1]
+		| 'MUL' : return result = args.[index] * args.[index += 1]
+		| 'DIV' : return result = args.[index] / args.[index += 1]
 		| 'EQ'  : return args.[index] == args.[index+1] ? index += 3 : spill
 		| 'JUMP' or 'SKIP' : index += args.[index += 2]
 		println 'Opcode error!'
 	..
 
+	# more pattern matching
+	char
+	| 'A'     : 'bing'
+	| \b      : 'bang'
+	| 'C'     : 'bung'
+	| 'D'``'E': 'beng'
+	| _       : 'bong'
+
+	# it can also match against the arguments of a function and loop
+	fun status message:
+		| Int: println message
+		| Started.("Fail"): println message.info
+		| Started.(info): println info # named match
+		| Started.(\info): println message.info
+		| Terminated.("Success"): println message.info
+
+	while turn != 'y' or 'Y' or 'n' or 'N':
+		| 'y' or 'Y': return 1
+        | 'n' or 'N': return 0
+        | _: print "its an invalid choice."
+
+
 COROUTINES # NEEDS REVIEW !!!!!!
 	# Coroutines run concurrently, but cannot run parallely.
-	def genRandRange(n = UInt):
-		yield rand().range n
+	fun genRandRange num:
+		yield rand.range num
 	..
 
-	for i in [1..10]:
-		yield i
-
 	var don = for i in [1..45]: yield i
-	let bin = don([..]) # synonymous with yield from
-	let bon = don([1..3])
+
+	let bin = don.([..]) # synonymous with yield from
+	let bon = don.([1..3])
 
 ASYNC AND AWAIT # NEEDS REVIEW !!!!!!
-	def asyn getPerson name:
+	fun asyn getPerson name:
 	    let p = await getPersonFromServer name.split /\s+/
 	    yield p->name, ->age
 	..
@@ -1090,231 +1002,238 @@ TASKS, also ACTORS # NEEDS REVIEW !!!!!!
 task Task:
 	var name, time = Str, Int
 
-	def init name:
+	fun init name:
 		self.name = name
-		self.time = random([1:1_000])
+		self.time = random.([1:1_000])
 
-	def task sleep:
+	fun task sleep:
 		println "[name] is sleeping for [time]ms"
 	    sleep time
 	    println "[name] is done"
 ..
 
 var
-	t1 = Task("Task-1") ->sleep
-	t2 = Task("Task-2") ->sleep
-	t3 = Task("Task-3") ->sleep
+	t1 = Task.("Task-1") ->sleep
+	t2 = Task.("Task-2") ->sleep
+	t3 = Task.("Task-3") ->sleep
 
 STREAM
-ones.twos.threes.collect
-collect(threes(twos(ones())))
+	ones.twos.threes.collect
+	collect.(threes.(twos.(ones.())))
 
-def ones: yield 1
-def twos(@Generator): yield gen + 2
-def threes(@Generator): yield gen + 3
+	fun ones: yield 1
+	fun twos generator: yield gen + 2
+	fun threes generator: yield gen + 3
 
-def collect(@Generator):
-    list = []
-    for i in gen: list .append i
-    list
-..
+	fun collect generator:
+	    list = []
+	    for i in gen: list .append i
+	    list
+	..
 
 TYPE DEFINITION
-	type Animal:
-		let name & kind = Str
-
-		def
-			init name, kind: # constructor
-				new name, kind
-
-			eat:
-				'Eating'
-
-			sleep:
-				'Sleeping'
-		..
-	..
-
-
-	# types in Dexter do not necessarily need to have their functions defined inside them.
-	# This allows for future extension of a type without touching the type's source code.
-
 	type Car:
 		var make, model = Str
-		let year = Int
-	..
 
-	def move(c = Car):
+	fun move car: #:: Car
 		"Moving"
 
-	# construtors that call new can only be defined in the same
-	# module as the type. Same applies to destructors.
-	def Car(make = Str):
-		new(make)
-		# new is a special function that creates a new object and maps
-		# the arguments to corresponding fields
-	..
+	# initializer
+	fun Car make, model: #:: Str
+		new.(make, model)
+	# new is a special function that creates a new object and maps
+	# the arguments to corresponding fields
 
-	def Car(maker, model, year)
-	def Car(~) # normal # called on Car object during destruction. # @INC
-	def Car(!) # exception # called on Car object during an exception. # @INC
-	type Person(var .name & age) # Person is a constructor type.
-	# Constructor types have just main constructor and the parameters
-	# of the constructor are mapped to fields.
+	fun Car maker, model, year
+	fun Car ~ # normal # called on Car object during destruction.
+	fun Car ! # exception # called on Car object during an exception.
 
-	var john = Person('John Connor', 23)
+	type Person var name & age # Person is a initializer type.
+	# Initializer types have just main initializer and the parameters
+	# of the initializer are mapped to fields.
 
-	type Lamp(color)
-	var yellowLamp = Lamp('Yellow') # Lamp subject declared with an initialization.
-	var blueLamp = Lamp # Lamp subject declared but not initialized.
-	blueLamp.color = 'Blue'
+	var john = Person.('John Connor', 23)
 
-FIELD ACCESS MODIFIERS
-	type Singleton:
-		# hidden fields can only be accessed by type's functions.
-		var keep .count = Int = 0
-		# the states of pinned fields persist throughout a type's lifetime, and that's
-		# the program's lifetime.
-		var keep .sole = Singleton
-		var value = Int
+	type Lamp var color
+	var yellowLamp = Lamp 'Yellow'
 
-		def .init:
-			if self.count == 0:
-				++count
-				return self.sole = new value
-			..
-			self.sole
-		..
-	..
+	# initializer overloading
+	fun Lamp:
+		Lamp 'White'
 
-	def Singleton(value = Int):
-		var x <- Singleton
-		x.value <- value
-	..
+	type DataProviderManager:
+		# a `keep` field is a type level field
+		let keep allDataProviders = get \\ set
+
+	# associated type
+	type Person.Pet var name & age
+
+	let pet = Person.Pet 'maddison', 2
 
 FIELD EXTENSION
-	type Programmer(specializedLanguages) <: Person:
-		let languages = [Str][]
+	type Programmer specializedLanguages <: Person:
+		let languages = [Str]
 
-	def main:
-		let orobogenius = Programmer
-		orobogenius.languages <- ["Java", "PHP", "JavaScript"]
+	let orobogenius = Programmer
+	orobogenius.languages = ["Java", "PHP", "JavaScript"]
 
-		let appcypher = [Programmer] ["Dexter", "Java", "C++", "Python"]
-		appcypher.+philosophies = ["Open Source", "Transhumanism"]
-		appcypher.+resume = "chicken.poop.com/appcypher"
-		appcypher.+mentor = "Captain Jack Sparrow")
-	..
+	let appcypher = Programmer ["Dexter", "Java", "C++"]
+	appcypher.+philosophies = ["Open Source", "Transhumanism"]
+	appcypher.+resume = "chicken.poop.com/appcypher"
+	appcypher.+mentor = "Captain Jack Sparrow"
 
-INHERITANCE # @INC
+	var nypro = appcypher
+
+TYPE EXTENSION
+	type Programmer specializedLanguages <: Person:
+		let languages = [Str]
+
+	# the `fork` keyword allows a type to be extended within a scope.
+	type fork Programmer:
+		var philosophies, resume, mentor
+
+INHERITANCE
 	type Animal
-	def sound(@Animal):
-		println('Nothing')
+	fun sound animal: #:: Animal
+		println 'Nothing'
 
 	type Bird <: Animal
-	def sound(@Bird): # overrides supertype function.
-		println('Chirp!')
+	fun sound bird: #:: Bird # overrides supertype function.
+		println 'Chirp!'
 
 	type Horse <: Animal:
-	def sound(@Horse):
-		println('Neigh!')
+	fun sound horse: #:: Horse
+		println 'Neigh!'
 
 	# Dexter supports multiple inheritance.
 	type Pegasus <: Horse, Bird:
-	def sound(@Pegasus):
-		Horse.sound(pegasus)
+	fun sound pegasus: #:: Pegasus
+		sound pegasus as Horse
 
 	# due to Dexter's multiple dispatch, Inheritance applies equally to all
 	# arguments of a function.
 	type A
 	type B <: A
 
-	def foo(a = A, x = X):..
-	def foo(b = B, x = X):.. # this overrides top
+	fun
+		foo a, x #:: A, X
+		foo b, x #:: B, X # this overrides top
 
-	def bar(x = X, a = A):..
-	def bar(x = X, b = B):.. # this also overrides top
+	fun
+		bar x, a #:: X, A
+		bar x, b #:: X, B # this also overrides top
 
 	# a super method can be called directly or by using super
-	def baz(x = X, a = A):..
+	fun baz x, b: #:: X, B
+		baz x, b as base
 
-	def baz(x = X, b = B):
-		baz(x, b as super)
+INITIALIZER TRAIN
+	# initializer train is the way Dexter ensures the initialization of all declared and inherited fields of a particular type.
 
-	def baz(x = X, b = B):
-		baz(x, b as A)
+	# it's basically about making each type responsible for the initialisation of the fields it introduced.
 
-	type Person(var name & gender = Str, age = Int)
+	type Person name
 
-	type Employee(var job & company = Str)<: Person
+	type Teacher name, subject <: Person
+	type Student name, course <: Person
+	# the initializer train of an initializer type is created automatically
 
-	def Employee(name, age, job, company):
-		new(Person(name, age), job, company) # construction merging.
+	type TeachingStudent <: Teacher, Student:
+		var schedule
 
-	def Employee(name, age, job, company):
-		new(super(name, age), job, company) # construction merging.
+	fun TeachingStudent name, subject, course, schedule:
+		new base.(name, subject : name, course), schedule
+		# (name, subject) is passed to Teacher
+		# (<delegated>, course) is passed to Student
 
-	def print p = Person: print p.name, p.age
-	def print e = Employee:
-		super.print # or print e as super
-		print sp, e.job, e.company
-	..
+	# a sub type should not assign to inherited fields in the initializer.
+	# if the compiler finds out an initializer doesn't initialize a field, it complains.
+
+DIAMOND PROBLEM
+	fun register teacher: #:: Teacher
+		staffList teacher.name
+
+	fun register student: #:: Student
+		studentList student.name
+
+	# when TeachingStudent type is declared, an ambiguity error will be issued about `register`.
+
+	# the function needs to be overridden
+	fun register teachingStudent: #:: TeachingStudent
+		staffList teachingStudent.name
+		studentList teachingStudent.name
+
+	var john = TeachingStudent 'John Smith'
+	john.register
+
+	# as a result of these MI issues, Dexter advocates favoring single inheritance and composition over multiple inheritance.
+
 
 ABSTRACT TYPES & FUNCTIONS # @INC
 	type abst Player # abstract types cannot be instantiated.
 
-	# a function without a body (apart from constructors) is an abstract function and
-	# an error is raised if it is called directly. An abstract function is expected to
-	# be implemented by a corresponding subtype function.
-	def play(pl = Player)
-	def rewind(pl = Player)
-	def fastForward(pl = Player)
+	# a function without a body (apart from initializers) is an abstract function and an error is raised if it is called directly.
+	# An abstract function is expected to be implemented by a corresponding subtype function.
+	fun play pl #:: Player
+	fun rewind pl #:: Player
+	fun fastForward pl #:: Player
 
 	type DigitalPlayer <: Player
-	def play(dpl = DigitalPlayer): # this overrides and implements play.
-		initPlaylist()
-		startPlaylist()
-	..
+	fun play dpl: #:: DigitalPlayer # this overrides and implements play.
+		initPlaylist
+		playPlaylist
 
 	# Here is an example using abstract types to simulate Algebraic Data Types.
 	type abst Tree
-	type Leaf(value = $T) <: Tree
-	type Node(l = Leaf, r = Tree) <: Tree
 
-	def sum(t = Tree):
+	#:: $T -> Leaf
+	type Leaf value <: Tree
+
+	#:: Leaf, Tree -> Node
+	type Node l, r <: Tree
+
+	#:: Tree -> _
+	fun sum t:
 		| Leaf: t.value
-		| Node: sum(t.l) + sum(t.r)
+		| Node: (sum t.l) + (sum t.r)
 	..
-	var x = Node(Leaf(1), Node(Leaf(2), Leaf(3)))
+
+	var x = Node.(Leaf.(1), Node.(Leaf.(2), Leaf.(3)))
 
 ANONYMOUS TYPES # @INC
 	# an anonymous type is a singleton with an ad hoc type definition.
 	# which include the type's fields and functions.
-	(
-	type _(state) <: Thread:
+	(obj Thread state:
 		var state = 'Paused'
-		def start:
-			println('Thread: [self.state]')
+		fun start:
+			println 'Thread: [self.state]'
 	..
-	)('Working')
+	).('Working')
 
-	var currentShow =
-		(type _(show, host)) 'DareDevil', 'Netflix'
+	var currentShow = (obj _ show, host) 'DareDevil', 'Netflix'
 
-	currentShow.show
+	println currentShow.host
+
+	window.addMouseListener obj MouseAdapter:
+		#:: MouseEvent
+		fun mouseClicked e: !
+		#:: MouseEvent
+		fun mouseEntered e: !
 
 TYPE CHECKING
 	if myCar :: Car:
-		println('myCar is a Car')
+		println 'myCar is a Car'
 
 	if myCar == Car:
-		println('myCar is a Car or its subtype')
+		println 'myCar is a Car or its subtype'
 
 	if myCar <: Car:
-		println('myCar is a supertype of Car')
+		println 'myCar is a supertype of Car'
 
-	if myCar >: Car:
-		println('myCar is a supertype of Car')
+	if myCar !>: Car:
+		println 'myCar is not a supertype of Car'
+
+	(head$ List) :: ([_] -> _)
 
 REFERENCE CHECKING
 	let a = Person 'John Smith', 25
@@ -1325,8 +1244,8 @@ REFERENCE CHECKING
 	(one =:= other) == (one.ref == other.ref) # true
 
 FUNCTION == METHODS (UFCS)
-	def show(p = Person):
-		println(self.name, self.age)
+	fun show p: #:: Person
+		println.(self.name, self.age)
 	..
 
 	show nigel
@@ -1339,168 +1258,141 @@ FUNCTION == METHODS (UFCS)
 		var name, uniqueID
 	..
 
-	def Robot(name, uniqueID):
-		new(name, uniqueID)
+	fun Robot name, uniqueID:
+		new name, uniqueID
 
 	var wall_e = Robot 'Wall•E', 215
 
 
-CALL CHAINING
+ACCESS CHAINING/SHRINKING
 	# return chain.
-	var result = 8.plus(6).minus(4).times(2)
+	var result = 8.plus.(6).minus.(4).times.(2)
 
 	# tail object chain
-	# a convenience syntax in which the intial associated object is returned to.
-	profile->open()->deleteMsgs()->close()
+	# a convenience syntax in which the intial associated object forms a long chain of access.
+	profile ->open ->deleteMsgs ->close
 
 	# returned object forwarding.
-	buffer ->resize!(13) ->fill!(0, $)
+	buffer ->resize!.(13) ->fill!.(0, $0)
 
 	# consecutive call chain
-	var e = Employee
-	e.setName 'Badmus' >> 'Travis' >> 'Gabriel'
-	e.setName 'Badmus'; e.setName 'Travis'; e.setName 'Gabriel'
+	var nameList = [Str]
+	nameList.add 'Badmus' >> 'Travis' >> 'Gabriel'
 
 	# chain tupling
 	var name, version = haskell ->name, ->version
-	var first, second = 8 + 1, >> + 45
-	let tony, barn, rod =
-		list.getPerson 'Anthony', >> 'Barney', >> 'Rodney'
+	var first, second = getPerson 'Seamus', >> 'Flinn'
 
 	# shared dot or arrow
 	|a == b|.size ? a : b
-	println |topEdit, bottomEdit|.getStr
+	println john.|name, addrress|.toUppercase
 
+COVARIANCE
+	type Person (name, age)
+	type Employee base.(name, age), job <: Person
+	type Teacher base.(name, age), course <: Person
 
-COVARIANCE  # @INC
-	type Person(name, age)
-	type Employee(super(name, age), job) <: Person
-	type Teacher(super(name, age), course) <: Person
-
-	def show(p = Person): # a covariant parameter can take a subtype too.
+	fun show p: #:: Person # a covariant parameter can take a subtype too.
 		println p.name, p.age
 
-	show Person('Tony Stark', 36)
-	show Employee('Peter Parker', 17, 'Photographer')
-	show Teacher('Diana Lane', 12, 'Biology')
+	show Person 'Tony Stark', 36
+	show Employee 'Peter Parker', 17, 'Photographer'
+	show Teacher 'Diana Lane', 12, 'Biology'
 
-	var people = [Person][Teacher(), Employee(), Employee(), Teacher()] # a covariant list.
-
-IMPLICIT CONVERSION # NEEDS REVIEW !!!!!!
-	# To be removed
-	var boolean = Bool = 8 % 2
-	var float = Float = false
-	false == 0.0 # = true
-	0 == 0.0 # = true
+	var people = [Person][Teacher.(), Employee.(), Employee.()] # a covariant list.
 
 TYPE CASTING
-	var radianInt = Int(2 * pi) # the resulting value Float of 2*pi is casted to Int.
+	var radianInt = Int.(2 * pi) # the resulting value Float of 2*pi is casted to Int.
 
-	# overloading a cast function.
-	def Employee(@Person):
-		Employee(self->name, ->age)
-	..
+	fun Employee person: #:: Person
+		Employee.(self->name, ->age)
 
-	var deitel = Person('Paul Deitel', 57)
+	var deitel = Person.('Paul Deitel', 57)
 	var editor = Employee dietel
 
 	var yearStr = Str 1990
 	let sorted = Int yearStr.sort!
 
-	def MyInteger num = F64: new(Int num)
+	#:: Float -> MyInteger
+	fun MyInteger num: new.(Int num)
 	let cost = (MyInteger price) * qty
 
 NAME ALIASES
 	type Number = Integer|Float|Complex
-	def cheb <- chebyshevCoefficient
+	fun cheb = chebyshevCoefficient
 	let pi = thisIsAPiConstant
 
-FUNCTIONS, TYPES, SUBJECTS
-	type T = Int
-	def foo = bar(5, 6)
+FUNCTIONS OBJECTS & SUBJECTS
+	fun foo = bar.(5, 6)
+
 	var
 		qux = 5
-		doo = bar$('a', 0)
-		day = F64$
+		doo = bar$.('a', 0)
 
-	def mix a:
-		| 1: Int
-		| 2: def add a, b: a + b
-		| 3: 25
-	..
+	fun mix a:
+		| 1: fun add a, b: a + b
+		| 2: 25
 
-	type Y = mix 1 # error
-	def von = mix 2 # error
-	let vim = mix 2 # ok
+	fun baz = mix 1 # error
+	var bin = mix 1
 
 MODULES AND IMPORTS
-	import com.example.(math pi, gcd, abs)
+	# when you import a module, every public member is imported into the namespace.
+	import
+		com.appy.BananaTree
+		com.nypro.[AppleTree, GuavaTreeTree]
 
-	import com.example.[(math pi, gcd, abs), (test scores, students)]
+	# if you want to import members namespaced
+	import
+		com.appy.BananaTree!
+		com.nypro.[AppleTree!, GuavaTree!]
 
-	import com.example.math ?
+	# import all
+	import
+		com.appy.BananaTree
+		com.nypro.[?]
 
-	import com.example.[?]
+	# import some
+	import
+		com.appy.BananaTree.(Trunk, grow)
+		com.nypro.[AppleTree.(Leaf, Apple), GuavaTree!.(grow, Seed)]
 
-	import com.example.math var, let, enum, type, def
+	# import by category
+	import com.appy.BananaTree.(var, let, fun, type)
 
-	import com.example.math var ! pi, e # this excludes the import of gcd and abs
+	# don't import
+	import com.appy.BananaTree.(fun : grow)
+	# names on the left of the `;` are not imported
 
-    import com.example.math pi = π, gcd = greatestCommonDivisor
+	# global subjects can only be passed by value from one module to another.
 
-	# global subjects and function subjects can only be passed by value from one module to another.
-
-GENERICS # @INC
-	def add(a & b & c = $T): # declaring a generic type T.
+GENERICS
+	# declaring a generic type T.
+	#:: $T<:Number, T, T -> T
+	fun add a, b, c:
 		var d = T
 		d = a + b + c
-	..
 
 	var sum = add{Int} 2, 4, 6
-	# if the generic parameter can be readily inferred, then a type argument
-	# can be ommited.
-	var sum = add(2, 4, 6)
+	# if the generic parameter can be readily inferred, then type argument can be ommited.
+	var sum = add 2, 4, 6
 
 	type MyList:
-		var list = [$T][]
+		let list = [len $T][]
+		let size = @len::Int # generic constant value.
 
-	# a function can use the generic type of any of its parameters' types.
-	def append(ml = MyList, item = $T of ml):
-		self.list += item
+	var list = MyList{Int, 5}
 
-	# a generic parameter that stands as a value of a particular type.
-    type MyList: # NEEDS REVIEW!!!!!!!
-        var length = $T($len::T)
+	#:: MyList{$T}, $U[MyList.U] -> T
+	fun getItem list, index:
+		list.[index]
 
-	var ch = MyList{Int, 5}
+	let identifier = $T<:Identfiable
 
-	type Table id:
-		var id = $len::?
-
-	var table = Table('Hi')
-
-	let parent = $S{<:Bone} # generic type S where S is a subtype of Bone.
-
-	let identifier = $T{::Str|Int} # generic type T where T is either Str or Int.
-
-	var image = $U{::Image{T}} # generic type U is exactly Image{T}.
-
-	def hello(msg = $T):
-		if T != Str:
-			println('wrong type, [T]')
-		else:
-			println('hello, [msg]')
-	..
+	var pegasus = $U(=Horse, =Bird)
 
 	var x = 10
-	let y = ${x} # this makes y have the same type as x
-
-
-	def secToMin(int = Integer, sec = Float):
-		$(int) sec / 60
-	..
-
-	Int.secToMin sec:24.45
+	let y = $(x) # this makes y have the same type as x
 
 TYPE OBJECTS # @INC
 	# unconventionally, Dexter has Type objects which can be held by subjects.
@@ -1512,7 +1404,7 @@ TYPE OBJECTS # @INC
 
 	Int <: Integer # true
 
-    def haveSameTypes(x, y):
+    fun haveSameTypes x, y:
         x and y == $(x)
     ..
 
@@ -1531,15 +1423,15 @@ ENUMS
 	using Days Sunday, Monday
 	hiding Days
 
-	def todo day = Days:
+	fun todo day = Days:
 		| Sunday: sleep
 		| Monday: work
 		| Friday: tgif
 	..
 
 	enum Integral:
-		UnsignedIntegral(value = Unsigned)
-		SignedIntegral(value = Signed)
+		UnsignedIntegral.(value = Unsigned)
+		SignedIntegral.(value = Signed)
 	..
 
 	# enums can have field too, which enum elements inherit
@@ -1563,13 +1455,13 @@ ENUMS
 	    Node left = Tree, right = Tree
 	..
 
-	def sum t = Tree:
+	fun sum t = Tree:
 	    | Leaf v: v
-	    | Node(l, r): sum(l) + sum(r)
+	    | Node.(l, r): sum.(l) + sum.(r)
 	..
 
 MODIFIER BLOCK
-	def
+	fun
 	    asyn foo zee:
 	        parametricAngular 35 / zee
 
@@ -1583,7 +1475,7 @@ MODIFIER BLOCK
 	var
 	    keep xafora = await foo
 	    norm generativePlug = yen 45.6 * pi
-	    hold fred = Person zenithName, zenithAge
+	    # hold fred = Person zenithName, zenithAge
 
 	type
 	    abst Pandora galacticConstellationNumber
@@ -1597,110 +1489,92 @@ MODIFIER BLOCK
 
 	    task NewTask
 
-OPERATOR OVERLOADING # @INC
-	call()
-	setIndex()
-	getIndex()
-
-    object->[1] # object->getIndex(1)
-    object->("Hi") # object->call("Hi")
-
+OPERATOR OVERLOADING
 	# special characters
 	# these are characters that cannot be combined with conventional identifier
 	# characters to form new identifiers. The only exclusions to this are
 	and, or, not, in # they can be used in conventional identifiers
 	# special operators are to be infixed without the dot notation.
 
-	operator "right", 20: # position, associtivity, precedence level
-	def <<<(stream = SumStream, num = Int): stream.add num
-	sum <<< 40_290 <<< 5 <<< 70
-
-	def =(r = Rango, list = List): self.populate = list
-	var x = Rango = [1, 2, 3, 4]
-
 	# indefinite characters
 	# these characters can only be used with other special characters of
 	# the same set to create new special identifier.
-	=, <-, +, -, *, /, ^, √, &, |, >, <, =(special chars),
+	= <- + - * / ^ √ & | > < =(special_chars)
 
 	# definite characters
 	# these group of characters cannot be overloaded as is, but can be combined
 	# to form new identifiers.
-	(special chars)=, ::, <:, >:, >>, <<, ., ~, =>, !
+	(special_chars)= :: <: >: >> << . ~ => !
 
 	# language-level characters
 	# this group of characters cannot be overloaded nor can they be combined
 	# with other special characters to form new characters.
-	->, ,, ., $,
+	-> , . $ || \\
 
-	# due to their special use in the laguage, some spcial characters cannot be overloaded as a postfix or prefix.
-	/, |
+	# reserved operstors
+	\ = prefix
+	| = prefix and postfix
+	/ = prefix and postfix
 
-	# overloading special characters
-	operator "postfix", 20:
-	def ++(n = Number): t = n ; ++n ; t
+	# you can call an operator like a function
+	println (+ 56)
+	println +.(56)
 
-	# calling an operator as a function
-	operator 'postfix', 57:
-	def +(n = Number): n = n.abs;
-	play (+ 56)
+	operator 40, "left", "infix":
+	#:: Rango, List{$A[Rango.T]}
+	fun = rango, list:
+		rango.populate = list
+	var x = Rango = [1, 2, 3, 4]
 
     # identifier characters can be used as operators must be surrounded by spaces.
     operator 20:
-    def ϵ(a, b):
+    fun ϵ(a, b):
         a in b
 
     if a ϵ b: println "Booyah!"
 
+	call.() # callable
+	getIndex.() # indexable
+
+	let greet, list = Greeter.(), MyList.(1, 2, 3)
+	greet.('Banji')
+	list.[3]
 
 TRY, CATCH & ENSURE
-	# try is optional
-	file->open('banana.png')->println([1..50])
-	catch _(err = Error):
-		| FileNotFoundError: printErr(err.msg)
-		| IndexOutOfBoundError: printErr(err.msg)
-	..
+	if numerator and denominator == 0:
+		raise DomainError.() # raising an exception.
 
-	# a catch function can only be defined after its call sites
-
-	process(bigData)`err
-	catch err divError = DivByZeroError:
+	process.(bigData)
+	catch _ divError: #:: DivByZeroError
 		println self.msg
 	ensure: # a catch can be accompanied by an ensure block.
-		rollBack(bigData)
-	..
+		rollBack.(bigData)
+
+	# explicit catch function call
+	f ->open.('banana.png')`ferr->write.('Hello')
+	catch ferr fnfe: #:: FileNotFoundError
+		println self.msg
 
 	# error coalescing
-	f ->open('banana.png')`ferr->write('Hello')
-	catch ferr(fnfe = FileNotFoundError): println self.msg
-	# after handling an error, the exec flow continues after the catch declaration.
-	# So it can be useful to redeclare a catch function.
-	f.open('banana.png')`ferr
-	# DO SOMETHING
-	catch ferr
-	# DO SOMETHING ELSE
-	catch ferr(fnfe = FileNotFoundError): println self.msg
-	ensure: f.close
-
 	memory.[name]`{0} # catch all
 	memory.[name]`{KeyNotFoundError|NoValueError: 0} # catch specific exceptions
 
-	try let f = open('/sdcard/db.sql'): # try's are used for managed resource
-		f.write(data)
+	# managed resource
+	try let f = open.('/sdcard/db.sql'):
+		f.write.(data)
 
 	# the normal try catch is supported
 	try:
-		f.open('banana.png')
-	catch @FileNotFoundError:
+		f.open.('banana.png')
+	catch _ err: #:: FileNotFoundError
 		print self.msg
 
-	if num and den == 0:
-		raise DomainError() # raising an exception.
 
-MACROS # @INC # NEEDS SYNTACTIC REVIEW !!!!!!!
+MACROS # NEEDS REVIEW !!!!!!!
 	# Dexter macros are resolved at parse time.
     # rather than using the AST, Dexter macros work on parse tree.
-	macro reverseExpression(binExpr = BinaryExpression):
+	#:: BinaryExpression
+	macro reverseExpression binExpr:
 		return binExpr->rhs, ->op, ->lhs
 
 	var half = reverseExpression 2 / 4
@@ -1761,7 +1635,7 @@ BUFFER TYPE
 	let int5 = Buffer{Int}(5)
 	# You can resize and also fill a buffer.
 	let buffer = Buffer{Int}(10, 10).fill!(0)
-	buffer ->resize!(1, 20) ->fill!(0, $)
+	buffer ->resize!(1, 20) ->fill!(0, $0)
 
 BASIC ARITHMETIC OPERATIONS
 	let t = 2 + 2
@@ -1770,7 +1644,7 @@ BASIC ARITHMETIC OPERATIONS
 	var w = 5 ~/ 2 # this returns a clamped Int result of the above
 	var x = 6 % 5
 	let y = 5i16 ^ 2_i8
-	let z = I8(√25)
+	let z = I8.(√25)
 
 INTEGER BITWISE FUNCTIONS
 	var x = 2 .bitand 5 # and
@@ -1780,7 +1654,7 @@ INTEGER BITWISE FUNCTIONS
 	var b = a .bitshl b # bit shift left
 	var c = b .bitshr a # bit shift right
 
-PREDEFINED TYPE HIERARCHY # @INC
+PREDEFINED TYPE HIERARCHY
 	Any
 		Type
 		Func
@@ -1807,10 +1681,10 @@ PREDEFINED TYPE HIERARCHY # @INC
 				Name Tuple
 		Generator
 
-COMPILER DEPENDENCIES
+POSSIBLE COMPILER DEPENDENCIES
 - libffi    (foreign function interface)
 - gmp       (bignum)
 - libprce   (regex)
-- libmill   (goroutines)
+# - libmill   (goroutines)
 
 # END

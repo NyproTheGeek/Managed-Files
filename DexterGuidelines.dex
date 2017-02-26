@@ -4,11 +4,13 @@ TABS VS SPACES
 - 2-space or 4-space indentation or single tab indentation only. No mix. 4-space indentation is advised though.
 - a reformatter comes with the compiler, that can reformat all source to any of the accepted indentation formats.
 - if there is a mix, a reformat notice will given.
+# EDIT: 26/02/17
+- Only 4-space indentation are allowed. No tabs allowed.
 
 
 # Dexter 0.2
 # 17/01/17
-SIGNIFICANT WHITESPACE
+SIGNIFICANT WHITESPACE (RESOLVED!)
 	foo[1]
 # is different from...
 	foo [1]
@@ -25,7 +27,7 @@ SIGNIFICANT WHITESPACE
 	foo [2]	| foo [2:1] # function call
 
 
-WHERE CALL BRACKETS ARE ACTUALLY NEEDED
+WHERE CALL BRACKETS ARE ACTUALLY NEEDED (RESOLVED!)
     foo([1]) # passing a one-element list to a single arg call
     foo [1] # this means something else
     foo((1 - 4).abs) # when bracketing the first agument of a function
@@ -34,7 +36,7 @@ WHERE CALL BRACKETS ARE ACTUALLY NEEDED
 
 # Astro 0.2
 # 29/12/16
-CALLING FUNCTIONS WITHOUT BRACKETS
+CALLING FUNCTIONS WITHOUT BRACKETS (RESOLVED!)
 - Nested Calls: Commas Belong To The Outer Functions
 	println(sum qty, price)
 	== println(sum(qty), price)

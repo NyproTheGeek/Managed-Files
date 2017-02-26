@@ -1,5 +1,41 @@
+# 26/02/17
+# Dexter 0.2 (30 SLOC)
+fun area:
+	loop:
+		let shape = scanln.("Enter a shape ('sq' for square, 'rec' for rectangle "
+		"and 'cir' for circle, 'ex' to exit): ").toLowercase.trim
+		| 'rec':
+			let length, breadth = scanInt "Enter length: ", >> "\nEnter breadth: "
+			drawRec length, breadth
+			println "\nArea of Rectangle: [length * breadth]\n\n"
+		| 'sq':
+			let length = scanInt "Enter length: "
+			drawRec length
+			println "\nArea of Square: [length ^ 2]\n\n"
+		| 'cir':
+			let radius = scanInt "Enter radius: "
+			println "\nArea of Rectangle: [pi * radius^2]\n\n"
+		| 'ex':
+			break
+		| _:
+			println "Gimme the correct input stupid!\n\n"
+
+fun drawSq length:
+	println sp, '_ ' * length
+	for i in [..length]:
+		println '|', sp * length, '\b\b|'
+	println '|', '_ ' * length, '\b\b|'
+
+fun drawRec length, breadth:
+	println sp, '_ ' * breadth
+	for i in [..length]:
+		println '|', sp * breadth, '\b\b|'
+	println '|', '_ ' * breadth, '\b\b|'
+
+area
+
 # 03/01/17
-# Astro0.2 (30 SLOC)
+# Astro0.2 (35 SLOC)
 func area:
 	loop:
 		let shape = {scanln "Enter a shape ('sq' for square, 'rec' for rectangle"
@@ -16,26 +52,30 @@ func area:
 		with 'cir':
 			let radius = Int scanln 'Enter radius: '
 			println '\[Diagram missing]' && '\nArea of Circle: [pi * radius^2]\n\n'
-		with 'ex': break
-		with: println 'Gimme the correct input stupid!\n\n'
+		with 'ex':
+			break
+		with:
+			println 'Gimme the correct input stupid!\n\n'
 	..
 ..
 
 func drawSq length:
 	println sp, '_ ' * length
-	for i in length: println '|', sp * length, '\b\b|'
+	for i in length:
+		println '|', sp * length, '\b\b|'
 	println '|', '_ ' * length, '\b\b|'
 ..
 
 func drawRec length, breadth:
 	println sp, '_ ' * breadth
-	for i in length: println '|', sp * breadth, '\b\b|'
+	for i in length:
+		println '|', sp * breadth, '\b\b|'
 	println '|', '_ ' * breadth, '\b\b|'
 ..
 
 area
 
-# Python (34 SLOC)
+# Python (33 SLOC)
 # 03/01/17
 from sys import stdout
 from math import pi

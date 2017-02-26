@@ -32,6 +32,15 @@
 	- When nameless parameters are used inappropriately (i.e. not in first params or enum element params)
 	- When there is adjacent repetition of subject names in a condition.
 
+-------------------TOOLCHAIN------------------------
+- WEB TARGET
+	- compiler.wasm
+	- starter.js
+	- web_lib.dex
+
+- LLVM TARGET
+	- compiler.exe
+	- lib.dex
 
 ------------------------- ASTS ---------------------
 # redesigned 16/01/17

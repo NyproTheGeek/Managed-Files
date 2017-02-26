@@ -1,3 +1,14 @@
+# 26/02/17
+# Dexter 0.2
+fun greet name:
+	println 'Hi [name]!'
+
+# 25/02/17
+# Dexter 0.2
+# CONSTRUCTOR TRAIN # TODO DOCUMENT
+fun MyType x, y, z, a, b:
+	new.(base.(x \ y, z \ a), b) # constructor train
+
 # 24/02/17
 # Dexter 0.2
 #########################
@@ -10,7 +21,7 @@ var primes = for x in [2:]:
         yield x
 
 var primes = x || x <- [2..] ...
-~ (for y in [2..keep root x]: x .mod y == 0 ? break false : true)
+~ for y in [2..keep root x]: x .mod y == 0 ? break false : true
 #########################
 #########################
 
@@ -361,21 +372,21 @@ Int() # construction
 foo + bar # when you actually mean foo (+ bar)
 foo (bar + qux).size # when you actually mean foo((bar + qux).size)
 
-# LIST # TODO DOCUMENT
+# LIST
 var x = [Int]
 var y = [20 400 Int Str]
 var z = [26][]
 
-# TYPE CHECKING # TODO DOCUMENT
+# TYPE CHECKING
 (in$ 5b, [5b, 6b]) :: $T<:Comparable, [T] -> Bool
 head$ [1, 2] :: [_] -> _
 
-# GENERICS # TODO DOCUMENT
+# GENERICS
 var x = $T<:Comparable
 var t = $T=Int|Str
 var r = @len::Int
 
-# FUNCTION SIGNATURE # TODO DOCUMENT
+# FUNCTION SIGNATURE
 let func = ($T, T -> Bool)
 def plus = add
 let plus = add$
@@ -386,7 +397,7 @@ let plus = add$
 if x == y: true \\ else: false
 x == y ? true : false
 
-if (x == y? true : false):
+if (x == y ? true : false):
 	print "Hello"
 
 
